@@ -57,6 +57,7 @@ div.content {
 }
 
 div.box {
+	margin-top: 10px;
 	background-color: #e9e2d0;
 	border: 1px solid grey;
 }
@@ -69,6 +70,7 @@ div.box div.details {
 	font-size: 0.9em;
 	color: #685c3d;
 	padding: 0px;
+	margin-bottom: 10px;
 }
 
 div.box div.details div {

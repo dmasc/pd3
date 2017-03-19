@@ -10,7 +10,7 @@ public class TopicModel {
 	
 	private LocalDateTime deadline;
 	
-	private UserModel author;
+	private String author;
 	
 	private int participants;
 
@@ -38,11 +38,11 @@ public class TopicModel {
 		this.deadline = deadline;
 	}
 
-	public UserModel getAuthor() {
+	public String getAuthor() {
 		return author;
 	}
 
-	public void setAuthor(UserModel author) {
+	public void setAuthor(String author) {
 		this.author = author;
 	}
 

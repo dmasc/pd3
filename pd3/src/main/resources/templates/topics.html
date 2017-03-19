@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html layout:decorator="layout/default" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html layout:decorator="layout/default" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:spring="http://www.springframework.org/tags">
 <head>
 	<title>&Uuml;bersicht Abstimmungen</title>
 </head>
@@ -7,7 +7,11 @@
 <body>
 
 	<div layout:fragment="content" class="content">
-	    <div class="box" th:each="topic : ${topics}">
+		<div>
+			<a th:href="@{/topic-overview(page=${page.number - 1})}" th:if="${not page.first}">Zurück</a>
+			<a th:href="@{/topic-overview(page=${page.number + 1})}" th:if="${not page.last}">Weiter</a>
+		</div>
+	    <div class="box" th:each="topic : ${page.content}">
 	    	<div class="title" th:text="${topic.title}"></div>
 	    	<div>
 	    		<div class="details"><div th:text="'Author: '+${topic.author}"></div><div th:text="'Teilnehmer: '+${topic.participants}"></div>

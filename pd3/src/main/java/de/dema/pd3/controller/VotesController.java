@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import de.dema.pd3.model.TopicModel;
 import de.dema.pd3.model.UserModel;
 import de.dema.pd3.persistence.UserRepository;
+import de.dema.pd3.persistence.VoteRepository;
 
 @Controller
 public class VotesController {
@@ -23,6 +24,9 @@ public class VotesController {
 	@Autowired
 	private UserRepository userRepo;
 	
+	@Autowired
+	private VoteRepository voteRepo;
+	
     @GetMapping("/votes")
     public String votesOverview(Model model) {
     	TopicModel vote = new TopicModel();
@@ -31,7 +35,6 @@ public class VotesController {
     	log.info(String.valueOf(auth.getDetails()));
     	UserModel author = new UserModel();
     	author.setName("Franz Remmenscheid");
-    	vote.setAuthor(author);
     	vote.setTitle("Das ist der Titel der Abstimmung");
     	vote.setDeadline(LocalDateTime.now().plusDays(47L));
     	vote.setParticipants(259);

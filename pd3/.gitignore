@@ -1,5 +1,11 @@
 target/
+.mvn/
+
 !.mvn/wrapper/maven-wrapper.jar
+/mvnw
+/mvnw.cmd
+/pd3.mv.db
+/pd3.trace.db
 
 ### STS ###
 .apt_generated
@@ -22,7 +28,3 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
-/mvnw
-/mvnw.cmd
-/pd3.mv.db
-/pd3.trace.db
