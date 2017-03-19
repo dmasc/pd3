@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 
 @Entity
@@ -22,6 +23,7 @@ public class Topic implements Serializable {
 	private String title;
     
     @Column(nullable = false)
+    @Lob
 	private String description;
     
     @ManyToOne
