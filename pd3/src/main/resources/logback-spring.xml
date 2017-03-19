@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+<!-- 	<include resource="org/springframework/boot/logging/logback/defaults.xml" /> -->
+
+	<appender name="logpageAppender" class="ch.qos.logback.ext.spring.DelegatingLogbackAppender"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+        <appender-ref ref="logpageAppender" />
+    </root>
+
+
+    <logger name="de.dema" level="DEBUG"/>
+<!--     <logger name="org.springframework.web" level="DEBUG"/> -->
+<!--     <logger name="net.jawr" level="DEBUG"/> -->
+
+</configuration>

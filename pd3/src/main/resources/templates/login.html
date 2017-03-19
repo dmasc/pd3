@@ -1,0 +1,17 @@
+<html layout:decorator="layout/default" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+	<title>Login</title>
+</head>
+
+<body>
+
+	<div layout:fragment="content" class="content">
+		<form action="#" th:action="@{/login}" method="post">
+			Email-Adresse: <input type="text" name="username" autofocus="autofocus" /><br/>
+			Passwort: <input type="password" name="password" /><br/>
+			<input type="submit" value="Einloggen" />
+		</form>
+	</div>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html layout:decorator="layout/default" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+	<title>&Uuml;bersicht Abstimmungen</title>
+</head>
+
+<body>
+
+	<div layout:fragment="content" class="content">
+	    <div class="box" th:each="topic : ${topics}">
+	    	<div class="title" th:text="${topic.title}"></div>
+	    	<div>
+	    		<div class="details"><div th:text="'Author: '+${topic.author.name}"></div><div th:text="'Teilnehmer: '+${topic.participants}"></div>
+	    		<div th:text="'Deadline: '+${{topic.deadline}}"></div></div>
+	    		<span th:utext="${topic.description}"></span>
+	    	</div>
+	    </div>
+	</div>
+
+</body>
+</html>

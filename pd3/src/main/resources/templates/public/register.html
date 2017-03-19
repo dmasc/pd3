@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html layout:decorator="layout/default" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+	<title>Registrieren</title>
+</head>
+
+<body>
+
+	<div layout:fragment="content" class="content">
+	    
+		<form action="#" th:action="@{/public/register}" th:object="${reguser}" method="post">
+			<label>E-Mail-Adresse:</label><input type="text" th:field="*{email}" /><br/>
+			<label>Passwort:</label><input type="password" th:field="*{password}" /><br/>
+			<label>Passwort wiederholen:</label><input type="password" th:field="*{passwordRepeat}" /><br/>
+			<label>Vorname:</label><input type="text" th:field="*{forename}" /><br/>
+			<label>Nachname:</label><input type="text" th:field="*{surname}" /><br/>
+			<label>Straße und Hausnummer:</label><input type="text" th:field="*{street}" /><br/>
+			<label>PLZ/Ort:</label><input type="text" th:field="*{zip}" /><input type="text" th:field="*{district}" /><br/>
+			<label>Telefon:</label><input type="text" th:field="*{phone}" /><br/>			
+			<label>Geburtsdatum (TT.MM.JJJJ):</label><input type="text" th:field="*{birthday}" /><br/>
+			<label>Personalausweisnummer:</label><input type="text" th:field="*{idCardNumber}" /><br/>
+			<input type="submit" value="Registrieren" />			
+		</form>
+		
+	</div>
+
+</body>
+</html>

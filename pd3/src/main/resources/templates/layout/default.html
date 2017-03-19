@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+	<title layout:title-pattern="$DECORATOR_TITLE - $CONTENT_TITLE">PD3</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<!-- 	<script th:src="@{/webjars/jquery/jquery.min.js}"></script> -->
+    <link rel="stylesheet" type="text/css" href="/css/base.css" th:href="@{/css/base.css}" />
+</head>
+
+<body>
+
+	<div class="header"><div class="headercontent"><div class="headline">Partei Der Direkten Demokratie</div></div></div>
+	<div class="menu"><a href="/">Home</a> | <a href="/public/register">Registrieren</a> | <a href="/topic-overview">Übersicht Abstimmungsthemen</a> | <a href="/db">Datenbank</a>  | <form sec:authorize="isAuthenticated()" id="logoutform" th:action="@{/logout}" method="post">
+            <a href="#" onclick="document.getElementById('logoutform').submit();">Logout</a></form></div>
+
+	<div layout:fragment="content" class="content">
+
+	</div>
+
+</body>
+</html>
