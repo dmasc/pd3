@@ -1,21 +1,24 @@
 package de.dema.pd3;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Random;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import de.dema.pd3.persistence.Comment;
 import de.dema.pd3.persistence.CommentRepository;
 import de.dema.pd3.persistence.Topic;
 import de.dema.pd3.persistence.TopicRepository;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Random;
 
 @Component
 public class TestDataCreator {
@@ -31,30 +34,35 @@ public class TestDataCreator {
 	@Autowired
 	private TopicRepository topicRepo;
 	
+	@Value("${testdata:false}")
+	private boolean shouldCreateTestData;
+	
 	private Random r = new Random();
 	
 	@PostConstruct
 	public void createData() {
-		log.info("creating test data...");
-		User author = new User();
-		author.setBirthday(LocalDate.now().minusYears(57).plusMonths(4));
-		author.setDistrict("Hamburg");
-		author.setEmail("a");
-		author.setForename("Franz");
-		author.setIdCardNumber("T220001293");
-		author.setPassword("");
-		author.setPhone("0171-1234567");
-		author.setStreet("Herbert-Weichmann-Straße 117");
-		author.setSurname("Remmenscheid");
-		author.setZip("21709");
-		userRepo.save(author);
-
-		for (int i = 0; i < 25; i++) {
-			Topic topic = createTopic(author);
-			topic = topicRepo.save(topic);
-			createComments(topic, author, 3, 4, null);
+		if (shouldCreateTestData) {
+			log.info("creating test data...");
+			User author = new User();
+			author.setBirthday(LocalDate.now().minusYears(57).plusMonths(4));
+			author.setDistrict("Hamburg");
+			author.setEmail("a");
+			author.setForename("Franz");
+			author.setIdCardNumber("T220001293");
+			author.setPassword("");
+			author.setPhone("0171-1234567");
+			author.setStreet("Herbert-Weichmann-Straße 117");
+			author.setSurname("Remmenscheid");
+			author.setZip("21709");
+			userRepo.save(author);
+	
+			for (int i = 0; i < 25; i++) {
+				Topic topic = createTopic(author);
+				topic = topicRepo.save(topic);
+				createComments(topic, author, 3, 4, null);
+			}
+			log.info("creating test data finished");
 		}
-		log.info("creating test data finished");
 	}
 
 	private Topic createTopic(User author) {
