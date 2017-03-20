@@ -1,23 +1,21 @@
 package de.dema.pd3;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Random;
-
-import javax.annotation.PostConstruct;
-
-import org.apache.commons.lang3.RandomStringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import de.dema.pd3.persistence.Comment;
 import de.dema.pd3.persistence.CommentRepository;
 import de.dema.pd3.persistence.Topic;
 import de.dema.pd3.persistence.TopicRepository;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Random;
 
 @Component
 public class TestDataCreator {
@@ -62,8 +60,8 @@ public class TestDataCreator {
 	private Topic createTopic(User author) {
 		Topic topic = new Topic();
 		topic.setAuthor(author);
-		topic.setCreationDate(LocalDateTime.now().minusDays(r.nextInt(365)));
-		topic.setDeadline(LocalDateTime.now().plusDays(r.nextInt(182)));
+		topic.setCreationDate(LocalDateTime.now().minusDays(r.nextInt(365)).minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
+		topic.setDeadline(LocalDateTime.now().plusDays(r.nextInt(182)).plusHours(r.nextInt(24)).plusMinutes(r.nextInt(60)));
 		topic.setDescription(createRandomText(500));
 		topic.setTitle(createRandomText(r.nextInt(140) + 20));
 		return topic;

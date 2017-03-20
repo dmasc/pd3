@@ -7,18 +7,22 @@
 <body>
 
 	<div layout:fragment="content" class="content">
-		<div>
-			<a th:href="@{/topic-overview(page=${page.number - 1})}" th:if="${not page.first}">Zurück</a>
-			<a th:href="@{/topic-overview(page=${page.number + 1})}" th:if="${not page.last}">Weiter</a>
+		<div class="paging">
+			<a th:href="@{/topic-overview(page=${page.number - 1})}" th:classappend="${page.first}?disabled">Zurück</a>
+			<a th:href="@{/topic-overview(page=${i})}" th:each="i : ${#numbers.sequence(minPagingIndex, maxPagingIndex)}" th:text="${i + 1}"
+                th:classappend="${page.number eq i}?disabled"></a>
+			<a th:href="@{/topic-overview(page=${page.number + 1})}" th:classappend="${page.last}?disabled">Weiter</a>
 		</div>
-	    <div class="box" th:each="topic : ${page.content}">
-	    	<div class="title" th:text="${topic.title}"></div>
-	    	<div>
-	    		<div class="details"><div th:text="'Author: '+${topic.author}"></div><div th:text="'Teilnehmer: '+${topic.participants}"></div>
-	    		<div th:text="'Deadline: '+${{topic.deadline}}"></div></div>
-	    		<span th:utext="${topic.description}"></span>
-	    	</div>
-	    </div>
+        <a th:href="@{/topicdetails(id=${topic.id})}" th:each="topic : ${page.content}" class="undecorated">
+            <div class="box">
+                <div class="title" th:text="${topic.title}"></div>
+                <div>
+                    <div class="details"><div th:text="'Author: '+${topic.author}"></div><div th:text="'Teilnehmer: '+${topic.participants}"></div>
+                    <div th:text="'Deadline: '+${{topic.deadline}}"></div></div>
+                    <span th:utext="${topic.description}"></span>
+                </div>
+            </div>
+        </a>
 	</div>
 
 </body>

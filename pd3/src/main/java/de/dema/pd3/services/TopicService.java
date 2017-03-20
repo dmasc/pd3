@@ -1,5 +1,11 @@
 package de.dema.pd3.services;
 
+import de.dema.pd3.model.TopicModel;
+import de.dema.pd3.persistence.Topic;
+import de.dema.pd3.persistence.TopicRepository;
+import de.dema.pd3.persistence.User;
+import de.dema.pd3.persistence.UserRepository;
+import de.dema.pd3.persistence.VoteRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,10 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.dema.pd3.model.TopicModel;
-import de.dema.pd3.persistence.Topic;
-import de.dema.pd3.persistence.TopicRepository;
-import de.dema.pd3.persistence.VoteRepository;
+import java.time.LocalDateTime;
 
 @Service
 public class TopicService {
@@ -23,22 +26,50 @@ public class TopicService {
 
 	@Autowired
 	private VoteRepository voteRepo;
-	
-	@Transactional(readOnly = true)
-	public Page<TopicModel> getRunningTopics(Pageable page) {
-		Page<Topic> topicsPage = topicRepo.findAllWhereDeadlineGreaterNow(page);
-		return topicsPage.map(entity -> mapTopic(entity));
+
+    @Autowired
+    private UserRepository userRepo;
+
+    @Transactional(readOnly = true)
+	public Page<TopicModel> getRunningTopics(Pageable page, User user) {
+		Page<Topic> topicsPage = topicRepo.findAllWhereDeadlineGreaterNowAndUserHasntVotedYet(user, page);
+		return topicsPage.map(this::mapTopic);
 	}
 
-	private TopicModel mapTopic(Topic topic) {
-		TopicModel model = new TopicModel();
-		model.setAuthor(topic.getAuthor().getForename() + " " + topic.getAuthor().getSurname());
-		model.setDeadline(topic.getDeadline());
-		model.setDescription(topic.getDescription());
-		model.setParticipants(voteRepo.countByVotePkTopic(topic));
-		model.setTitle(topic.getTitle());
-		
-		return model;
+	public TopicModel loadTopic(Long id) {
+		Topic topic = topicRepo.findOne(id);
+		return mapTopic(topic);
 	}
-	
+
+    public TopicModel save(TopicModel topicModel, String userEmail) {
+        Topic topic;
+        if (topicModel.getId() != null) {
+            topic = topicRepo.findOne(topicModel.getId());
+        } else {
+            topic = new Topic();
+            topic.setAuthor(userRepo.findByEmail(userEmail));
+            topic.setCreationDate(LocalDateTime.now());
+        }
+
+        topic.setDeadline(topicModel.getDeadline());
+        topic.setDescription(topicModel.getDescription());
+        topic.setTitle(topicModel.getTitle());
+
+        topic = topicRepo.save(topic);
+        topicModel.setId(topic.getId());
+        return topicModel;
+    }
+
+    private TopicModel mapTopic(Topic topic) {
+        TopicModel model = new TopicModel();
+        model.setAuthor(topic.getAuthor().getForename() + " " + topic.getAuthor().getSurname());
+        model.setDeadline(topic.getDeadline());
+        model.setDescription(topic.getDescription());
+        model.setId(topic.getId());
+        model.setParticipants(voteRepo.countByVotePkTopic(topic));
+        model.setTitle(topic.getTitle());
+
+        return model;
+    }
+
 }

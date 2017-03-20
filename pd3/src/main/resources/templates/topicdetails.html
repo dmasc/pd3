@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html layout:decorator="layout/default" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:spring="http://www.springframework.org/tags">
+<head>
+	<title>Ansicht Abstimmung</title>
+</head>
+
+<body>
+
+	<div layout:fragment="content" class="content">
+	    <div class="box" th:object="${topic}">
+	    	<div class="title" th:text="*{title}"></div>
+	    	<div>
+	    		<div class="details"><div th:text="'Author: '+*{author}"></div><div th:text="'Teilnehmer: '+*{participants}"></div>
+	    		<div th:text="'Deadline: '+*{{deadline}}"></div></div>
+	    		<span th:utext="*{description}"></span>
+	    	</div>
+			<div class="footer">
+				<form action="#" th:action="@{/topic/vote}" method="post">
+					<input type="hidden" name="topicId" th:value="*{id}" />
+					<input type="submit" name="voteYes" value="Ja" />
+					<input type="submit" name="voteNo" value="Nein" />
+				</form>
+			</div>
+	    </div>
+	</div>
+
+</body>
+</html>

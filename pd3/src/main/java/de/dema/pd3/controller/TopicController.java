@@ -1,18 +1,23 @@
 package de.dema.pd3.controller;
 
+import de.dema.pd3.model.TopicModel;
+import de.dema.pd3.persistence.User;
+import de.dema.pd3.persistence.UserRepository;
+import de.dema.pd3.services.TopicService;
+import de.dema.pd3.services.VoteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import de.dema.pd3.model.TopicModel;
-import de.dema.pd3.persistence.VoteRepository;
-import de.dema.pd3.services.TopicService;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class TopicController {
@@ -23,14 +28,63 @@ public class TopicController {
 	private TopicService topicService;
 	
 	@Autowired
-	private VoteRepository voteRepo;
+	private VoteService voteService;
+
+	@Autowired
+    private UserRepository userRepo;
 	
 	@GetMapping("/topic-overview")
-	public String topicOverviewPage(Model model, @PageableDefault(sort = "deadline", size = 10) Pageable pageable) {
-		Page<TopicModel> page = topicService.getRunningTopics(pageable);
+	public String topicOverview(Model model, @PageableDefault(sort = "deadline", size = 10) Pageable pageable, Authentication auth) {
+        User user = userRepo.findByEmail(auth.getName());
+		Page<TopicModel> page = topicService.getRunningTopics(pageable, user);
 		model.addAttribute("page", page);
-		
+
+		int minPagingIndex = Math.max(page.getNumber() - 5, 0);
+		int maxPagingIndex = Math.min(page.getNumber() + 4, page.getTotalPages() - 1);
+
+		model.addAttribute("minPagingIndex", minPagingIndex);
+		model.addAttribute("maxPagingIndex", maxPagingIndex);
+
 		return "topics";
 	}
+
+	@GetMapping("/topicdetails")
+	public String topicDetails(Model model, @RequestParam("id") Long id) {
+		log.info("showing details [topicID:{}]", id);
+		TopicModel topicModel = topicService.loadTopic(id);
+		model.addAttribute("topic", topicModel);
+		return "topicdetails";
+	}
+
+    @PostMapping("/topic/vote")
+    public String voteForTopic(Model model, @RequestParam("topicId") long id, Authentication auth,
+                               @RequestParam(required = false, name = "voteYes") String voteYes) {
+        log.info("user voted for topic [user:{}] [topicId:{}] [voteYes:{}]", auth.getName(), id, voteYes != null);
+
+        boolean vote = voteYes != null;
+        voteService.storeVote(auth.getName(), id, vote);
+
+        return "redirect:/topic-overview";
+    }
+
+    @GetMapping("/edittopic")
+    public String editTopic(Model model, @RequestParam(name = "id", required = false) Long id) {
+        TopicModel topic;
+        if (id != null) {
+            topic = topicService.loadTopic(id);
+        } else {
+            topic = new TopicModel();
+        }
+        model.addAttribute("topic", topic);
+
+        return "topicedit";
+    }
+
+    @PostMapping("/edittopic")
+    public String editTopic(Model model, @ModelAttribute TopicModel topicModel, Authentication auth) {
+        topicModel = topicService.save(topicModel, auth.getName());
+        model.addAttribute("topic", topicModel);
+        return "topicedit";
+    }
 
 }

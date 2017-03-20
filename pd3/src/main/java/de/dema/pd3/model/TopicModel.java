@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 public class TopicModel {
 
+	private Long id;
+
 	private String title;
 	
 	private String description;
@@ -13,6 +15,14 @@ public class TopicModel {
 	private String author;
 	
 	private int participants;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	public String getTitle() {
 		return title;

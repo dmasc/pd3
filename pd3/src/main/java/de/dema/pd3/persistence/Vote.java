@@ -1,11 +1,11 @@
 package de.dema.pd3.persistence;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Entity
 public class Vote implements Serializable {
@@ -18,13 +18,24 @@ public class Vote implements Serializable {
 	private Boolean accepted;
 	
 	private LocalDateTime voteTimestamp;
-	
+
+	public Vote() {
+	}
+
+	public Vote(User user, Topic topic) {
+		setVotePk(user, topic);
+	}
+
 	public VotePk getVotePk() {
 		return votePk;
 	}
 
 	public void setVotePk(VotePk votePk) {
 		this.votePk = votePk;
+	}
+
+	public void setVotePk(User user, Topic topic) {
+		this.votePk = new VotePk(user, topic);
 	}
 
 	public Boolean getAccepted() {
@@ -44,10 +55,12 @@ public class Vote implements Serializable {
 	}
 
 	@Embeddable
-	public class VotePk implements Serializable {
+	public static class VotePk implements Serializable {
 		private static final long serialVersionUID = 1L;
-		protected User user;
-		protected Topic topic;
+		@ManyToOne
+		private User user;
+		@ManyToOne
+		private Topic topic;
 
 	    public VotePk() {}
 
@@ -56,43 +69,42 @@ public class Vote implements Serializable {
 			this.topic = topic;
 		}
 
+		public Topic getTopic() {
+			return topic;
+		}
+
+		public void setTopic(Topic topic) {
+			this.topic = topic;
+		}
+
+		public User getUser() {
+			return user;
+		}
+
+		public void setUser(User user) {
+			this.user = user;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
+
+			VotePk votePk = (VotePk) o;
+
+			return user.equals(votePk.user) && topic.equals(votePk.topic);
+
+		}
+
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + getOuterType().hashCode();
-			result = prime * result + ((topic == null) ? 0 : topic.hashCode());
-			result = prime * result + ((user == null) ? 0 : user.hashCode());
+			int result = user.hashCode();
+			result = 31 * result + topic.hashCode();
 			return result;
 		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			VotePk other = (VotePk) obj;
-			if (!getOuterType().equals(other.getOuterType()))
-				return false;
-			if (topic == null) {
-				if (other.topic != null)
-					return false;
-			} else if (!topic.equals(other.topic))
-				return false;
-			if (user == null) {
-				if (other.user != null)
-					return false;
-			} else if (!user.equals(other.user))
-				return false;
-			return true;
-		}
-
-		private Vote getOuterType() {
-			return Vote.this;
-		}
-
 	}
 }
