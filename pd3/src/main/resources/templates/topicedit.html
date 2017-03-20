@@ -8,13 +8,15 @@
 
 	<div layout:fragment="content" class="content">
 		<form action="#" th:action="@{/edittopic}" th:object="${topic}" method="post">
+			<input type="hidden" name="id" th:field="*{id}" />
 			<div class="box">
-				<div class="title"><input type="text" th:field="*{title}" placeholder="Titel der Abstimmung" /></div>
+				<div class="title"><input type="text" th:field="*{title}" placeholder="Titel der Abstimmung" style="width: 100%" /></div>
 				<div>
-					<textarea th:field="*{description}"></textarea>
+					<label>Deadline: </label><input type="text" th:field="*{Deadline}" placeholder="Ende der Abstimmung" /><br/>
+					<textarea th:field="*{description}" placeholder="Beschreibung als HTML-codierter Text" style="width: 100%; height: 300px;"></textarea>
 				</div>
 				<div class="footer">
-					<input type="submit" name="voteYes" value="Speichern" />
+					<input type="submit" name="voteYes" th:value="${topic.id} ? 'Änderungen speichern' : 'Abstimmung starten'" />
 				</div>
 			</div>
 		</form>

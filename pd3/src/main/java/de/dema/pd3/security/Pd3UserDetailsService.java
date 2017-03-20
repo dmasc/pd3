@@ -26,7 +26,7 @@ public class Pd3UserDetailsService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		User dbuser = userRepo.findByEmail(username);
 		if (dbuser != null) {
-			log.info("attemed user logged in [id:{}]", dbuser.getId());
+			log.info("attemted user login [id:{}]", dbuser.getId());
 			return org.springframework.security.core.userdetails.User
 					.withUsername(dbuser.getEmail())
 					.password(dbuser.getPassword())

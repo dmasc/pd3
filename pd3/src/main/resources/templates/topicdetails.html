@@ -17,8 +17,9 @@
 			<div class="footer">
 				<form action="#" th:action="@{/topic/vote}" method="post">
 					<input type="hidden" name="topicId" th:value="*{id}" />
-					<input type="submit" name="voteYes" value="Ja" />
-					<input type="submit" name="voteNo" value="Nein" />
+					<input type="submit" name="voteYes" value="Mit Ja stimmen" />
+					<input type="submit" name="voteNo" value="Mit Nein stimmen" />
+					<input type="button" value="Zurück" onclick="javascript: history.go(-1)" />
 				</form>
 			</div>
 	    </div>

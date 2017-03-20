@@ -1,10 +1,5 @@
 package de.dema.pd3.controller;
 
-import de.dema.pd3.model.TopicModel;
-import de.dema.pd3.persistence.User;
-import de.dema.pd3.persistence.UserRepository;
-import de.dema.pd3.services.TopicService;
-import de.dema.pd3.services.VoteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +13,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import de.dema.pd3.model.TopicModel;
+import de.dema.pd3.persistence.User;
+import de.dema.pd3.persistence.UserRepository;
+import de.dema.pd3.services.TopicService;
+import de.dema.pd3.services.VoteService;
 
 @Controller
 public class TopicController {
@@ -39,8 +40,8 @@ public class TopicController {
 		Page<TopicModel> page = topicService.getRunningTopics(pageable, user);
 		model.addAttribute("page", page);
 
-		int minPagingIndex = Math.max(page.getNumber() - 5, 0);
 		int maxPagingIndex = Math.min(page.getNumber() + 4, page.getTotalPages() - 1);
+		int minPagingIndex = Math.max(Math.min(page.getNumber(), maxPagingIndex) - 5, 0);
 
 		model.addAttribute("minPagingIndex", minPagingIndex);
 		model.addAttribute("maxPagingIndex", maxPagingIndex);
