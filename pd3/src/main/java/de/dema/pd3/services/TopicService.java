@@ -1,11 +1,7 @@
 package de.dema.pd3.services;
 
-import de.dema.pd3.model.TopicModel;
-import de.dema.pd3.persistence.Topic;
-import de.dema.pd3.persistence.TopicRepository;
-import de.dema.pd3.persistence.User;
-import de.dema.pd3.persistence.UserRepository;
-import de.dema.pd3.persistence.VoteRepository;
+import java.time.LocalDateTime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +10,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import de.dema.pd3.model.TopicModel;
+import de.dema.pd3.persistence.Topic;
+import de.dema.pd3.persistence.TopicRepository;
+import de.dema.pd3.persistence.User;
+import de.dema.pd3.persistence.UserRepository;
+import de.dema.pd3.persistence.VoteRepository;
 
 @Service
 public class TopicService {
@@ -42,6 +43,7 @@ public class TopicService {
 	}
 
     public TopicModel save(TopicModel topicModel, String userEmail) {
+    	log.debug("saving topic [topicModel:{}]", topicModel);
         Topic topic;
         if (topicModel.getId() != null) {
             topic = topicRepo.findOne(topicModel.getId());
@@ -57,6 +59,7 @@ public class TopicService {
 
         topic = topicRepo.save(topic);
         topicModel.setId(topic.getId());
+    	log.info("topic saved [topic:{}] [topicModel:{}]", topic, topicModel);
         return topicModel;
     }
 

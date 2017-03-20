@@ -21,14 +21,15 @@ public class RegisterController {
 	private UserService userService;
 	
     @GetMapping("/public/register")
-    public String greetingForm(Model model) {
+    public String registerForm(Model model) {
     	RegisterUserModel userModel = new RegisterUserModel();
         model.addAttribute("reguser", userModel);
         return "public/register";
     }
 
     @PostMapping("/public/register")
-    public String greetingSubmit(@ModelAttribute RegisterUserModel user, Model model) {
+    public String registerSubmit(@ModelAttribute RegisterUserModel user, Model model) {
+    	log.debug("register form submitted [data:{}]", user);
         model.addAttribute("reguser", user);
         
         userService.registerUser(user);
