@@ -66,6 +66,11 @@
 		  	<groupId>nz.net.ultraq.thymeleaf</groupId>
 		  	<artifactId>thymeleaf-layout-dialect</artifactId>
 		</dependency>
+		<!-- Hibernate -->
+		<dependency>
+		    <groupId>org.hibernate</groupId>
+		    <artifactId>hibernate-java8</artifactId>
+		</dependency>
 		<!-- Logback -->
 		<dependency>
 			<groupId>org.logback-extensions</groupId>

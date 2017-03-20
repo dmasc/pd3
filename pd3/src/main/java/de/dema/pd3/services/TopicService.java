@@ -26,7 +26,7 @@ public class TopicService {
 	
 	@Transactional(readOnly = true)
 	public Page<TopicModel> getRunningTopics(Pageable page) {
-		Page<Topic> topicsPage = topicRepo.findAll(page);
+		Page<Topic> topicsPage = topicRepo.findAllWhereDeadlineGreaterNow(page);
 		return topicsPage.map(entity -> mapTopic(entity));
 	}
 
