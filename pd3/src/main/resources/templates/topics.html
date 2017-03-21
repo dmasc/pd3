@@ -10,7 +10,7 @@
 		<div class="paging">
 			<a th:href="@{/topic-overview(page=${page.number - 1})}" th:classappend="${page.first}?disabled">Zurück</a>
 			<a th:href="@{/topic-overview(page=${i})}" th:each="i : ${#numbers.sequence(minPagingIndex, maxPagingIndex)}" th:text="${i + 1}"
-                th:classappend="${page.number eq i}?disabled"></a>
+                	th:classappend="${page.number eq i}?disabled"></a>
 			<a th:href="@{/topic-overview(page=${page.number + 1})}" th:classappend="${page.last}?disabled">Weiter</a>
 		</div>
         <a th:href="@{/topicdetails(id=${topic.id})}" th:each="topic : ${page.content}" class="undecorated">

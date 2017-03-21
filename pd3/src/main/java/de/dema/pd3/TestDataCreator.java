@@ -34,13 +34,14 @@ public class TestDataCreator {
 	@Autowired
 	private TopicRepository topicRepo;
 	
+	// Der Wert kann in der Run Config als VM-Parameter gesetzt werden: -Dtestdata=true
 	@Value("${testdata:false}")
 	private boolean shouldCreateTestData;
 	
 	private Random r = new Random();
 	
 	@PostConstruct
-	public void createData() {
+	public void createTestData() {
 		if (shouldCreateTestData) {
 			log.info("creating test data...");
 			User author = new User();
