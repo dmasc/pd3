@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.dema.pd3.VoteOption;
 import de.dema.pd3.persistence.Topic;
 import de.dema.pd3.persistence.TopicRepository;
 import de.dema.pd3.persistence.User;
@@ -28,14 +29,14 @@ public class VoteService {
     @Autowired
     private UserRepository userRepo;
 
-    public void storeVote(String userEmail, long topicId, boolean accepted) {
+    public void storeVote(String userEmail, long topicId, VoteOption selectedOption) {
         User user = userRepo.findByEmail(userEmail);
-        log.debug("storing vote [userId:{}] [topicId:{}] [accepted:{}]", user.getId(), topicId, accepted);
+        log.debug("storing vote [userId:{}] [topicId:{}] [selectedOption:{}]", user.getId(), topicId, selectedOption);
         Topic topic = topicRepo.findOne(topicId);
 
         Vote vote = new Vote();
         vote.setVotePk(user, topic);
-        vote.setAccepted(accepted);
+        vote.setSelectedOption(selectedOption);
         vote.setVoteTimestamp(LocalDateTime.now());
 
         vote = voteRepo.save(vote);

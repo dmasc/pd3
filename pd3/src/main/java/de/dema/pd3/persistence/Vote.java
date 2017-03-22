@@ -1,11 +1,16 @@
 package de.dema.pd3.persistence;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
-import java.io.Serializable;
-import java.time.LocalDateTime;
+
+import de.dema.pd3.VoteOption;
 
 @Entity
 public class Vote implements Serializable {
@@ -15,7 +20,8 @@ public class Vote implements Serializable {
 	@EmbeddedId
     private VotePk votePk;
 	
-	private Boolean accepted;
+	@Enumerated(EnumType.STRING)
+	private VoteOption selectedOption;
 	
 	private LocalDateTime voteTimestamp;
 
@@ -38,12 +44,12 @@ public class Vote implements Serializable {
 		this.votePk = new VotePk(user, topic);
 	}
 
-	public Boolean getAccepted() {
-		return accepted;
+	public VoteOption getSelectedOption() {
+		return selectedOption;
 	}
 
-	public void setAccepted(Boolean accepted) {
-		this.accepted = accepted;
+	public void setSelectedOption(VoteOption selectedOption) {
+		this.selectedOption = selectedOption;
 	}
 
 	public LocalDateTime getVoteTimestamp() {

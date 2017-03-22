@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import de.dema.pd3.VoteOption;
 import de.dema.pd3.model.TopicModel;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
@@ -54,10 +55,17 @@ public class TopicController {
 
     @PostMapping("/topic/vote")
     public String voteForTopic(Model model, @RequestParam("topicId") long id, Authentication auth,
-                               @RequestParam(required = false, name = "voteYes") String voteYes) {
-        log.info("user voted for topic [user:{}] [topicId:{}] [voteYes:{}]", auth.getName(), id, voteYes != null);
+                               @RequestParam(required = false, name = "voteYes") String voteYes,
+                               @RequestParam(required = false, name = "voteNo") String voteNo) {
+    	VoteOption option = VoteOption.ABSTENTION;
+    	if (voteYes != null) {
+    		option = VoteOption.YES;
+    	} else if (voteNo != null) {
+    		option = VoteOption.NO;
+    	} 
+        log.info("user voted for topic [user:{}] [topicId:{}] [option:{}]", auth.getName(), id, option);
 
-        voteService.storeVote(auth.getName(), id, voteYes != null);
+        voteService.storeVote(auth.getName(), id, option);
 
         return "redirect:/topic-overview";
     }
