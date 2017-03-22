@@ -5,12 +5,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
+@Cacheable
 public class User implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -9,3 +9,9 @@ form.default label {
 	width: 300px;
 	margin-bottom: 5px;
 }
+
+form div.feedback-container {
+	background: #F3D0D0;
+	padding: 4px;
+	margin-bottom: 10px;
+}

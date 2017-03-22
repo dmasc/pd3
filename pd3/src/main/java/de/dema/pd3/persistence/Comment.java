@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -27,7 +26,7 @@ public class Comment implements Serializable {
 	@Lob
 	private String text;
 	
-	@OneToMany(mappedBy = "parent", fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "parent")
 	private Set<Comment> replies;
 	
 	@OneToOne(optional = true)

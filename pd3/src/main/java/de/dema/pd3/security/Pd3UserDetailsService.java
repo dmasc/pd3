@@ -5,6 +5,7 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -27,12 +28,8 @@ public class Pd3UserDetailsService implements UserDetailsService {
 		User dbuser = userRepo.findByEmail(username);
 		if (dbuser != null) {
 			log.info("attemted user login [id:{}]", dbuser.getId());
-			return org.springframework.security.core.userdetails.User
-					.withUsername(dbuser.getEmail())
-					.password(dbuser.getPassword())
-					.accountLocked(dbuser.getLocked())
-					.roles("USER")
-					.build();
+			return new CurrentUser(dbuser.getId(), dbuser.getForename() + " " + dbuser.getSurname(), dbuser.getEmail(), 
+					dbuser.getPassword(), true, !dbuser.getLocked(), AuthorityUtils.createAuthorityList("USER"));
 		}
 		throw new UsernameNotFoundException("unable to find user with email " + username);
 	}

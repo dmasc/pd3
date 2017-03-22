@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import de.dema.pd3.model.TopicModel;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
+import de.dema.pd3.security.CurrentUser;
 import de.dema.pd3.services.TopicService;
 import de.dema.pd3.services.VoteService;
 
@@ -36,15 +37,9 @@ public class TopicController {
 	
 	@GetMapping("/topic-overview")
 	public String topicOverview(Model model, @PageableDefault(sort = "deadline", size = 10) Pageable pageable, Authentication auth) {
-        User user = userRepo.findByEmail(auth.getName());
+        User user = userRepo.findOne(((CurrentUser) auth.getPrincipal()).getId());
 		Page<TopicModel> page = topicService.getRunningTopics(pageable, user);
 		model.addAttribute("page", page);
-
-		int maxPagingIndex = Math.min(page.getNumber() + 4, page.getTotalPages() - 1);
-		int minPagingIndex = Math.max(Math.min(page.getNumber(), maxPagingIndex) - 5, 0);
-
-		model.addAttribute("minPagingIndex", minPagingIndex);
-		model.addAttribute("maxPagingIndex", maxPagingIndex);
 
 		return "topics";
 	}
@@ -62,8 +57,7 @@ public class TopicController {
                                @RequestParam(required = false, name = "voteYes") String voteYes) {
         log.info("user voted for topic [user:{}] [topicId:{}] [voteYes:{}]", auth.getName(), id, voteYes != null);
 
-        boolean vote = voteYes != null;
-        voteService.storeVote(auth.getName(), id, vote);
+        voteService.storeVote(auth.getName(), id, voteYes != null);
 
         return "redirect:/topic-overview";
     }

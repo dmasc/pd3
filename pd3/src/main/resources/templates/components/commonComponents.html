@@ -1,0 +1,14 @@
+<!DOCTYPE HTML>
+<html layout:decorator="layout/default" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:spring="http://www.springframework.org/tags">
+
+<body>
+
+	<div th:fragment="paging (url, page)" class="paging">
+		<a th:href="@{${url}(page=${page.number - 1})}" th:classappend="${page.first}?disabled">Zurück</a>
+		<a th:href="@{${url}(page=${i})}" th:text="${i + 1}" th:classappend="${page.number eq i}?disabled" 
+				th:each="i : ${#numbers.sequence(T(Math).max(T(Math).min(page.number, T(Math).min(page.number + 4, page.totalPages - 1)) - 5, 0), T(Math).min(page.number + 4, page.totalPages - 1))}"></a>
+		<a th:href="@{${url}(page=${page.number + 1})}" th:classappend="${page.last}?disabled">Weiter</a>
+	</div>
+
+</body>
+</html>

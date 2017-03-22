@@ -7,4 +7,8 @@
 <!-- 		timeToIdleSeconds="0" timeToLiveSeconds="600" overflowToDisk="false" -->
 <!-- 		diskPersistent="false" /> -->
 
+	<defaultCache name="default" eternal="false"
+		timeToIdleSeconds="180" timeToLiveSeconds="600" overflowToDisk="false"
+		diskPersistent="false" />
+
 </ehcache>
