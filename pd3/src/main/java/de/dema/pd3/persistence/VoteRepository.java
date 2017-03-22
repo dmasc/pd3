@@ -1,14 +1,14 @@
 package de.dema.pd3.persistence;
 
-import java.util.Set;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
 
 import de.dema.pd3.persistence.Vote.VotePk;
 
 public interface VoteRepository extends CrudRepository<Vote, VotePk> {
 	
-	Set<Vote> findByVotePkUser(User user);
+	Page<Vote> findByVotePkUser(User user, Pageable pageable);
 	
 	int countByVotePkTopic(Topic topic);
 

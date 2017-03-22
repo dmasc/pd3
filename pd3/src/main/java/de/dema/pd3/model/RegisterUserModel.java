@@ -2,6 +2,8 @@ package de.dema.pd3.model;
 
 import java.time.LocalDate;
 
+import javax.validation.constraints.Past;
+
 public class RegisterUserModel {
 
 	private String forename;
@@ -12,6 +14,7 @@ public class RegisterUserModel {
 	
 	private String password;
 	
+	@Past
 	private String passwordRepeat;
 	
 	private String street;

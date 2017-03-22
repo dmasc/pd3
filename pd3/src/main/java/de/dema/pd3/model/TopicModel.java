@@ -63,5 +63,8 @@ public class TopicModel {
 	public void setParticipants(int participants) {
 		this.participants = participants;
 	}
-	
+
+	public boolean isRunning() {
+		return LocalDateTime.now().isBefore(this.deadline);
+	}
 }

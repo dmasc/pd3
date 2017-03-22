@@ -7,8 +7,8 @@
 <body>
 
 	<div layout:fragment="content" class="content">
-		<div th:replace="components/commonComponents :: paging (url='/topic-overview', page=${page})"></div>
-        <a th:href="@{/topicdetails(id=${topic.id})}" th:each="topic : ${page.content}" class="undecorated">
+		<div th:replace="components/commonComponents :: paging (url='/topic/overview', page=${page})"></div>
+        <a th:href="@{/topic/details(id=${topic.id})}" th:each="topic : ${page.content}" class="undecorated">
             <div class="box">
                 <div class="title" th:text="${topic.title}"></div>
                 <div>

@@ -15,13 +15,13 @@
 	    		<span th:utext="*{description}"></span>
 	    	</div>
 			<div class="footer">
-				<form action="#" th:action="@{/topic/vote}" method="post">
+				<form th:if="*{running}" th:action="@{/topic/vote}" method="post" style="display: inline-block;">
 					<input type="hidden" name="topicId" th:value="*{id}" />
 					<input type="submit" name="voteYes" value="Mit Ja stimmen" />
 					<input type="submit" name="voteNo" value="Mit Nein stimmen" />
 					<input type="submit" name="voteAbstention" value="Enthalten" />
-					<input type="button" value="Zurück" onclick="javascript: history.go(-1)" />
 				</form>
+				<input type="button" value="Zurück" onclick="javascript: history.go(-1)" />
 			</div>
 	    </div>
 	</div>

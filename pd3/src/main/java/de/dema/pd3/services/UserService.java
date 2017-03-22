@@ -41,4 +41,8 @@ public class UserService {
 		return user;
 	}
 	
+	public User findById(Long id) {
+		return userRepo.findOne(id);
+	}
+	
 }

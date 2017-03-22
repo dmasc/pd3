@@ -5,9 +5,12 @@ import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import de.dema.pd3.VoteOption;
+import de.dema.pd3.model.VoteModel;
 import de.dema.pd3.persistence.Topic;
 import de.dema.pd3.persistence.TopicRepository;
 import de.dema.pd3.persistence.User;
@@ -42,4 +45,13 @@ public class VoteService {
         vote = voteRepo.save(vote);
         log.info("vote stored [vote:{}]", vote);
     }
+
+	public Page<VoteModel> findByUser(User user, Pageable pageable) {
+		Page<Vote> page = voteRepo.findByVotePkUser(user, pageable);
+		return page.map(this::mapVote);
+	}
+	
+	private VoteModel mapVote(Vote vote) {
+		return VoteModel.map(vote);
+	}
 }

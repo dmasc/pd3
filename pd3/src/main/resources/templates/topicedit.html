@@ -7,7 +7,7 @@
 <body>
 
 	<div layout:fragment="content" class="content">
-		<form action="#" th:action="@{/edittopic}" th:object="${topic}" method="post">
+		<form action="#" th:action="@{/topic/edit}" th:object="${topic}" method="post">
 			<input type="hidden" name="id" th:field="*{id}" />
 			<div class="box">
 				<div class="title"><input type="text" th:field="*{title}" placeholder="Titel der Abstimmung" style="width: 100%" /></div>
