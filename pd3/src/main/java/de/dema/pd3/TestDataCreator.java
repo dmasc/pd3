@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import de.dema.pd3.persistence.Comment;
@@ -34,6 +35,9 @@ public class TestDataCreator {
 	@Autowired
 	private TopicRepository topicRepo;
 	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
 	// Der Wert kann in der Run Config als VM-Parameter gesetzt werden: -Dtestdata=true
 	@Value("${testdata:false}")
 	private boolean shouldCreateTestData;
@@ -50,7 +54,7 @@ public class TestDataCreator {
 			author.setEmail("a");
 			author.setForename("Franz");
 			author.setIdCardNumber("T220001293");
-			author.setPassword("");
+			author.setPassword(passwordEncoder.encode(""));
 			author.setPhone("0171-1234567");
 			author.setStreet("Herbert-Weichmann-Straße 117");
 			author.setSurname("Remmenscheid");
@@ -71,7 +75,7 @@ public class TestDataCreator {
 		topic.setAuthor(author);
 		topic.setCreationDate(LocalDateTime.now().minusDays(r.nextInt(365)).minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
 		topic.setDeadline(LocalDateTime.now().plusDays(r.nextInt(182)).plusHours(r.nextInt(24)).plusMinutes(r.nextInt(60)));
-		topic.setDescription(createRandomText(500));
+		topic.setDescription(createRandomText(r.nextInt(1000) + 500));
 		topic.setTitle(createRandomText(r.nextInt(140) + 20));
 		return topic;
 	}

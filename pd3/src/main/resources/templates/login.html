@@ -8,8 +8,14 @@
 
 	<div layout:fragment="content" class="content">
 		<form action="#" th:action="@{/login}" method="post" class="default">
+            
+			<div class="feedback-container" th:if="${param.error}">Die Anmeldedaten sind ungültig</div>
+            
+            <!-- 			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> -->
 			<label>Email-Adresse:</label><input type="text" name="username" autofocus="autofocus" value="a" /><br/>
 			<label>Passwort:</label><input type="password" name="password" /><br/>
+			<label for="remember-me">Angemeldet bleiben:</label><input type="checkbox" name="remember-me" id="remember-me" /><br/>
+			
 			<input type="submit" value="Einloggen" />
 		</form>
 	</div>

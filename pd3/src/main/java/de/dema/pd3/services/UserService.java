@@ -3,6 +3,7 @@ package de.dema.pd3.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import de.dema.pd3.model.RegisterUserModel;
@@ -17,6 +18,9 @@ public class UserService {
 	@Autowired
 	private UserRepository userRepo;
 	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
 	public User registerUser(RegisterUserModel userModel) {
 		log.debug("registerUser called [model:{}]", userModel);
 		
@@ -26,7 +30,7 @@ public class UserService {
 		user.setEmail(userModel.getEmail());
 		user.setForename(userModel.getForename());
 		user.setIdCardNumber(userModel.getIdCardNumber());
-		user.setPassword(userModel.getPassword());
+		user.setPassword(passwordEncoder.encode(userModel.getPassword()));
 		user.setPhone(userModel.getPhone());
 		user.setStreet(userModel.getStreet());
 		user.setSurname(userModel.getSurname());

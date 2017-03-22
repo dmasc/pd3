@@ -13,9 +13,9 @@ import de.dema.pd3.model.RegisterUserModel;
 import de.dema.pd3.services.UserService;
 
 @Controller
-public class RegisterController {
+public class UserController {
 
-	private static final Logger log = LoggerFactory.getLogger(RegisterController.class);
+	private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
 	@Autowired
 	private UserService userService;
@@ -37,4 +37,9 @@ public class RegisterController {
         return "public/home";
     }
 	
+    @GetMapping("/user/profile")
+    public String userProfile(Model model) {
+    	return "profile";
+    }
+    
 }

@@ -8,13 +8,19 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
+	private static final int THREE_MONTH_IN_SECONDS = 7776000;
+
 	@Autowired
 	private UserDetailsService userDetailsService;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -23,14 +29,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/", "/public/**", "/css/**", "/img/**", "/db/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
+            .requiresChannel().anyRequest().requiresSecure()
+                .and()
             .formLogin()
                 .loginPage("/login")
                 .permitAll()
                 .and()
             .logout()
-                .permitAll();
+            	.deleteCookies("remember-me")
+                .permitAll()
+                .and()
+        	.rememberMe()
+        		.userDetailsService(userDetailsService)
+        		.tokenValiditySeconds(THREE_MONTH_IN_SECONDS);
         
-        // for H2 Console
+        // Bei aktiviertem CSRF geht die H2 Console nicht und es wird daher deaktiviert
         http.csrf().disable();
         http.headers().frameOptions().disable();
     }
@@ -39,9 +52,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 		provider.setUserDetailsService(userDetailsService);
-        auth.authenticationProvider(provider);
-//            .inMemoryAuthentication()
-//                .withUser("user").password("password").roles("USER");
+		provider.setPasswordEncoder(passwordEncoder);
+
+		auth.userDetailsService(userDetailsService);
+		auth.authenticationProvider(provider);
+//            .inMemoryAuthentication().withUser("user").password("password").roles("USER");
     }
     
 }
