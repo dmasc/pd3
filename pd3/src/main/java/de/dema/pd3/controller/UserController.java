@@ -24,23 +24,17 @@ public class UserController {
 	private UserService userService;
 	
     @GetMapping("/public/register")
-    public String registerForm(RegisterUserModel model) {
-    	RegisterUserModel userModel = new RegisterUserModel();
-       // model.addAttribute("reguser", userModel);
+    public String registerForm(RegisterUserModel user) {
         return "public/register";
     }
 
     @PostMapping("/public/register")
     public String registerSubmit(@Valid @ModelAttribute RegisterUserModel user, BindingResult bindingResult) {
     	log.debug("register form submitted [data:{}]", user);
-      //  model.addAttribute("reguser", user);
         if (bindingResult.hasErrors()) {
-            log.error("register form kaputt submitted [data:{}]", user);
+            log.error("register form invalid [data:{}]", user);
             return "/public/register";
         }
-
-//        userService.registerUser(user);
-
         return "public/home";
     }
 	
