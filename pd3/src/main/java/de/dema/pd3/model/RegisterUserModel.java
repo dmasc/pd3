@@ -1,15 +1,15 @@
 package de.dema.pd3.model;
 
-import de.dema.pd3.validation.Age;
-import de.dema.pd3.validation.PersoId;
+import java.time.LocalDate;
+
+import javax.validation.constraints.Pattern;
+
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.Pattern;
-import java.time.LocalDate;
-
-import javax.validation.constraints.Past;
+import de.dema.pd3.validation.Age;
+import de.dema.pd3.validation.PersoId;
 
 public class RegisterUserModel {
 
@@ -27,7 +27,7 @@ public class RegisterUserModel {
 	private String password;
 
 	@NotEmpty(message = "{register_user_model.passwordRepeat.null}")
-  private String passwordRepeat;
+    private String passwordRepeat;
 
 	@NotEmpty(message = "{register_user_model.street.null}")
 	private String street;

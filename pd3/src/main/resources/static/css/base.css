@@ -6,7 +6,7 @@ html {
 body {
 	margin: 0;	
 	font-family: sans-serif;
-	font-size: 10.5pt;
+	font-size: 10pt;
 
 	background: rgba(255,246,235,1);
 	background: -moz-linear-gradient(top, rgba(255,246,235,1) 0%, rgba(255,255,255,1) 64%, rgba(255,255,255,1) 100%);

@@ -16,12 +16,14 @@ import org.springframework.stereotype.Component;
 
 import de.dema.pd3.persistence.Comment;
 import de.dema.pd3.persistence.CommentRepository;
+import de.dema.pd3.persistence.CommentVote;
+import de.dema.pd3.persistence.CommentVoteRepository;
 import de.dema.pd3.persistence.Topic;
 import de.dema.pd3.persistence.TopicRepository;
+import de.dema.pd3.persistence.TopicVote;
+import de.dema.pd3.persistence.TopicVoteRepository;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
-import de.dema.pd3.persistence.Vote;
-import de.dema.pd3.persistence.VoteRepository;
 
 @Component
 public class TestDataCreator {
@@ -38,7 +40,10 @@ public class TestDataCreator {
 	private TopicRepository topicRepo;
 	
 	@Autowired
-	private VoteRepository voteRepo;
+	private TopicVoteRepository topicVoteRepo;
+	
+	@Autowired
+	private CommentVoteRepository commentVoteRepo;
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -54,7 +59,7 @@ public class TestDataCreator {
 		if (shouldCreateTestData) {
 			log.info("creating test data...");
 			User author = new User();
-			author.setBirthday(LocalDate.now().minusYears(57).plusMonths(4));
+			author.setBirthday(LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12)));
 			author.setDistrict("Hamburg");
 			author.setEmail("a");
 			author.setForename("Franz");
@@ -64,18 +69,35 @@ public class TestDataCreator {
 			author.setStreet("Herbert-Weichmann-Straße 117");
 			author.setSurname("Remmenscheid");
 			author.setZip("21709");
+			author.setMale(true);
 			userRepo.save(author);
-	
+
+			User authorFemale = new User();
+			authorFemale.setBirthday(LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12)));
+			authorFemale.setDistrict("Hamburg");
+			authorFemale.setEmail("jutta");
+			authorFemale.setForename("Jutta");
+			authorFemale.setIdCardNumber("T210001741");
+			authorFemale.setPassword(passwordEncoder.encode("test"));
+			authorFemale.setPhone("040-2225256");
+			authorFemale.setStreet("Otto-von-Bismark-Allee 32");
+			authorFemale.setSurname("Sorin-Gießmann");
+			authorFemale.setZip("22177");
+			authorFemale.setMale(false);
+			userRepo.save(authorFemale);
+
 			for (int i = 0; i < 25; i++) {
-				Topic topic = createTopic(author);
+				Topic topic = createTopic(author, authorFemale);
 				topic = topicRepo.save(topic);
-				createComments(topic, author, 3, 4, null);
-				if (i < 13) {
-					Vote vote = new Vote(author, topic);
-					vote.setVoteTimestamp(LocalDateTime.now().minusDays(r.nextInt(7)).minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
-					vote.setSelectedOption(VoteOption.values()[r.nextInt(VoteOption.values().length)]);
-					voteRepo.save(vote);
-				}
+
+				createComments(topic, 15, 4, null, author, authorFemale);
+				
+				TopicVote vote = new TopicVote();
+				vote.setUser(r.nextBoolean() ? author : authorFemale);
+				vote.setTopic(topic);
+				vote.setVoteTimestamp(LocalDateTime.now().minusDays(r.nextInt(7)).minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
+				vote.setSelectedOption(VoteOption.values()[r.nextInt(VoteOption.values().length)]);
+				topicVoteRepo.save(vote);
 			}
 			
 			
@@ -83,9 +105,9 @@ public class TestDataCreator {
 		}
 	}
 
-	private Topic createTopic(User author) {
+	private Topic createTopic(User... author) {
 		Topic topic = new Topic();
-		topic.setAuthor(author);
+		topic.setAuthor(author[r.nextInt(author.length)]);
 		topic.setCreationDate(LocalDateTime.now().minusDays(r.nextInt(365)).minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
 		topic.setDeadline(LocalDateTime.now().plusDays(r.nextInt(182)).plusHours(r.nextInt(24)).plusMinutes(r.nextInt(60)));
 		topic.setDescription(createRandomText(r.nextInt(1000) + 500));
@@ -108,19 +130,31 @@ public class TestDataCreator {
 		return s;
 	}
 
-	private void createComments(Topic topic, User author, int counter, int level, Comment parent) {
+	private void createComments(Topic topic, int counter, int level, Comment parent, User... author) {
 		int commentsCount = r.nextInt(counter - 1) + 1;
 		for (int i = 0; i < commentsCount; i++) {
 			Comment comment = new Comment();
 			comment.setCreationDate(LocalDateTime.now().minusDays(r.nextInt(120)).plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
-			comment.setText(createRandomText(r.nextInt(290) + 10));
+			comment.setText(createRandomText(r.nextInt(490) + 10));
 			comment.setTopic(topic);
-			comment.setAuthor(author);
+			comment.setAuthor(author[r.nextInt(author.length)]);
 			comment.setParent(parent);
 			comment = commentRepo.save(comment);
 			
+			if (author.length > 1 && r.nextBoolean()) {
+				User user;
+				do {
+					user = author[r.nextInt(author.length)];
+				} while (user.equals(comment.getAuthor()));
+				CommentVote vote = new CommentVote();
+				vote.setComment(comment);
+				vote.setUser(user);
+				vote.setSelectedOption(r.nextBoolean() ? VoteOption.ACCEPTED : VoteOption.REJECTED);
+				vote.setVoteTimestamp(LocalDateTime.now());
+				commentVoteRepo.save(vote);
+			}
 			if (level > 0) {
-				createComments(topic, author, counter, r.nextInt(level), comment);
+				createComments(topic, 3, r.nextInt(level), comment, author);
 			}
 		}
 	}

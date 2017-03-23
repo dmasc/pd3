@@ -1,10 +1,12 @@
 package de.dema.pd3.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -13,12 +15,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import de.dema.pd3.VoteOption;
 import de.dema.pd3.model.TopicModel;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
 import de.dema.pd3.security.CurrentUser;
+import de.dema.pd3.services.CommentService;
 import de.dema.pd3.services.TopicService;
 import de.dema.pd3.services.VoteService;
 
@@ -34,6 +38,9 @@ public class TopicController {
 	private VoteService voteService;
 
 	@Autowired
+	private CommentService commentService;
+	
+	@Autowired
     private UserRepository userRepo;
 	
 	@GetMapping("/topic/overview")
@@ -46,10 +53,13 @@ public class TopicController {
 	}
 
 	@GetMapping("/topic/details")
-	public String topicDetails(Model model, @RequestParam("id") Long id) {
+	public String topicDetails(Model model, @RequestParam("id") Long id, Authentication auth,
+			@PageableDefault(sort = "creationDate", size = 10, direction = Direction.DESC) Pageable pageable) {
 		log.info("showing details [topicID:{}]", id);
 		TopicModel topicModel = topicService.loadTopic(id);
 		model.addAttribute("topic", topicModel);
+		model.addAttribute("comments", commentService.loadByTopic(id, ((CurrentUser) auth.getPrincipal()).getId(), pageable));
+		
 		return "topicdetails";
 	}
 
@@ -65,7 +75,7 @@ public class TopicController {
     	} 
         log.info("user voted for topic [user:{}] [topicId:{}] [option:{}]", auth.getName(), id, option);
 
-        voteService.storeVote(auth.getName(), id, option);
+        voteService.storeTopicVote(((CurrentUser) auth.getPrincipal()).getId(), id, option);
 
         return "redirect:/topic/overview";
     }
@@ -83,11 +93,20 @@ public class TopicController {
         return "topicedit";
     }
 
-    @PostMapping("/edittopic")
+    @PostMapping("/topic/edit")
     public String editTopic(Model model, @ModelAttribute TopicModel topicModel, Authentication auth) {
-        topicModel = topicService.save(topicModel, auth.getName());
+        topicModel = topicService.save(topicModel, ((CurrentUser) auth.getPrincipal()).getId());
         model.addAttribute("topic", topicModel);
         return "topicedit";
     }
 
+    @PostMapping("/topic/comment")
+    public String comment(Model model, @ModelAttribute("text") String text, @ModelAttribute("topicId") Long topicId, Authentication auth, RedirectAttributes attr) {
+    	if (!StringUtils.isBlank(text)) {
+	    	commentService.save(((CurrentUser) auth.getPrincipal()).getId(), topicId, text);
+    	}
+        attr.addAttribute("id", topicId);
+    	return "redirect:/topic/details";
+    }
+    
 }

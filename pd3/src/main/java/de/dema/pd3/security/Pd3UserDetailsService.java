@@ -29,7 +29,7 @@ public class Pd3UserDetailsService implements UserDetailsService {
 		if (dbuser != null) {
 			log.info("attemted user login [id:{}]", dbuser.getId());
 			return new CurrentUser(dbuser.getId(), dbuser.getForename() + " " + dbuser.getSurname(), dbuser.getEmail(), 
-					dbuser.getPassword(), true, !dbuser.getLocked(), AuthorityUtils.createAuthorityList("USER"));
+					dbuser.getPassword(), dbuser.isMale(), true, !dbuser.getLocked(), AuthorityUtils.createAuthorityList("USER"));
 		}
 		throw new UsernameNotFoundException("unable to find user with email " + username);
 	}

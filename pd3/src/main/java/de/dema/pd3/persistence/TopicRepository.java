@@ -12,7 +12,7 @@ public interface TopicRepository extends CrudRepository<Topic, Long> {
 	
 	List<Topic> findByAuthor(User author, Pageable pageable);
 	
-	@Query("SELECT t FROM Topic t WHERE deadline > CURRENT_TIMESTAMP AND NOT EXISTS (SELECT 1 FROM Vote v WHERE v.votePk.topic = t AND v.votePk.user = :user)")
+	@Query("SELECT t FROM Topic t WHERE deadline > CURRENT_TIMESTAMP AND NOT EXISTS (SELECT 1 FROM TopicVote v WHERE v.topic = t AND v.user = :user)")
 	Page<Topic> findAllWhereDeadlineGreaterNowAndUserHasntVotedYet(@Param("user") User user, Pageable pageable);
 	
 	int countByAuthor(User author);

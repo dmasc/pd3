@@ -30,7 +30,7 @@ public class TopicRepositoryTest {
 	private UserRepository userRepo;
 	
 	@Autowired
-	private VoteRepository voteRepo;
+	private TopicVoteRepository voteRepo;
 	
 	private User user;
 	
@@ -43,7 +43,9 @@ public class TopicRepositoryTest {
 			topic.setCreationDate(LocalDateTime.now().plusWeeks(i - 11).minusMinutes(10));
 			topic = topicRepo.save(topic);
 			if (i % 5 == 0) {
-				Vote vote = new Vote(user, topic);
+				TopicVote vote = new TopicVote();
+				vote.setUser(user);
+				vote.setTopic(topic);
 				vote.setVoteTimestamp(LocalDateTime.now().minusHours(i));
 				voteRepo.save(vote);
 			}
@@ -55,7 +57,9 @@ public class TopicRepositoryTest {
 			topic.setCreationDate(LocalDateTime.now().plusWeeks(i - 6).minusMinutes(10));
 			topicRepo.save(topic);
 			if (i == 4) {
-				Vote vote = new Vote(user, topic);
+				TopicVote vote = new TopicVote();
+				vote.setUser(user);
+				vote.setTopic(topic);
 				vote.setVoteTimestamp(LocalDateTime.now().minusHours(i));
 				voteRepo.save(vote);
 			}

@@ -67,4 +67,5 @@ public class TopicModel {
 	public boolean isRunning() {
 		return LocalDateTime.now().isBefore(this.deadline);
 	}
+	
 }

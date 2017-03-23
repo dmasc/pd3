@@ -12,12 +12,15 @@ public class CurrentUser extends User {
 	private Long id;
 	
 	private String name;
+	
+	private boolean male;
 
-	public CurrentUser(Long dbId, String name, String email, String password, boolean enabled, 
+	public CurrentUser(Long dbId, String name, String email, String password, boolean male, boolean enabled, 
 			boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
 		super(email, password, enabled, true, true, accountNonLocked, authorities);
 		this.id = dbId;
 		this.name = name;
+		this.male = male;
 	}
 
 	public Long getId() {
@@ -30,6 +33,14 @@ public class CurrentUser extends User {
 	
 	public String getEmail() {
 		return getUsername();
+	}
+
+	public boolean isMale() {
+		return male;
+	}
+
+	public void setMale(boolean male) {
+		this.male = male;
 	}
 	
 }

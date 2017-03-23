@@ -11,12 +11,16 @@ import org.springframework.stereotype.Service;
 
 import de.dema.pd3.VoteOption;
 import de.dema.pd3.model.VoteModel;
+import de.dema.pd3.persistence.Comment;
+import de.dema.pd3.persistence.CommentRepository;
+import de.dema.pd3.persistence.CommentVote;
+import de.dema.pd3.persistence.CommentVoteRepository;
 import de.dema.pd3.persistence.Topic;
 import de.dema.pd3.persistence.TopicRepository;
+import de.dema.pd3.persistence.TopicVote;
+import de.dema.pd3.persistence.TopicVoteRepository;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
-import de.dema.pd3.persistence.Vote;
-import de.dema.pd3.persistence.VoteRepository;
 
 @Service
 public class VoteService {
@@ -24,34 +28,61 @@ public class VoteService {
     private static final Logger log = LoggerFactory.getLogger(VoteService.class);
 
     @Autowired
-    private VoteRepository voteRepo;
+    private TopicVoteRepository topicVoteRepo;
+
+    @Autowired
+    private CommentVoteRepository commentVoteRepo;
 
     @Autowired
     private TopicRepository topicRepo;
 
     @Autowired
+    private CommentRepository commentRepo;
+
+    @Autowired
     private UserRepository userRepo;
 
-    public void storeVote(String userEmail, long topicId, VoteOption selectedOption) {
-        User user = userRepo.findByEmail(userEmail);
-        log.debug("storing vote [userId:{}] [topicId:{}] [selectedOption:{}]", user.getId(), topicId, selectedOption);
+    public void storeTopicVote(Long userId, long topicId, VoteOption selectedOption) {
+    	log.debug("storing topic vote [userId:{}] [topicId:{}] [selectedOption:{}]", userId, topicId, selectedOption);
+        User user = userRepo.findOne(userId);
         Topic topic = topicRepo.findOne(topicId);
 
-        Vote vote = new Vote();
-        vote.setVotePk(user, topic);
+        TopicVote vote = topicVoteRepo.findByUserAndTopic(user, topic);
+        if (vote == null) {
+            vote = new TopicVote();
+            vote.setUser(user);
+            vote.setTopic(topic);
+        }
         vote.setSelectedOption(selectedOption);
         vote.setVoteTimestamp(LocalDateTime.now());
-
-        vote = voteRepo.save(vote);
-        log.info("vote stored [vote:{}]", vote);
+        vote = topicVoteRepo.save(vote);
+        log.info("topic vote stored [vote:{}]", vote);
     }
 
+    public Long storeCommentVote(Long userId, long commentId, VoteOption selectedOption) {
+    	log.debug("storing Comment vote [userId:{}] [topicId:{}] [selectedOption:{}]", userId, commentId, selectedOption);
+        User user = userRepo.findOne(userId);
+        Comment comment = commentRepo.findOne(commentId);
+
+        CommentVote vote = commentVoteRepo.findByUserIdAndCommentId(userId, comment.getId());
+        if (vote == null) {
+            vote = new CommentVote();
+            vote.setUser(user);
+            vote.setComment(comment);
+        }
+        vote.setSelectedOption(selectedOption);
+        vote.setVoteTimestamp(LocalDateTime.now());
+        vote = commentVoteRepo.save(vote);
+        log.info("comment vote stored [vote:{}]", vote);
+        return vote.getId();
+    }
+    
 	public Page<VoteModel> findByUser(User user, Pageable pageable) {
-		Page<Vote> page = voteRepo.findByVotePkUser(user, pageable);
+		Page<TopicVote> page = topicVoteRepo.findByUser(user, pageable);
 		return page.map(this::mapVote);
 	}
 	
-	private VoteModel mapVote(Vote vote) {
+	private VoteModel mapVote(TopicVote vote) {
 		return VoteModel.map(vote);
 	}
 }

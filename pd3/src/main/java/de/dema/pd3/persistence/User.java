@@ -50,6 +50,8 @@ public class User implements Serializable {
 	private LocalDate birthday;
 
 	private LocalDateTime lastLogin;
+	
+	private boolean male;
     
     private Boolean locked = Boolean.FALSE;
 	
@@ -166,6 +168,14 @@ public class User implements Serializable {
 
 	public void setBirthday(LocalDate birthday) {
 		this.birthday = birthday;
+	}
+
+	public boolean isMale() {
+		return male;
+	}
+
+	public void setMale(boolean male) {
+		this.male = male;
 	}
 	
 }

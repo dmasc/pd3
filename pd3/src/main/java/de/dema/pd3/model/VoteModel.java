@@ -3,7 +3,7 @@ package de.dema.pd3.model;
 import java.time.LocalDateTime;
 
 import de.dema.pd3.VoteOption;
-import de.dema.pd3.persistence.Vote;
+import de.dema.pd3.persistence.TopicVote;
 
 public class VoteModel {
 
@@ -59,12 +59,12 @@ public class VoteModel {
 		return VoteOption.ABSTENTION.equals(this.selectedOption);
 	}
 
-	public static VoteModel map(Vote vote) {
+	public static VoteModel map(TopicVote vote) {
 		VoteModel model = new VoteModel();
 		model.setVoteTimestamp(vote.getVoteTimestamp());
 		model.setSelectedOption(vote.getSelectedOption());
-		model.setTopicId(vote.getVotePk().getTopic().getId());
-		model.setTopicTitle(vote.getVotePk().getTopic().getTitle());
+		model.setTopicId(vote.getTopic().getId());
+		model.setTopicTitle(vote.getTopic().getTitle());
 		
 		return model;
 	}

@@ -15,7 +15,7 @@ import de.dema.pd3.persistence.Topic;
 import de.dema.pd3.persistence.TopicRepository;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
-import de.dema.pd3.persistence.VoteRepository;
+import de.dema.pd3.persistence.TopicVoteRepository;
 
 @Service
 public class TopicService {
@@ -26,7 +26,7 @@ public class TopicService {
 	private TopicRepository topicRepo;
 
 	@Autowired
-	private VoteRepository voteRepo;
+	private TopicVoteRepository voteRepo;
 
     @Autowired
     private UserRepository userRepo;
@@ -42,14 +42,14 @@ public class TopicService {
 		return mapTopic(topic);
 	}
 
-    public TopicModel save(TopicModel topicModel, String userEmail) {
+    public TopicModel save(TopicModel topicModel, Long userId) {
     	log.debug("saving topic [topicModel:{}]", topicModel);
         Topic topic;
         if (topicModel.getId() != null) {
             topic = topicRepo.findOne(topicModel.getId());
         } else {
             topic = new Topic();
-            topic.setAuthor(userRepo.findByEmail(userEmail));
+            topic.setAuthor(userRepo.findOne(userId));
             topic.setCreationDate(LocalDateTime.now());
         }
 
@@ -69,7 +69,7 @@ public class TopicService {
         model.setDeadline(topic.getDeadline());
         model.setDescription(topic.getDescription());
         model.setId(topic.getId());
-        model.setParticipants(voteRepo.countByVotePkTopic(topic));
+        model.setParticipants(voteRepo.countByTopic(topic));
         model.setTitle(topic.getTitle());
 
         return model;
