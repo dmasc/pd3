@@ -20,6 +20,8 @@ import de.dema.pd3.persistence.Topic;
 import de.dema.pd3.persistence.TopicRepository;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
+import de.dema.pd3.persistence.Vote;
+import de.dema.pd3.persistence.VoteRepository;
 
 @Component
 public class TestDataCreator {
@@ -34,6 +36,9 @@ public class TestDataCreator {
 	
 	@Autowired
 	private TopicRepository topicRepo;
+	
+	@Autowired
+	private VoteRepository voteRepo;
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -65,7 +70,15 @@ public class TestDataCreator {
 				Topic topic = createTopic(author);
 				topic = topicRepo.save(topic);
 				createComments(topic, author, 3, 4, null);
+				if (i < 13) {
+					Vote vote = new Vote(author, topic);
+					vote.setVoteTimestamp(LocalDateTime.now().minusDays(r.nextInt(7)).minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
+					vote.setSelectedOption(VoteOption.values()[r.nextInt(VoteOption.values().length)]);
+					voteRepo.save(vote);
+				}
 			}
+			
+			
 			log.info("creating test data finished");
 		}
 	}

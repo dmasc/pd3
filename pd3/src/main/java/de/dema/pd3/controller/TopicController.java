@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import de.dema.pd3.VoteOption;
 import de.dema.pd3.model.TopicModel;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
@@ -35,7 +36,7 @@ public class TopicController {
 	@Autowired
     private UserRepository userRepo;
 	
-	@GetMapping("/topic-overview")
+	@GetMapping("/topic/overview")
 	public String topicOverview(Model model, @PageableDefault(sort = "deadline", size = 10) Pageable pageable, Authentication auth) {
         User user = userRepo.findOne(((CurrentUser) auth.getPrincipal()).getId());
 		Page<TopicModel> page = topicService.getRunningTopics(pageable, user);
@@ -44,7 +45,7 @@ public class TopicController {
 		return "topics";
 	}
 
-	@GetMapping("/topicdetails")
+	@GetMapping("/topic/details")
 	public String topicDetails(Model model, @RequestParam("id") Long id) {
 		log.info("showing details [topicID:{}]", id);
 		TopicModel topicModel = topicService.loadTopic(id);
@@ -54,15 +55,22 @@ public class TopicController {
 
     @PostMapping("/topic/vote")
     public String voteForTopic(Model model, @RequestParam("topicId") long id, Authentication auth,
-                               @RequestParam(required = false, name = "voteYes") String voteYes) {
-        log.info("user voted for topic [user:{}] [topicId:{}] [voteYes:{}]", auth.getName(), id, voteYes != null);
+                               @RequestParam(required = false, name = "voteYes") String voteYes,
+                               @RequestParam(required = false, name = "voteNo") String voteNo) {
+    	VoteOption option = VoteOption.ABSTENTION;
+    	if (voteYes != null) {
+    		option = VoteOption.ACCEPTED;
+    	} else if (voteNo != null) {
+    		option = VoteOption.REJECTED;
+    	} 
+        log.info("user voted for topic [user:{}] [topicId:{}] [option:{}]", auth.getName(), id, option);
 
-        voteService.storeVote(auth.getName(), id, voteYes != null);
+        voteService.storeVote(auth.getName(), id, option);
 
-        return "redirect:/topic-overview";
+        return "redirect:/topic/overview";
     }
 
-    @GetMapping("/edittopic")
+    @GetMapping("/topic/edit")
     public String editTopic(Model model, @RequestParam(name = "id", required = false) Long id) {
         TopicModel topic;
         if (id != null) {

@@ -3,15 +3,25 @@ package de.dema.pd3.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import de.dema.pd3.model.RegisterUserModel;
+import de.dema.pd3.model.VoteModel;
+import de.dema.pd3.persistence.User;
+import de.dema.pd3.security.CurrentUser;
 import de.dema.pd3.services.UserService;
+import de.dema.pd3.services.VoteService;
 
 import javax.validation.Valid;
 
@@ -22,6 +32,9 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private VoteService voteService;
 	
     @GetMapping("/public/register")
     public String registerForm(RegisterUserModel user) {
@@ -39,7 +52,16 @@ public class UserController {
     }
 	
     @GetMapping("/user/profile")
-    public String userProfile(Model model) {
+    public String userProfile(Model model, @RequestParam(value = "id", required = false) Long id, Authentication auth, 
+    		@PageableDefault(sort = "voteTimestamp", size = 10, direction = Direction.DESC) Pageable pageable) {
+    	if (id == null) {
+    		id = ((CurrentUser) auth.getPrincipal()).getId();
+    	}
+    	User user = userService.findById(id);
+    	
+    	Page<VoteModel> votePage = voteService.findByUser(user, pageable);
+    	model.addAttribute("ownvotes", votePage);
+
     	return "profile";
     }
     

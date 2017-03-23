@@ -6,6 +6,24 @@
 
 <body>
 
+	<div layout:fragment="content" class="content">
+		
+		<h2>Abgegebene Stimmen</h2>
+		<div th:if="${ownvotes.totalElements > 0}">
+			<div th:replace="components/commonComponents :: paging (url='/user/profile', page=${ownvotes})"></div>
+			<ul>
+				<li th:each="vote : ${ownvotes.content}">
+					<a th:href="@{/topic/details(id=${vote.topicId})}">
+						<img th:src="${'/img/vote-' + (vote.accepted?'accepted':(vote.rejected?'rejected':'abstention')) + '.svg'}" style="height: 26px;"/>
+						<span th:text="${{vote.voteTimestamp}}"></span>
+						<span th:text="${vote.topicTitle}"></span>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<span th:if="${ownvotes.totalElements == 0}">Es wurden noch keine Stimmen abgegeben.</span>
+		
+	</div>
 
 </body>
 </html>
