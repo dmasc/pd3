@@ -1,32 +1,50 @@
 package de.dema.pd3.model;
 
+import de.dema.pd3.validation.Age;
+import de.dema.pd3.validation.PersoId;
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 
 import javax.validation.constraints.Past;
 
 public class RegisterUserModel {
 
+	@NotEmpty(message = "{register_user_model.forename.null}")
 	private String forename;
-	
+
+	@NotEmpty(message = "{register_user_model.surname.null}")
 	private String surname;
-	
+
+	@Email(message = "{register_user_model.email.format}")
+	@NotEmpty(message = "{register_user_model.email.null}")
 	private String email;
-	
+
+	@NotEmpty(message = "{register_user_model.password.null}")
 	private String password;
-	
-	@Past
-	private String passwordRepeat;
-	
+
+	@NotEmpty(message = "{register_user_model.passwordRepeat.null}")
+  private String passwordRepeat;
+
+	@NotEmpty(message = "{register_user_model.street.null}")
 	private String street;
-	
+
+	@NotEmpty(message = "{register_user_model.district.null}")
 	private String district;
-	
+
+	@Pattern(regexp = "\\d{5}}", message = "{register_user_model.zip.format}")
 	private String zip;
 	
 	private String phone;
-	
-	private LocalDate birthday;
-	
+
+	@Age(message = "{register_user_model.birthday.age}", minAge = 16)
+	@DateTimeFormat(pattern = "dd.MM.yyyy")
+	private LocalDate birthday; // TODO: Validation does not work for invalid dates (no err msg shown)
+
+	@PersoId(message = "{register_user_model.idCardNumber.format}")
 	private String idCardNumber;
 
 	public RegisterUserModel() {

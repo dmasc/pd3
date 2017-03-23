@@ -10,6 +10,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,8 @@ import de.dema.pd3.persistence.User;
 import de.dema.pd3.security.CurrentUser;
 import de.dema.pd3.services.UserService;
 import de.dema.pd3.services.VoteService;
+
+import javax.validation.Valid;
 
 @Controller
 public class UserController {
@@ -34,19 +37,17 @@ public class UserController {
 	private VoteService voteService;
 	
     @GetMapping("/public/register")
-    public String registerForm(Model model) {
-    	RegisterUserModel userModel = new RegisterUserModel();
-        model.addAttribute("reguser", userModel);
+    public String registerForm(RegisterUserModel user) {
         return "public/register";
     }
 
     @PostMapping("/public/register")
-    public String registerSubmit(@ModelAttribute RegisterUserModel user, Model model) {
+    public String registerSubmit(@Valid @ModelAttribute RegisterUserModel user, BindingResult bindingResult) {
     	log.debug("register form submitted [data:{}]", user);
-        model.addAttribute("reguser", user);
-        
-        userService.registerUser(user);
-        
+        if (bindingResult.hasErrors()) {
+            log.error("register form invalid [data:{}]", user);
+            return "/public/register";
+        }
         return "public/home";
     }
 	
