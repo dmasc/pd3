@@ -8,7 +8,7 @@ public interface TopicVoteRepository extends CrudRepository<TopicVote, Long> {
 	
 	Page<TopicVote> findByUser(User user, Pageable pageable);
 	
-	TopicVote findByUserAndTopic(User user, Topic topic);
+	TopicVote findByUserIdAndTopicId(Long userId, Long topicId);
 	
 	int countByTopic(Topic topic);
 

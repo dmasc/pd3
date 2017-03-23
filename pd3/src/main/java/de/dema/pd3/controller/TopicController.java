@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import de.dema.pd3.VoteOption;
 import de.dema.pd3.model.TopicModel;
+import de.dema.pd3.model.VoteModel;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
 import de.dema.pd3.security.CurrentUser;
@@ -55,10 +56,15 @@ public class TopicController {
 	@GetMapping("/topic/details")
 	public String topicDetails(Model model, @RequestParam("id") Long id, Authentication auth,
 			@PageableDefault(sort = "creationDate", size = 10, direction = Direction.DESC) Pageable pageable) {
-		log.info("showing details [topicID:{}]", id);
+		log.debug("showing details [topicID:{}]", id);
+		Long userId = ((CurrentUser) auth.getPrincipal()).getId();
 		TopicModel topicModel = topicService.loadTopic(id);
 		model.addAttribute("topic", topicModel);
-		model.addAttribute("comments", commentService.loadByTopic(id, ((CurrentUser) auth.getPrincipal()).getId(), pageable));
+		VoteModel topicVote = voteService.findByUserIdAndTopicId(userId, id);
+		if (topicVote != null) {
+			model.addAttribute("topicVote", topicVote.getSelectedOption());
+		}
+		model.addAttribute("comments", commentService.loadByTopic(id, userId, pageable));
 		
 		return "topicdetails";
 	}

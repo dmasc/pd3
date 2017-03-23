@@ -60,6 +60,9 @@ public class VoteModel {
 	}
 
 	public static VoteModel map(TopicVote vote) {
+		if (vote == null) {
+			return null;
+		}
 		VoteModel model = new VoteModel();
 		model.setVoteTimestamp(vote.getVoteTimestamp());
 		model.setSelectedOption(vote.getSelectedOption());

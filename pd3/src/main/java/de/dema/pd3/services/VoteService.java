@@ -47,7 +47,7 @@ public class VoteService {
         User user = userRepo.findOne(userId);
         Topic topic = topicRepo.findOne(topicId);
 
-        TopicVote vote = topicVoteRepo.findByUserAndTopic(user, topic);
+        TopicVote vote = topicVoteRepo.findByUserIdAndTopicId(user.getId(), topic.getId());
         if (vote == null) {
             vote = new TopicVote();
             vote.setUser(user);
@@ -79,10 +79,11 @@ public class VoteService {
     
 	public Page<VoteModel> findByUser(User user, Pageable pageable) {
 		Page<TopicVote> page = topicVoteRepo.findByUser(user, pageable);
-		return page.map(this::mapVote);
+		return page.map(VoteModel::map);
 	}
 	
-	private VoteModel mapVote(TopicVote vote) {
-		return VoteModel.map(vote);
+	public VoteModel findByUserIdAndTopicId(Long userId, Long topicId) {
+		return VoteModel.map(topicVoteRepo.findByUserIdAndTopicId(userId, topicId));
 	}
+
 }

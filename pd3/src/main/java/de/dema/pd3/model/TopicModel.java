@@ -2,6 +2,8 @@ package de.dema.pd3.model;
 
 import java.time.LocalDateTime;
 
+import de.dema.pd3.VoteOption;
+
 public class TopicModel {
 
 	private Long id;
@@ -15,6 +17,8 @@ public class TopicModel {
 	private String author;
 	
 	private int participants;
+	
+	private VoteOption userVoteSelection;
 
 	public Long getId() {
 		return id;
@@ -64,8 +68,16 @@ public class TopicModel {
 		this.participants = participants;
 	}
 
+	public VoteOption getUserVoteSelection() {
+		return userVoteSelection;
+	}
+
+	public void setUserVoteSelection(VoteOption userVoteSelection) {
+		this.userVoteSelection = userVoteSelection;
+	}
+	
 	public boolean isRunning() {
 		return LocalDateTime.now().isBefore(this.deadline);
 	}
-	
+
 }

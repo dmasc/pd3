@@ -18,9 +18,9 @@
 			<div class="footer">
 				<form th:if="*{running}" th:action="@{/topic/vote}" method="post" style="display: inline-block;">
 					<input type="hidden" name="topicId" th:value="*{id}" />
-					<input type="submit" name="voteYes" value="Mit Ja stimmen" />
-					<input type="submit" name="voteNo" value="Mit Nein stimmen" />
-					<input type="submit" name="voteAbstention" value="Enthalten" />
+					<input th:disabled="${(topicVote eq T(de.dema.pd3.VoteOption).ACCEPTED?true:false)}" type="submit" name="voteYes" value="Mit Ja stimmen" />
+					<input th:disabled="${(topicVote eq T(de.dema.pd3.VoteOption).REJECTED?true:false)}" type="submit" name="voteNo" value="Mit Nein stimmen" />
+					<input th:disabled="${(topicVote eq T(de.dema.pd3.VoteOption).ABSTENTION?true:false)}" type="submit" name="voteAbstention" value="Enthalten" />
 				</form>
 				<input type="button" value="Zurück" onclick="javascript: history.go(-1)" />
 			</div>
@@ -41,7 +41,7 @@
 		    <br/>
 			<div th:replace="components/commonComponents :: paging (url='/topic/details?id='+${topic.id}, page=${comments})"></div>
 	    	<div th:each="comment : ${comments.content}" class="comment-and-replies">
-	    		<div th:replace="components/commonComponents :: comment (model=${comment}, topicId=${topic.id})"></div>
+	    		<div th:replace="components/commonComponents :: comment (model=${comment}, topicId=${topic.id}, pageIndex=${comments.number})"></div>
 	    	</div>
 	    </div>
 	</div>

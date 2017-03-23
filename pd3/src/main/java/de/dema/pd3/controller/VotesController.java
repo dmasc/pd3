@@ -26,11 +26,12 @@ public class VotesController {
     }
     
     @PostMapping("/comment/vote")
-    public String saveCommentVote(@RequestParam("topicId") Long topicId, @RequestParam("commentId") Long commentId, 
+    public String saveCommentVote(@RequestParam("topicId") Long topicId, @RequestParam("commentId") Long commentId, @RequestParam("page") int page,  
     		@RequestParam(value = "like.x", required = false) String like, Authentication auth, RedirectAttributes attr) {
     	voteService.storeCommentVote(((CurrentUser) auth.getPrincipal()).getId(), commentId, like != null ? VoteOption.ACCEPTED : VoteOption.REJECTED);
     	
     	attr.addAttribute("id", topicId);
+    	attr.addAttribute("page", page);
     	return "redirect:/topic/details";
     }
 
