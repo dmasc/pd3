@@ -2,6 +2,7 @@
 <html layout:decorator="layout/default" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:spring="http://www.springframework.org/tags">
 <head>
 	<title>Ansicht Abstimmung</title>
+	<script th:src="@{/js/comment.js}"></script>
 	<link rel="stylesheet" type="text/css" href="/css/base.css" th:href="@{/css/comment.css}" />
 </head>
 
@@ -22,7 +23,7 @@
 					<input th:disabled="${(topicVote eq T(de.dema.pd3.VoteOption).REJECTED?true:false)}" type="submit" name="voteNo" value="Mit Nein stimmen" />
 					<input th:disabled="${(topicVote eq T(de.dema.pd3.VoteOption).ABSTENTION?true:false)}" type="submit" name="voteAbstention" value="Enthalten" />
 				</form>
-				<input type="button" value="Zurück" onclick="javascript: history.go(-1)" />
+				<input type="button" value="Zur Übersicht" onclick="javascript: window.location.href = '/topic/overview'" />
 			</div>
 	    </div>
 	    <br/>
@@ -44,6 +45,20 @@
 	    		<div th:replace="components/commonComponents :: comment (model=${comment}, topicId=${topic.id}, pageIndex=${comments.number})"></div>
 	    	</div>
 	    </div>
+
+		<div id="movingcommentpanel" class="comment reply" style="display:none;">
+			<form th:action="@{/comment/reply}" method="post">
+	  				<input type="hidden" name="topicId" th:value="${topic.id}" />
+	  				<input type="hidden" name="page" th:value="${comments.number}" />
+	  				<input type="hidden" name="commentId" />
+				<img th:src="${'/img/user-round-'+((not #authentication.principal.male)?'fe':'')+'male-1.svg'}" class="usericon" />
+				<div class="comment-textblock">
+			   		<textarea name="text" class="comment" placeholder="Tragen Sie Ihre Antwort auf den Kommentar hier ein" autofocus="autofocus"></textarea>
+					<a href="javascript: submitReply();" class="reply">Antwort absenden</a>
+					<a href="javascript: hideMovingCommentPanel();" class="reply">Abbrechen</a>
+				</div>
+			</form>
+		</div>
 	</div>
 
 </body>

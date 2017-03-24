@@ -107,7 +107,7 @@ public class TopicController {
     }
 
     @PostMapping("/topic/comment")
-    public String comment(Model model, @ModelAttribute("text") String text, @ModelAttribute("topicId") Long topicId, Authentication auth, RedirectAttributes attr) {
+    public String comment(@ModelAttribute("text") String text, @ModelAttribute("topicId") Long topicId, Authentication auth, RedirectAttributes attr) {
     	if (!StringUtils.isBlank(text)) {
 	    	commentService.save(((CurrentUser) auth.getPrincipal()).getId(), topicId, text);
     	}
@@ -115,4 +115,16 @@ public class TopicController {
     	return "redirect:/topic/details";
     }
     
+    @PostMapping("/comment/reply")
+    public String saveCommentVote(@RequestParam("topicId") Long topicId, @RequestParam("commentId") Long commentId, @RequestParam("page") int page,  
+    		@ModelAttribute("text") String text, Authentication auth, RedirectAttributes attr) {
+    	if (!StringUtils.isBlank(text)) {
+    		commentService.saveReply(((CurrentUser) auth.getPrincipal()).getId(), commentId, text);
+    	}
+    	
+    	attr.addAttribute("id", topicId);
+    	attr.addAttribute("page", page);
+    	return "redirect:/topic/details";
+    }
+
 }

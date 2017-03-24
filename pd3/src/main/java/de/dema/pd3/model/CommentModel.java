@@ -96,7 +96,7 @@ public class CommentModel {
 		model.setAuthorName(comment.getAuthor().getForename() + " " + comment.getAuthor().getSurname());
 		model.setAuthorId(comment.getAuthor().getId());
 		model.setCreationTimestamp(comment.getCreationDate());
-		model.setText(comment.getText());
+		model.setText(injectHtmlTags(comment.getText()));
 		model.setUserLikeSelection(userLikeSelection.apply(comment));
 		model.setAuthorGenderMale(comment.getAuthor().isMale());
 		List<CommentModel> repliesList = comment.getReplies().stream().map(c -> CommentModel.map(c, userLikeSelection))
@@ -106,4 +106,11 @@ public class CommentModel {
 		
 		return model;
 	}
+	
+	protected static String injectHtmlTags(String text) {
+		return text.replaceAll("(\\s)(www\\.)", "$1http://$2")
+				.replaceAll("(\\s)((?:https?://|https?://www\\.|www\\.)\\S+?(?:\\.\\S+)+)(\\.?\\s)", "$1<a href=\"$2\" target=\"_blank\">$2</a>$3")
+				.replaceAll("\\n", "<br/>");
+	}
+	
 }

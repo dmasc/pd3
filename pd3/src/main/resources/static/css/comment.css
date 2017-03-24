@@ -9,6 +9,7 @@ textarea.comment {
 	padding: 3px;
 	border: none;
 	background: transparent;
+	margin: 0;
 }
 
 div.comment-and-replies {
@@ -17,14 +18,19 @@ div.comment-and-replies {
 	margin-top: 5px;
 }
 
-div.comment-and-replies div.replies-container {
+div.comment-and-replies div.replies-container,
+div.comment.reply {
 	margin-left: 30px;
+}
+
+div.comment.reply {
+	line-height: 1;
 }
 
 div.comment-and-replies div.comment {
 	padding: 8px;
 	background-color: white;
-	min-height: 57px;
+	min-height: 64px;
 }
 
 div.comment .date {

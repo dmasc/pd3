@@ -54,5 +54,17 @@ public class CommentService {
 		comment.setCreationDate(LocalDateTime.now());
 		return commentRepo.save(comment).getId();
 	}
+
+	public Long saveReply(Long userId, Long commentId, String text) {
+		log.info("saving reply to comment [userId:{}] [commentId:{}] [text:{}]");
+		Comment parent = commentRepo.findOne(commentId);
+		Comment comment = new Comment();
+		comment.setParent(parent);
+		comment.setAuthor(userRepo.findOne(userId));
+		comment.setTopic(parent.getTopic());
+		comment.setText(text);
+		comment.setCreationDate(LocalDateTime.now());
+		return commentRepo.save(comment).getId();
+	}
     
 }

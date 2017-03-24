@@ -191,3 +191,7 @@ input[type=submit]:disabled, input[type=button]:disabled, input[type=reset]:disa
   	cursor: not-allowed;
 }
 
+input[type=image]:disabled {
+	pointer-events: none;
+	cursor: default;
+}
