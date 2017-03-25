@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping("/public/register")
-    public String registerSubmit(@Valid @ModelAttribute RegisterUserModel user, BindingResult bindingResult) {
+    public String registerSubmit(@Validated(value = RegisterUserModel.RegisterUserValidation.class) @ModelAttribute RegisterUserModel user, BindingResult bindingResult) {
     	log.debug("register form submitted [data:{}]", user);
         if (bindingResult.hasErrors()) {
             log.error("register form invalid [data:{}]", user);
@@ -63,7 +64,7 @@ public class UserController {
     	model.addAttribute("user", user);
     	model.addAttribute("ownvotes", votePage);
 
-    	return "profile";
+        return "profile";
     }
     
     

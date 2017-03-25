@@ -1,16 +1,19 @@
 package de.dema.pd3.validation;
 
 
+import org.apache.tomcat.jni.Local;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeParseException;
 
 /**
  * Validates brithday
  * Created by Ronny on 22.03.2017.
  */
-public class AgeValidator implements ConstraintValidator<Age, LocalDate> {
+public class AgeValidator implements ConstraintValidator<Age, String> {
 
     private int minAge;
     private int maxAge;
@@ -22,12 +25,14 @@ public class AgeValidator implements ConstraintValidator<Age, LocalDate> {
     }
 
     @Override
-    public boolean isValid(LocalDate date, ConstraintValidatorContext constraintValidatorContext) {
-        if (date == null) {
-            return false;
-        } else {
-            int age = Period.between(date, LocalDate.now()).getYears();
+    public boolean isValid(String date, ConstraintValidatorContext constraintValidatorContext) {
+        try {
+            LocalDate localDate = LocalDate.parse(date);
+            int age = Period.between(localDate, LocalDate.now()).getYears();
             return age >= minAge && age <= maxAge;
+        } catch (Exception e) {
+            // ignore, format check via pattern...
+            return true;
         }
     }
 }

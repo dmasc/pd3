@@ -13,7 +13,7 @@
 		<form action="#" th:action="@{/public/register}" th:object="${registerUserModel}" method="post" class="default">
 			<label>E-Mail-Adresse:</label><input type="text" th:field="*{email}" /> <label th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></label><br/>
 			<label>Passwort:</label><input type="password" th:field="*{password}" /> <label th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></label><br/>
-			<label>Passwort wiederholen:</label><input type="password" th:field="*{passwordRepeat}" /> <label th:if="${#fields.hasErrors('passwordRepeat')}" th:errors="*{passwordRepeat}"></label><br/>
+			<label>Passwort wiederholen:</label><input type="password" th:field="*{passwordRepeat}" /> <label th:if="${#fields.hasErrors('passwordRepeat')}" th:errors="*{passwordRepeat}"></label><label th:if="${#fields.hasErrors('global')}" th:errors="*{global}"></label><br/>
 			<label>Vorname:</label><input type="text" th:field="*{forename}" /> <label th:if="${#fields.hasErrors('forename')}" th:errors="*{forename}"></label><br/>
 			<label>Nachname:</label><input type="text" th:field="*{surname}" /> <label th:if="${#fields.hasErrors('surname')}" th:errors="*{surname}"></label><br/>
 			<label>Straße und Hausnummer:</label><input type="text" th:field="*{street}" /> <label th:if="${#fields.hasErrors('street')}" th:errors="*{street}"></label><br/>

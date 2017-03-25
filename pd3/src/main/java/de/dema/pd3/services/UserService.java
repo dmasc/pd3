@@ -1,5 +1,6 @@
 package de.dema.pd3.services;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ public class UserService {
 		log.debug("registerUser called [model:{}]", userModel);
 		
 		User user = new User();
-		user.setBirthday(userModel.getBirthday());
+		user.setBirthday(userModel.getBirthday() != null ? LocalDate.parse(userModel.getBirthday()) : null);
 		user.setDistrict(userModel.getDistrict());
 		user.setEmail(userModel.getEmail());
 		user.setForename(userModel.getForename());
