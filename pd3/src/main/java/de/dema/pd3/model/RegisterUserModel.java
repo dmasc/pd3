@@ -8,11 +8,14 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import de.dema.pd3.persistence.User;
 import de.dema.pd3.validation.Age;
 import de.dema.pd3.validation.PersoId;
 
 public class RegisterUserModel {
 
+	private Long id;
+	
 	@NotEmpty(message = "{register_user_model.forename.null}")
 	private String forename;
 
@@ -38,6 +41,7 @@ public class RegisterUserModel {
 	@Pattern(regexp = "\\d{5}}", message = "{register_user_model.zip.format}")
 	private String zip;
 	
+	@Pattern(regexp = "\\+?[\\d -/]{6m}", message = "{register_user_model.phone.format}")
 	private String phone;
 
 	@Age(message = "{register_user_model.birthday.age}", minAge = 16)
@@ -47,9 +51,14 @@ public class RegisterUserModel {
 	@PersoId(message = "{register_user_model.idCardNumber.format}")
 	private String idCardNumber;
 
-	public RegisterUserModel() {
+	public Long getId() {
+		return id;
 	}
-	
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public String getForename() {
 		return forename;
 	}
@@ -138,4 +147,23 @@ public class RegisterUserModel {
 		this.idCardNumber = idCardNumber;
 	}
 	
+	public static RegisterUserModel map(User user) {
+		if (user == null) {
+			return null;
+		}
+		
+		RegisterUserModel model = new RegisterUserModel();
+		model.setId(user.getId());
+		model.setBirthday(user.getBirthday());
+		model.setDistrict(user.getDistrict());
+		model.setEmail(user.getEmail());
+		model.setForename(user.getForename());
+		model.setIdCardNumber(user.getIdCardNumber());
+		model.setPhone(user.getPhone());
+		model.setStreet(user.getStreet());
+		model.setSurname(user.getSurname());
+		model.setZip(user.getZip());
+		
+		return model;
+	}
 }

@@ -6,8 +6,9 @@
 
 <body>
 
-	<div layout:fragment="content" class="content">
+	<div layout:fragment="content" class="content" th:with="isCurrentUser=${user.id eq #authentication.principal.id}">
 		
+		<h1 th:text="${user.forename}+' '+${user.surname}"></h1>
 		<h2>Abgegebene Stimmen</h2>
 		<div th:if="${ownvotes.totalElements > 0}">
 			<div th:replace="components/commonComponents :: paging (url='/user/profile', page=${ownvotes})"></div>

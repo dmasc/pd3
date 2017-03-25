@@ -6,7 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface TopicVoteRepository extends CrudRepository<TopicVote, Long> {
 	
-	Page<TopicVote> findByUser(User user, Pageable pageable);
+	Page<TopicVote> findByUserId(Long user, Pageable pageable);
 	
 	TopicVote findByUserIdAndTopicId(Long userId, Long topicId);
 	

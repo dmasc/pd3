@@ -48,9 +48,9 @@
 
 		<div id="movingcommentpanel" class="comment reply" style="display:none;">
 			<form th:action="@{/comment/reply}" method="post">
-	  				<input type="hidden" name="topicId" th:value="${topic.id}" />
-	  				<input type="hidden" name="page" th:value="${comments.number}" />
-	  				<input type="hidden" name="commentId" />
+  				<input type="hidden" name="topicId" th:value="${topic.id}" />
+  				<input type="hidden" name="page" th:value="${comments.number}" />
+  				<input type="hidden" name="commentId" />
 				<img th:src="${'/img/user-round-'+((not #authentication.principal.male)?'fe':'')+'male-1.svg'}" class="usericon" />
 				<div class="comment-textblock">
 			   		<textarea name="text" class="comment" placeholder="Tragen Sie Ihre Antwort auf den Kommentar hier ein" autofocus="autofocus"></textarea>

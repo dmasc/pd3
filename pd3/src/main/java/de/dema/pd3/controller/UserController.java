@@ -1,5 +1,7 @@
 package de.dema.pd3.controller;
 
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +20,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import de.dema.pd3.model.RegisterUserModel;
 import de.dema.pd3.model.VoteModel;
-import de.dema.pd3.persistence.User;
 import de.dema.pd3.security.CurrentUser;
 import de.dema.pd3.services.UserService;
 import de.dema.pd3.services.VoteService;
-
-import javax.validation.Valid;
 
 @Controller
 public class UserController {
@@ -57,12 +56,16 @@ public class UserController {
     	if (id == null) {
     		id = ((CurrentUser) auth.getPrincipal()).getId();
     	}
-    	User user = userService.findById(id);
     	
-    	Page<VoteModel> votePage = voteService.findByUser(user, pageable);
+    	RegisterUserModel user = userService.findRegisterUserById(id);
+    	Page<VoteModel> votePage = voteService.findByUserId(id, pageable);
+
+    	model.addAttribute("user", user);
     	model.addAttribute("ownvotes", votePage);
 
     	return "profile";
     }
+    
+    
     
 }

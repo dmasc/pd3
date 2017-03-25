@@ -77,8 +77,8 @@ public class VoteService {
         return vote.getId();
     }
     
-	public Page<VoteModel> findByUser(User user, Pageable pageable) {
-		Page<TopicVote> page = topicVoteRepo.findByUser(user, pageable);
+	public Page<VoteModel> findByUserId(Long userId, Pageable pageable) {
+		Page<TopicVote> page = topicVoteRepo.findByUserId(userId, pageable);
 		return page.map(VoteModel::map);
 	}
 	

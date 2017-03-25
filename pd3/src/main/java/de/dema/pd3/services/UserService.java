@@ -1,11 +1,15 @@
 package de.dema.pd3.services;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import de.dema.pd3.model.ChatroomMessageModel;
+import de.dema.pd3.model.ChatroomModel;
 import de.dema.pd3.model.RegisterUserModel;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
@@ -41,8 +45,23 @@ public class UserService {
 		return user;
 	}
 	
-	public User findById(Long id) {
-		return userRepo.findOne(id);
+	public RegisterUserModel findRegisterUserById(Long id) {
+		return RegisterUserModel.map(userRepo.findOne(id));
+	}
+	
+	public void sendMessage(String text, Long senderId, Long... recipient) {
+		//TODO RONNY, EINBAUEN!!!
+	}
+	
+	public List<ChatroomModel> loadAllChatroomsOrderedByTimestampOfLastMessageDesc(Long userId) {
+		//TODO RONNY, EINBAUEN!!!
+		return null;
+	}
+	
+	public List<ChatroomMessageModel> loadMessagesforChatroom(Long userId, Long chatroomiid) {
+		//TODO RONNY, EINBAUEN!!!
+		//TODO Bedenke, dass auch LAST_MSG_READ_TIMESTAMP geupdatet werden muss!
+		return null;
 	}
 	
 }
