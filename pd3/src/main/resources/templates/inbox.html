@@ -35,7 +35,7 @@
 				</div>
 				<div class="room-send-panel">
 					<form th:action="@{/user/send-message/room}" method="post">
-						<input type="hidden" name="roomId" th:value="${param.selRoom[0]}" />
+						<input type="hidden" name="recipientId" th:value="${param.selRoom[0]}" />
 						<div style="display: table; width: 100%;">
 							<div style="display: table-cell">
 								<textarea name="text" autofocus="autofocus" 

@@ -17,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -86,16 +87,20 @@ public class UserController {
     }    		
 
     @PostMapping("/user/send-message/{target}")
-    public String sendMessageToUser(@RequestParam("target") String target, @ModelAttribute("recipientId") Long recipientId, 
+    public String sendMessage(@PathVariable("target") String target, @ModelAttribute("recipientId") Long recipientId, 
     		@ModelAttribute("text") String text, Authentication auth, RedirectAttributes attr) {
-    	if ("user".equals("target")) {
+    	String redirect = "/";
+    	if ("user".equals(target)) {
     		userService.sendMessage(text, ((CurrentUser) auth.getPrincipal()).getId(), recipientId);
-    	} else if ("room".equals("target")) {
+        	attr.addAttribute("id", recipientId);
+        	redirect = "/user/profile";
+    	} else if ("room".equals(target)) {
     		//TODO Service-Methode für "in den Raum reinsenden" aufrufen
+        	attr.addAttribute("selRoom", recipientId);
+        	redirect = "/user/inbox";
     	}
     	
-    	attr.addAttribute("id", recipientId);
-    	return "redirect:/user/profile";
+    	return "redirect:" + redirect;
     }    
     
     @PostMapping("/user/delete-chatroom")
