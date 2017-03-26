@@ -2,6 +2,7 @@ package de.dema.pd3.services;
 
 import java.util.List;
 
+import de.dema.pd3.model.events.EventModelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +25,15 @@ public class UserService {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private EventService eventService;
 	
 	public User registerUser(RegisterUserModel userModel) {
 		log.debug("registerUser called [model:{}]", userModel);
 		
 		User user = new User();
+		user.setName(userModel.getForename() + " " + userModel.getSurname());
 		user.setBirthday(userModel.getBirthday());
 		user.setDistrict(userModel.getDistrict());
 		user.setEmail(userModel.getEmail());
@@ -49,8 +54,8 @@ public class UserService {
 		return RegisterUserModel.map(userRepo.findOne(id));
 	}
 	
-	public void sendMessage(String text, Long senderId, Long... recipient) {
-		//TODO RONNY, EINBAUEN!!!
+	public void sendMessage(String text, Long senderId, Long... recipient) throws Exception {
+		eventService.sendEvent(EventModelFactory.createUserMessage(String.valueOf(senderId), text, recipient));
 	}
 	
 	public List<ChatroomModel> loadAllChatroomsOrderedByTimestampOfLastMessageDesc(Long userId) {

@@ -5,22 +5,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
-import javax.persistence.Cacheable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Cacheable
-public class User implements Serializable {
+public class User extends EventRecipient implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Id
-    @GeneratedValue
-	private Long id;
-	
     @Column(nullable = false, unique = true)
 	private String email;
     
@@ -50,20 +42,15 @@ public class User implements Serializable {
 	private LocalDate birthday;
 
 	private LocalDateTime lastLogin;
+
+	private LocalDateTime lastCheckForMessages;
 	
 	private boolean male;
     
     private Boolean locked = Boolean.FALSE;
 	
 	public User() {
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
+		setType('u');
 	}
 
 	public LocalDateTime getLastLogin() {
@@ -177,5 +164,4 @@ public class User implements Serializable {
 	public void setMale(boolean male) {
 		this.male = male;
 	}
-	
 }

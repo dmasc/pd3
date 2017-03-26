@@ -41,7 +41,7 @@ public class RegisterUserModel {
 	@Pattern(regexp = "\\d{5}}", message = "{register_user_model.zip.format}")
 	private String zip;
 	
-	@Pattern(regexp = "\\+?[\\d -/]{6m}", message = "{register_user_model.phone.format}")
+	@Pattern(regexp = "\\+?[\\d -/]{6}", message = "{register_user_model.phone.format}")
 	private String phone;
 
 	@Age(message = "{register_user_model.birthday.age}", minAge = 16)

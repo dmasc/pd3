@@ -16,11 +16,13 @@ public class TestUtil {
 	public static Random r = new Random();
 	
 	public static User createRandomUser() {
+		String name = RandomStringUtils.randomAlphabetic(r.nextInt(10) + 3);
 		User user = new User();
+		user.setName(name);
 		user.setBirthday(LocalDate.now().minusYears(r.nextInt(80) + 18).minusMonths(r.nextInt(12)).minusDays(r.nextInt(28)));
 		user.setDistrict(RandomStringUtils.randomAlphabetic(r.nextInt(20) + 3));
 		user.setEmail(RandomStringUtils.randomAlphabetic(r.nextInt(15) + 3) + "@mail.de");
-		user.setForename(RandomStringUtils.randomAlphabetic(r.nextInt(10) + 3));
+		user.setForename(name);
 		user.setIdCardNumber("T" + (r.nextInt(900000000) + 100000000));
 		user.setPassword("");
 		user.setPhone("0" + (r.nextInt(900) + 100)  + "-" + (r.nextInt(9000000) + 1000000));
