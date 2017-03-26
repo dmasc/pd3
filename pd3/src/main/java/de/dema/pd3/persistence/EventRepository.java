@@ -12,6 +12,6 @@ import java.util.Set;
  */
 public interface EventRepository extends CrudRepository<Event, Long> {
 
-    Page<Event> findByRecipientsIn(List<EventRecipient> recipients, Pageable pageable);
+    Page<Event> findByTypeAndRecipientsIn(Integer type, List<EventRecipient> recipients, Pageable pageable);
 
 }

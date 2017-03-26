@@ -32,7 +32,21 @@ public class EventService {
     @Autowired
     private EventRecipientRepository eventRecipientRepository;
 
-    public Page<EventModel> getEventsForUser(Pageable page, Long userId) {
+    public List<EventModel> getEventsFor(Pageable page, Long id, int type) {
+        List<EventRecipient> recipientList = new ArrayList<>();
+        User user = userRepository.findOne(id);
+        if (user != null) {
+            recipientList.add(user);
+        } else {
+            UserGroup group = userGroupRepository.findOne(id);
+            recipientList.add(group);
+        }
+        List<EventModel> result = new ArrayList<>();
+        eventRepository.findByTypeAndRecipientsIn(type, recipientList, page).forEach(event -> result.add(EventModel.map(event)));
+        return result;
+    }
+
+    public List<EventModel> getEventsForUser(Pageable page, Long userId, int type) {
         List<EventRecipient> recipientList = new ArrayList<>();
         User user = userRepository.findOne(userId);
         recipientList.add(user);
@@ -41,7 +55,9 @@ public class EventService {
         for (UserGroup group : groups) {
             recipientList.add(group);
         }
-        return eventRepository.findByRecipientsIn(recipientList, page).map(EventModel::map);
+        List<EventModel> result = new ArrayList<>();
+        eventRepository.findByTypeAndRecipientsIn(type, recipientList, page).forEach(event -> result.add(EventModel.map(event)));
+        return result;
     }
 
     public void sendEvent(EventModel eventModel) throws Exception {
