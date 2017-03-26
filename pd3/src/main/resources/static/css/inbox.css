@@ -105,16 +105,14 @@ div.room-send-panel textarea {
 
 div.room-send-panel button {
 	background-color: #ead5bd; 
-	border-color: transparent;
-	padding: 0; 
 	cursor: pointer;
-	border-radius: 35px 35px 35px 35px;
-	-moz-border-radius: 35px 35px 35px 35px;
-	-webkit-border-radius: 35px 35px 35px 35px;
 	border: 1px solid #663d08;
 	padding: 8px;
 	margin: 5px;
 	
+	border-radius: 35px 35px 35px 35px;
+	-moz-border-radius: 35px 35px 35px 35px;
+	-webkit-border-radius: 35px 35px 35px 35px;
 	-webkit-box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.65);
 	-moz-box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.65);
 	box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.65);

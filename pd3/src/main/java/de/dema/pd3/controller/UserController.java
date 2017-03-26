@@ -24,7 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import de.dema.pd3.model.ChatroomModel;
 import de.dema.pd3.model.RegisterUserModel;
-import de.dema.pd3.model.VoteModel;
+import de.dema.pd3.model.TopicVoteModel;
 import de.dema.pd3.security.CurrentUser;
 import de.dema.pd3.services.UserService;
 import de.dema.pd3.services.VoteService;
@@ -63,7 +63,7 @@ public class UserController {
     	}
     	
     	RegisterUserModel user = userService.findRegisterUserById(id);
-    	Page<VoteModel> votePage = voteService.findByUserId(id, pageable);
+    	Page<TopicVoteModel> votePage = voteService.findByUserId(id, pageable);
 
     	model.addAttribute("user", user);
     	model.addAttribute("ownvotes", votePage);

@@ -19,7 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import de.dema.pd3.VoteOption;
 import de.dema.pd3.model.TopicModel;
-import de.dema.pd3.model.VoteModel;
+import de.dema.pd3.model.TopicVoteModel;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
 import de.dema.pd3.security.CurrentUser;
@@ -60,7 +60,7 @@ public class TopicController {
 		Long userId = ((CurrentUser) auth.getPrincipal()).getId();
 		TopicModel topicModel = topicService.loadTopic(id);
 		model.addAttribute("topic", topicModel);
-		VoteModel topicVote = voteService.findByUserIdAndTopicId(userId, id);
+		TopicVoteModel topicVote = voteService.findByUserIdAndTopicId(userId, id);
 		if (topicVote != null) {
 			model.addAttribute("topicVote", topicVote.getSelectedOption());
 		}
