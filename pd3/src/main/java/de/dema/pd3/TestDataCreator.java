@@ -29,7 +29,9 @@ import de.dema.pd3.persistence.UserRepository;
 public class TestDataCreator {
 
 	private static final Logger log = LoggerFactory.getLogger(TestDataCreator.class);
-	
+
+	private static Random r = new Random();	
+
 	@Autowired
 	private UserRepository userRepo;
 	
@@ -51,8 +53,6 @@ public class TestDataCreator {
 	// Der Wert kann in der Run Config als VM-Parameter gesetzt werden: -Dtestdata=true
 	@Value("${testdata:false}")
 	private boolean shouldCreateTestData;
-	
-	private Random r = new Random();
 	
 	@PostConstruct
 	public void createTestData() {
@@ -115,11 +115,11 @@ public class TestDataCreator {
 		return topic;
 	}
 	
-	private String createRandomText(int length) {
+	public static String createRandomText(int length) {
 		String s = "";
 		do {
 			s += RandomStringUtils.randomAlphabetic(r.nextInt(19) + 1);
-			if (r.nextInt(5) == 4) {
+			if (r.nextInt(7) == 6) {
 				s += ".";
 			}
 			s += " ";
