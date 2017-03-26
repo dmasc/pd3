@@ -28,8 +28,7 @@ public class PersoIdValidator implements ConstraintValidator<PersoId, String> {
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
         Matcher m = null;
         if ((m = PERSO_NUMMER_PATTERN.matcher(s)).find()) {
-            String checkSum = m.group(3);
-            return checkSum.equals(calculateChecksum(m.group(1),  m.group(2)));
+            return m.group(3).equals(calculateChecksum(m.group(1),  m.group(2)));
         }
         return false;
     }

@@ -19,13 +19,8 @@ public class MatchingFieldsValidator implements ConstraintValidator<MatchingFiel
     }
 
     public boolean isValid(final Object value, final ConstraintValidatorContext context) {
-        try {
-            final Object firstObj = BeanUtils.getBeanProperty(value, firstFieldName);
-            final Object secondObj = BeanUtils.getBeanProperty(value, secondFieldName);
-            return (firstObj == null || secondObj == null) || firstObj.equals(secondObj);
-        } catch (final Exception ignore) {
-            ignore.printStackTrace();
-            return true;
-        }
+        final Object firstObj = BeanUtils.getBeanProperty(value, firstFieldName);
+        final Object secondObj = BeanUtils.getBeanProperty(value, secondFieldName);
+        return (firstObj == null || secondObj == null) || firstObj.equals(secondObj);
     }
 }
