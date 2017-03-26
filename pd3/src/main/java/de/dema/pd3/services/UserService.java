@@ -61,7 +61,8 @@ public class UserService {
 		// TESTDATEN
 		Random r = new Random();
 		ArrayList<ChatroomModel> list = new ArrayList<>();
-		for (int i = 0; i < r.nextInt(9) + 1; i++) {
+		int count = r.nextInt(19) + 1;
+		for (int i = 0; i < count; i++) {
 			ChatroomModel model = new ChatroomModel();
 			model.setId(Long.valueOf(i));
 			model.setName(TestDataCreator.createRandomText(r.nextInt(17) + 3));
@@ -76,7 +77,8 @@ public class UserService {
 		// TESTDATEN
 		Random r = new Random();
 		ArrayList<ChatroomMessageModel> list = new ArrayList<>();
-		for (int i = 0; i < r.nextInt(9) + 1; i++) {
+		int count = r.nextInt(19) + 1;
+		for (int i = 0; i < count; i++) {
 			ChatroomMessageModel model = new ChatroomMessageModel();
 			model.setSender(TestDataCreator.createRandomText(r.nextInt(14) + 6));
 			model.setSenderId(Long.valueOf(r.nextInt(2) + 1));
@@ -89,6 +91,12 @@ public class UserService {
 	
 	public void sendMessageToChatroom(String text, Long senderId, Long chatroomId) {
 		//TODO RONNY, EINBAUEN!!!
+	}
+
+	public void updateLastLoginDate(Long userId) {
+		User user = userRepo.findOne(userId);
+		user.setLastLogin(LocalDateTime.now());
+		userRepo.save(user);
 	}
 	
 }

@@ -21,6 +21,7 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.OutputStreamAppender;
 import ch.qos.logback.ext.spring.ApplicationContextHolder;
+import de.dema.pd3.security.Pd3AuthenticationSuccessHandler;
 import nz.net.ultraq.thymeleaf.LayoutDialect;
 
 @SpringBootApplication
@@ -44,6 +45,11 @@ public class Pd3Application {
 	    templateEngine.addDialect(new SpringSecurityDialect());
 	    
 	    return templateEngine;
+	}
+	
+	@Bean
+	public Pd3AuthenticationSuccessHandler authenticationSuccessHandler() {
+		return new Pd3AuthenticationSuccessHandler(); 
 	}
 	
 	@Bean

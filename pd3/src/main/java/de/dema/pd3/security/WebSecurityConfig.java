@@ -22,6 +22,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
+	@Autowired
+	private Pd3AuthenticationSuccessHandler successHandler;
+	
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -34,6 +37,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .formLogin()
                 .loginPage("/login")
                 .permitAll()
+                .successHandler(successHandler)
                 .and()
             .logout()
             	.deleteCookies("remember-me")
@@ -42,6 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         	.rememberMe()
         		.userDetailsService(userDetailsService)
         		.tokenValiditySeconds(THREE_MONTH_IN_SECONDS);
+//        		.authenticationSuccessHandler(successHandler); -- geht nicht, wenn SESSIONID gelöscht und Seite refresht wird - es erfolgt immer ein Redirect zu Home
         
         // Bei aktiviertem CSRF geht die H2 Console nicht und es wird daher deaktiviert
         http.csrf().disable();

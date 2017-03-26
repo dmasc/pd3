@@ -9,7 +9,6 @@ div.room-choice-container {
 	min-width: 250px;
 	border-right: 1px solid grey;
 	overflow: auto;
-	height: 100%;
 	background-color: #efefef;
 	padding: 0;
 	vertical-align: top;
@@ -47,6 +46,7 @@ div.room-choice-item-text {
 div.room {
 	width: 100%;
 	display: table-cell;
+	height: 380px;
 }
 
 div.room-info {
@@ -61,10 +61,10 @@ div.room-info div.actions{
 }
 
 div.room-content {
-	height: 300px;
 	overflow: auto;
 	font-size: 0.9em;
 	padding: 8px;
+	height: 100%;
 }
 
 div.room-content div.message {

@@ -13,10 +13,13 @@
 		<h1>Postfach</h1>
 		<div class="inbox">
 			<div class="room-choice-container">
-				<div class="room-choice-item" th:each="room : ${rooms}" th:onclick="${param.selRoom[0] != #strings.toString(room.id)}?'window.location.href=\''+@{/user/inbox(selRoom=${room.id})}+'\''" 
-						th:classappend="${param.selRoom[0] == #strings.toString(room.id)}?selected:(${room.unreadMessagesCount > 0}?new-message)">
+			<div style="height: 500px; overflow: auto;">
+				<div class="room-choice-item" th:each="room : ${rooms}" th:with="isSelectedRoom=${param.selRoom != null and param.selRoom[0] == #strings.toString(room.id)}"
+						th:onclick="${not isSelectedRoom}?'window.location.href=\''+@{/user/inbox(selRoom=${room.id})}+'\''" 
+						th:classappend="${isSelectedRoom}?selected:(${room.unreadMessagesCount > 0}?new-message)">
 					<div class="room-choice-item-text"><span th:text="${room.name}"></span><span th:if="${room.unreadMessagesCount > 0}" th:text="${' ('+room.unreadMessagesCount+')'}"></span></div>
 				</div>
+			</div>
 			</div>
 
 			<div class="room" th:if="${param.selRoom}">
