@@ -33,7 +33,7 @@ public class UserService {
 		log.debug("registerUser called [model:{}]", userModel);
 		
 		User user = new User();
-		user.setBirthday(userModel.getBirthday());
+		user.setBirthday(userModel.getBirthday() != null ? LocalDate.parse(userModel.getBirthday()) : null);
 		user.setDistrict(userModel.getDistrict());
 		user.setEmail(userModel.getEmail());
 		user.setForename(userModel.getForename());
