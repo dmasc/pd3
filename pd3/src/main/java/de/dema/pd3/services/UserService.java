@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.dema.pd3.model.EventModel;
 import de.dema.pd3.model.events.EventModelFactory;
@@ -13,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,7 +50,7 @@ public class UserService {
 		
 		User user = new User();
 		user.setName(userModel.getForename() + " " + userModel.getSurname());
-		user.setBirthday(userModel.getBirthday());
+		user.setBirthday(userModel.getBirthday() != null ? LocalDate.parse(userModel.getBirthday()) : null);
 		user.setDistrict(userModel.getDistrict());
 		user.setEmail(userModel.getEmail());
 		user.setForename(userModel.getForename());
@@ -56,6 +60,7 @@ public class UserService {
 		user.setStreet(userModel.getStreet());
 		user.setSurname(userModel.getSurname());
 		user.setZip(userModel.getZip());
+		user.setLastCheckForMessages(LocalDateTime.of(2017, 1, 1, 0, 0));
 		
 		user = userRepo.save(user);
 		log.info("user registered [id:{}]", user.getId());
@@ -80,7 +85,7 @@ public class UserService {
 	 * @param recipientUserId user id des empfängers
 	 * @throws Exception
      */
-	public void sendMessageToUser(String text, Long senderId, Long recipientUserId) throws Exception {
+	public void sendMessageToUser(String text, Long senderId, Long recipientUserId) {
 		User sendingUser = userRepo.findOne(senderId);
 		User receivingUser = userRepo.findOne(recipientUserId);
 		UserGroup recipientGroup = userGroupRepo.findUserGroupForDialogBetweenMembers(sendingUser, receivingUser);
@@ -94,11 +99,15 @@ public class UserService {
 			recipientGroup.setMembers(members);
 			recipientGroup = userGroupRepo.save(recipientGroup);
 		}
-		eventService.sendEvent(
-				EventModelFactory.createUserMessage(
-						sendingUser.getForename() + " " + sendingUser.getSurname(),
-						text,
-						recipientGroup.getId()));
+		try {
+			eventService.sendEvent(
+                    EventModelFactory.createUserMessage(
+                            sendingUser.getForename() + " " + sendingUser.getSurname(),
+                            text,
+                            recipientGroup.getId()));
+		} catch (Exception e) {
+			log.warn("Cannot send event", e);
+		}
 	}
 	
 	public List<ChatroomModel> loadAllChatroomsOrderedByTimestampOfLastMessageDesc(Long userId) {
@@ -133,17 +142,34 @@ public class UserService {
 			rooms.add(model);
 		}
 
-		Collections.sort(rooms, (o1, o2) -> o2.getSendTimestamp().compareTo(o1.getSendTimestamp()));
+		Collections.sort(rooms, (o1, o2) -> compareSendTimestamps(o2.getSendTimestamp(), o1.getSendTimestamp()));
 		return rooms;
 	}
-	
-	public List<ChatroomMessageModel> loadMessagesforChatroom(Pageable page, Long userId, Long chatroomId) {
+
+	private int compareSendTimestamps(LocalDateTime date1, LocalDateTime date2) {
+		if (date1 != null && date2 != null) {
+			return date1.compareTo(date2);
+		} else {
+			if (date1 == null && date2 == null) {
+				return 0;
+			} else {
+				return date1 != null ? 1 : -1;
+			}
+		}
+	}
+
+	public List<ChatroomMessageModel> loadMessagesforChatroom(Long userId, Long chatroomId) {
+		EventRecipient recipientGroup = userGroupRepo.findOne(chatroomId);
+		if (recipientGroup == null) {
+			recipientGroup = userRepo.findOne(userId);
+		}
 		List<ChatroomMessageModel> messages = new ArrayList<>();
-		List<EventModel> events = eventService.getEventsFor(page, chatroomId, EventTypes.USER_MESSAGE.getId());
+		Page<Event> eventsPage = eventRepository.findByTypeAndRecipientsIn(
+				EventTypes.USER_MESSAGE.getId(), Arrays.asList(recipientGroup), new PageRequest(0, 1000));
 		ChatroomMessageModel model;
-		for (EventModel event : events) {
+		for (Event event : eventsPage) {
 			model = new ChatroomMessageModel();
-			model.setSendTimestamp(event.getTimestamp());
+			model.setSendTimestamp(event.getSendTime());
 			model.setSender(event.getSender());
 			model.setText(event.getPayload());
 
@@ -151,7 +177,6 @@ public class UserService {
 		}
 
 		//TODO Bedenke, dass auch LAST_MSG_READ_TIMESTAMP geupdatet werden muss!
-
 		return messages;
 	}
 
@@ -178,5 +203,20 @@ public class UserService {
 			return result;
 		}
 		return null;
+	}
+
+	public void updateLastLoginDate(Long userId) {
+		User user = userRepo.findOne(userId);
+		user.setLastLogin(LocalDateTime.now());
+		userRepo.save(user);
+	}
+
+	public void storeChatroomNewMessageNotificationActivationStatus(Long userId, Long roomId, boolean notificationsActive) {
+    	//TODO Änderung der Chatraum-Notification-Einstellung abspeichern.
+	}
+
+	public void deleteChatroom(Long userId, Long roomId) {
+		//TODO Lösche Assoziierung (geschrieben sieht das Wort echt schräg aus) des Users mit dem Raum
+		//TODO Lösche den Raum, wenn keine weiteren Assoziierungen mit Usern mehr bestehen
 	}
 }

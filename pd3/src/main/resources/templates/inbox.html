@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html layout:decorator="layout/default" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:spring="http://www.springframework.org/tags">
+<head>
+	<title>Postfach</title>
+	<script th:src="@{/js/inbox.js}"></script>
+	<link rel="stylesheet" type="text/css" href="/css/inbox.css" th:href="@{/css/inbox.css}" />
+</head>
+
+<body>
+
+	<div layout:fragment="content" class="content">
+		
+		<h1>Postfach</h1>
+		<div class="inbox">
+			<div class="room-choice-container">
+			<div style="height: 500px; overflow: auto;">
+				<div class="room-choice-item" th:each="room : ${rooms}" th:with="isSelectedRoom=${param.selRoom != null and param.selRoom[0] == #strings.toString(room.id)}"
+						th:onclick="${not isSelectedRoom}?'window.location.href=\''+@{/user/inbox(selRoom=${room.id})}+'\''" 
+						th:classappend="${isSelectedRoom}?selected:(${room.unreadMessagesCount > 0}?new-message)">
+					<div class="room-choice-item-text"><span th:text="${room.name}"></span><span th:if="${room.unreadMessagesCount > 0}" th:text="${' ('+room.unreadMessagesCount+')'}"></span></div>
+				</div>
+			</div>
+			</div>
+
+			<div class="room" th:if="${param.selRoom}">
+				<div class="room-info">
+					<div class="actions">
+						<form id="room-notifications-form" th:action="@{/user/chatroom-notifications}" method="post">
+							<input type="hidden" name="roomId" th:value="${param.selRoom[0]}" />
+							<input type="checkbox" name="notificationsActive" id="notificationsActive" />
+							<label for="notificationsActive">Bei neuen Nachrichten alarmieren</label>
+						</form>
+						<form th:action="@{/user/delete-chatroom}" method="post">
+							<input type="hidden" name="roomId" th:value="${param.selRoom[0]}" />
+							<button type="submit" th:alt-title="@{Unterhaltung löschen}"> 
+								<img th:src="@{/img/delete.svg}" height="16" width="16" />
+							</button>
+						</form>
+					</div>
+				</div>
+				<div class="room-send-panel">
+					<form th:action="@{/user/send-message/room}" method="post">
+						<input type="hidden" name="recipientId" th:value="${param.selRoom[0]}" />
+						<div style="display: table; width: 100%;">
+							<div style="display: table-cell">
+								<textarea name="text" autofocus="autofocus" 
+										placeholder="Geben Sie hier Ihre Nachricht ein und senden Sie diese anschließend über das nebenstehende Symbol ab"></textarea>
+							</div>
+							<div style="display: table-cell; vertical-align: middle; width: 80px; text-align: right;">
+								<button type="submit" th:alt-title="@{Nachricht senden}"> 
+									<img th:src="@{/img/send-message.svg}" height="40" width="40" />
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="room-content">
+					<div class="message" th:each="msg : ${messages}">
+						<span th:text="${{msg.sendTimestamp}}" class="timestamp"></span><a th:href="@{/user/profile(id=${msg.senderId})}" th:text="${msg.sender}" class="author"></a>
+						<div th:text="${msg.text}" class="message-text"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+</body>
+</html>

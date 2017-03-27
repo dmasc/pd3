@@ -18,14 +18,20 @@
 		   		<span th:text="'am ' + ${{model.creationTimestamp}}" class="date"></span><br/>
 		   		<div th:utext="${model.text}" class="text"></div>
 		   		<a th:href="@{'javascript: showMovingCommentPanel('+${model.id}+','+${topic.id}+')'}" class="reply">Antworten</a>
-	   			<form th:action="@{/comment/vote}" th:if="${not (model.authorId eq #authentication.principal.id)}" style="display: inline-block;" method="post">
+		   		<form th:action="@{/comment/delete}" th:if="${model.authorId eq #authentication.principal.id}" method="post" class="comment-delete-form">
+	   				<input type="hidden" name="commentId" th:value="${model.id}" />
+	   				<input type="hidden" name="page" th:value="${pageIndex}" />
+	   				<input type="hidden" name="topicId" th:value="${topic.id}" />
+			   		<a th:href="'javascript: deleteComment('+${model.id}+');'" class="reply">Löschen</a>
+		   		</form>
+	   			<form th:action="@{/comment/vote}" th:if="${not (model.authorId eq #authentication.principal.id)}" method="post" class="comment-vote">
 	   				<input type="hidden" name="topicId" th:value="${topic.id}" />
 	   				<input type="hidden" name="commentId" th:value="${model.id}" />
 	   				<input type="hidden" name="page" th:value="${pageIndex}" />
 	   				<input type="image" name="like" value="like" th:src="${'/img/thumb-up-'+(model.userLikeSelection == T(de.dema.pd3.VoteOption).ACCEPTED?'black':'white')+'.svg'}" 
-	   						th:disabled="${(model.userLikeSelection == T(de.dema.pd3.VoteOption).ACCEPTED?true:false)}" th:alt-title="Zustimmen" class="like" />
+	   						th:alt-title="Zustimmen" class="like" />
 	   				<input type="image" name="dislike" th:src="${'/img/thumb-down-'+(model.userLikeSelection == T(de.dema.pd3.VoteOption).REJECTED?'black':'white')+'.svg'}" 
-	   						th:disabled="${(model.userLikeSelection == T(de.dema.pd3.VoteOption).REJECTED?true:false)}" th:alt-title="Ablehnen" class="like" />
+	   						th:alt-title="Ablehnen" class="like" />
 	   			</form>
 	   		</div>
    		</div>

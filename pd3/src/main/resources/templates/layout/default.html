@@ -13,8 +13,9 @@
 	<div class="header"><div class="headercontent"><div class="headline">Partei Der Direkten Demokratie</div></div></div>
 
 	<div class="menu">
-		<a href="/">Home</a> | <a href="/public/register">Registrieren</a> | <a href="/topic/edit">Abstimmung erstellen</a> | <a href="/user/profile">Profil</a> |
-		<a href="/topic/overview">Übersicht Abstimmungsthemen</a> | <a href="/db">Datenbank</a> |
+		<a href="/">Home</a> | <a href="/public/register">Registrieren</a> | <a href="/topic/edit">Abstimmung erstellen</a> |
+		<a href="/topic/overview">Übersicht Abstimmungsthemen</a> | <a href="/user/profile">Profil</a> | <a href="/user/inbox">Postfach</a> | 
+		<a href="/db">Datenbank</a> |
 		<form sec:authorize="isAuthenticated()" id="logoutform" th:action="@{/logout}" method="post" class="undecorated">
             <a href="#" onclick="document.getElementById('logoutform').submit();">Logout</a>
 		</form>

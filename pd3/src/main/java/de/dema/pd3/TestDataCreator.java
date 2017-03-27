@@ -26,6 +26,8 @@ public class TestDataCreator {
 	@Autowired
 	private EventRepository eventRepository;
 
+	private static Random r = new Random();
+
 	@Autowired
 	private UserRepository userRepo;
 
@@ -51,8 +53,6 @@ public class TestDataCreator {
 	@Value("${testdata:false}")
 	private boolean shouldCreateTestData;
 	
-	private Random r = new Random();
-	
 	@PostConstruct
 	public void createTestData() {
 		if (shouldCreateTestData) {
@@ -73,6 +73,7 @@ public class TestDataCreator {
 				author.setSurname("Remmenscheid");
 				author.setZip("21709");
 				author.setMale(true);
+				author.setLastCheckForMessages(now);
 				userRepo.save(author);
 
 				User authorFemale = new User();
@@ -88,6 +89,7 @@ public class TestDataCreator {
 				authorFemale.setSurname("Sorin-Gießmann");
 				authorFemale.setZip("22177");
 				authorFemale.setMale(false);
+				authorFemale.setLastCheckForMessages(now);
 				userRepo.save(authorFemale);
 
 				UserGroup group = new UserGroup();
@@ -167,11 +169,11 @@ public class TestDataCreator {
 		return topic;
 	}
 	
-	private String createRandomText(int length) {
+	public static String createRandomText(int length) {
 		String s = "";
 		do {
 			s += RandomStringUtils.randomAlphabetic(r.nextInt(19) + 1);
-			if (r.nextInt(5) == 4) {
+			if (r.nextInt(7) == 6) {
 				s += ".";
 			}
 			s += " ";

@@ -1,0 +1,129 @@
+div.inbox {
+	border: 1px solid grey;
+	background-color: white;
+}
+
+div.room-choice-container {
+	display: table-cell;
+	width: 250px;
+	min-width: 250px;
+	border-right: 1px solid grey;
+	overflow: auto;
+	background-color: #efefef;
+	padding: 0;
+	vertical-align: top;
+}
+
+div.room-choice-item {
+	height: 40px;
+	border-bottom: 1px solid grey;
+	background-color: #cbb08e;
+	cursor: pointer;
+	padding: 5px;
+	display: flex;
+	align-items: center;
+}
+
+div.room-choice-item:last-of-type {
+/* 	border-bottom: none; */
+}
+
+div.room-choice-item.new-message {
+	color: white;
+	font-weight: 700;
+}	
+
+div.room-choice-item.selected {
+	background-color: #ead5bd;
+	color: black;
+	cursor: auto;
+	font-weight: 700;
+}
+
+div.room-choice-item-text {
+}
+
+div.room {
+	width: 100%;
+	display: table-cell;
+	height: 380px;
+}
+
+div.room-info {
+	background-color: #e9dfc6;
+	height: 27px;
+	width: 100%;
+	border-bottom: 1px solid gray;
+}
+
+div.room-info div.actions {
+	float: right;
+}
+
+div.room-info div.actions form {
+	margin-left: 10px;
+	display: inline-block;
+}
+
+div.room-info div.actions form label {
+	vertical-align: text-bottom;
+}
+
+div.room-content {
+	overflow: auto;
+	font-size: 0.9em;
+	padding: 8px;
+	height: 100%;
+	background-color: #FBF8F3;
+}
+
+div.room-content div.message {
+	margin-bottom: 12px;
+}
+
+div.room-content div.message-text {
+	margin-top: 2px;
+}
+
+div.room-content span.timestamp {
+	color: grey;
+	margin-right: 10px;
+}
+
+div.room-content a.author {
+	text-decoration: none;
+	color: #b19448;
+	font-weight: 700;
+}
+
+div.room-send-panel {
+	border-bottom: 1px solid gray;
+}
+
+div.room-send-panel textarea {
+	border: none;
+	margin: 0;
+	padding: 4px;
+	font-family: inherit;
+	font-size: 1em;
+	width: 100%;
+	max-width: 100%;
+	min-width: 100%;
+	height: 100%;
+	min-height: 67px;
+}
+
+div.room-send-panel button {
+	background-color: #ead5bd; 
+	cursor: pointer;
+	border: 1px solid #663d08;
+	padding: 8px;
+	margin: 5px;
+	
+	border-radius: 35px 35px 35px 35px;
+	-moz-border-radius: 35px 35px 35px 35px;
+	-webkit-border-radius: 35px 35px 35px 35px;
+	-webkit-box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.65);
+	-moz-box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.65);
+	box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.65);
+}
