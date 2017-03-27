@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import de.dema.pd3.TestDataCreator;
 import de.dema.pd3.model.ChatroomMessageModel;
 import de.dema.pd3.model.ChatroomModel;
+import de.dema.pd3.model.NamedIdModel;
 import de.dema.pd3.model.RegisterUserModel;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
@@ -107,6 +109,15 @@ public class UserService {
 	public void deleteChatroom(Long userId, Long roomId) {
 		//TODO Lösche Assoziierung (geschrieben sieht das Wort echt schräg aus) des Users mit dem Raum
 		//TODO Lösche den Raum, wenn keine weiteren Assoziierungen mit Usern mehr bestehen
+	}
+
+	public List<NamedIdModel> findByQuery(String query) {
+		List<User> result = userRepo.findByQuery("%" + query + "%");
+
+		if (result != null) {
+			return result.stream().map(NamedIdModel::map).collect(Collectors.toList());
+		}
+		return null;
 	}
 	
 }

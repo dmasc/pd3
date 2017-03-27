@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import de.dema.pd3.model.ChatroomModel;
+import de.dema.pd3.model.NamedIdModel;
 import de.dema.pd3.model.RegisterUserModel;
 import de.dema.pd3.model.TopicVoteModel;
 import de.dema.pd3.security.CurrentUser;
@@ -122,6 +123,23 @@ public class UserController {
     	log.debug("chatroom notifications option changed [userId:{}] [roomId:{}] [activeString:{}]", id, roomId, activeString);
     	
     	userService.storeChatroomNewMessageNotificationActivationStatus(id, roomId, "on".equals(activeString));
+    }
+
+    @GetMapping("/user/find")
+    @ResponseBody
+    public String findUsers(@RequestParam("query") String query, Authentication auth) {
+    	Long id = ((CurrentUser) auth.getPrincipal()).getId();
+    	log.debug("find user invoked [userId:{}] [query:{}]", id, query);
+    	
+    	List<NamedIdModel> result = userService.findByQuery(query);
+    	String json = "{\"suggestions\": [";
+    	for (NamedIdModel model : result) {
+    		json += "{\"value\": \"" + model.getText() + "\", \"data\": \"" + model.getId() + "\"},";
+		}
+    	json = json.substring(0, json.length() - 1);
+    	json += "]}";
+    	
+    	return json;
     }
     
 }

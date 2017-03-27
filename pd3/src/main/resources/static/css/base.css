@@ -47,6 +47,29 @@ div.header div.headercontent div.headline {
 
 div.menu {
 	padding-left: 15px;
+	padding-right: 15px;
+}
+
+div.menu #user-search-field {
+	float: right;
+}
+
+div.autocomplete-suggestions {
+	background: white;
+	border: 1px solid gray;
+}
+
+div.autocomplete-suggestions div.autocomplete-suggestion {
+	padding: 3px;
+	cursor: pointer;
+}
+
+div.autocomplete-suggestions div.autocomplete-suggestion strong {
+	color: blue;
+}
+
+div.autocomplete-suggestions div.autocomplete-suggestion.autocomplete-selected {
+	background-color: #f7e2b7;
 }
 
 #logoutform {
