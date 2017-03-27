@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -26,7 +27,7 @@ public class Comment implements Serializable {
 	@Lob
 	private String text;
 	
-	@OneToMany(mappedBy = "parent")
+	@OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
 	private Set<Comment> replies;
 	
 	@OneToOne(optional = true)
@@ -37,6 +38,9 @@ public class Comment implements Serializable {
 	
 	@ManyToOne
 	private User author;
+	
+	@OneToMany(mappedBy="comment", cascade = CascadeType.REMOVE)
+	private Set<CommentVote> votes;
 
 	public Long getId() {
 		return id;
@@ -92,6 +96,14 @@ public class Comment implements Serializable {
 
 	public void setAuthor(User author) {
 		this.author = author;
+	}
+
+	public Set<CommentVote> getVotes() {
+		return votes;
+	}
+
+	public void setVotes(Set<CommentVote> votes) {
+		this.votes = votes;
 	}
 	
 }

@@ -1,5 +1,5 @@
 $(function() {
-	$("div.comment form").submit(function(event) {
+	$("div.comment form.comment-vote").submit(function(event) {
 		event.preventDefault();
 		var $form = $(this);
 		var like = "like" == $(document.activeElement).val();
@@ -26,4 +26,8 @@ function hideMovingCommentPanel() {
 
 function submitReply() {
 	$("#movingcommentpanel form").submit();
+}
+
+function deleteComment(commentId) {
+	$("#comment_" + commentId).find(".comment-delete-form").submit();
 }

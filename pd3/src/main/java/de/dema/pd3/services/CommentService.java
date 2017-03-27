@@ -66,5 +66,13 @@ public class CommentService {
 		comment.setCreationDate(LocalDateTime.now());
 		return commentRepo.save(comment).getId();
 	}
+
+	public void deleteComment(Long commentId) {
+		commentRepo.delete(commentId);		
+	}
+	
+	public Long findUserIdOfComment(Long commentId) {
+		return commentRepo.findOne(commentId).getAuthor().getId();
+	}
     
 }

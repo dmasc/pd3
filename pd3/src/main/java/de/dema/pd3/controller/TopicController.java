@@ -127,4 +127,24 @@ public class TopicController {
     	return "redirect:/topic/details";
     }
 
+    @PostMapping("/comment/delete")
+    public String deleteComment(@RequestParam("topicId") Long topicId, @RequestParam("commentId") Long commentId, @RequestParam("page") int page, 
+    		Authentication auth, RedirectAttributes attr) {
+    	Long userId = ((CurrentUser) auth.getPrincipal()).getId();
+    	log.debug("deleting comment [userId:{}] [topicId:{}] [commentId:{}]", userId, topicId, commentId);
+    	
+    	//TODO Admins das Löschen von Kommentaren anderer Benutzer erlauben
+    	Long authorId = commentService.findUserIdOfComment(commentId);
+    	if (userId.equals(authorId)) {
+    		commentService.deleteComment(commentId);
+        	log.info("comment deleted [userId:{}] [topicId:{}] [commentId:{}]", userId, topicId, commentId);
+    	} else {
+    		log.warn("user called deletion of comment without being the author [userId:{}] [authorId:{}] [topicId:{}] [commentId:{}]", userId, authorId, topicId, commentId);
+    	}
+    	
+    	attr.addAttribute("id", topicId);
+    	attr.addAttribute("page", page);
+    	return "redirect:/topic/details";
+    }
+    
 }
