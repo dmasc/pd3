@@ -2,8 +2,6 @@ package de.dema.pd3.controller;
 
 import java.util.List;
 
-import javax.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,16 +87,18 @@ public class UserController {
     }    		
 
     @PostMapping("/user/send-message/{target}")
-    public String sendMessage(@PathVariable("target") String target, @ModelAttribute("recipientId") Long recipientId, 
+    public String sendMessage(@PathVariable("target") String target, @ModelAttribute("targetId") Long targetId, 
     		@ModelAttribute("text") String text, Authentication auth, RedirectAttributes attr) {
+    	Long userId = ((CurrentUser) auth.getPrincipal()).getId();
+    	log.debug("user sends message [userId:{}] [target:{}] [targetId:{}]", userId, target, targetId);
     	String redirect = "/";
     	if ("user".equals(target)) {
-    		userService.sendMessage(text, ((CurrentUser) auth.getPrincipal()).getId(), recipientId);
-        	attr.addAttribute("id", recipientId);
+    		userService.sendMessage(text, userId, targetId);
+        	attr.addAttribute("id", targetId);
         	redirect = "/user/profile";
     	} else if ("room".equals(target)) {
     		//TODO Service-Methode für "in den Raum reinsenden" aufrufen
-        	attr.addAttribute("selRoom", recipientId);
+        	attr.addAttribute("selRoom", targetId);
         	redirect = "/user/inbox";
     	}
     	
