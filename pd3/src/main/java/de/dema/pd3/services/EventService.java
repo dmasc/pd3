@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -84,6 +85,7 @@ public class EventService {
         }
         if (!listOfRecipients.isEmpty()) {
             event.setRecipients(listOfRecipients);
+            event.setSendTime(LocalDateTime.now());
             eventRepository.save(event);
         }
     }

@@ -2,7 +2,6 @@ package de.dema.pd3.persistence;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -19,7 +18,7 @@ public class Event {
     @Column(nullable = false)
     private Integer type;
 
-    private LocalDateTime timestamp;
+    private LocalDateTime sendTime;
 
     private String sender;
 
@@ -45,12 +44,12 @@ public class Event {
         this.type = type;
     }
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
+    public LocalDateTime getSendTime() {
+        return sendTime;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
+    public void setSendTime(LocalDateTime sendTime) {
+        this.sendTime = sendTime;
     }
 
     public Set<EventRecipient> getRecipients() {

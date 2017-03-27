@@ -164,4 +164,12 @@ public class User extends EventRecipient implements Serializable {
 	public void setMale(boolean male) {
 		this.male = male;
 	}
+
+	public LocalDateTime getLastCheckForMessages() {
+		return lastCheckForMessages;
+	}
+
+	public void setLastCheckForMessages(LocalDateTime lastCheckForMessages) {
+		this.lastCheckForMessages = lastCheckForMessages;
+	}
 }

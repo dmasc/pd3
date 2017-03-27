@@ -58,6 +58,8 @@ public class TestDataCreator {
 		if (shouldCreateTestData) {
 			log.info("creating test data...");
 			try {
+				LocalDateTime now = LocalDateTime.of(2017, 1, 1, 0, 0);
+
 				User author = new User();
 				author.setName("Franz");
 				author.setBirthday(LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12)));
@@ -117,12 +119,14 @@ public class TestDataCreator {
 				franzMsg.setSender(author.getForename());
 				franzMsg.setType(1);
 				franzMsg.setRecipients(new HashSet<>(Arrays.asList(authorFemale)));
+				franzMsg.setSendTime(LocalDateTime.now());
 				eventRepository.save(franzMsg);
 
 				Event juttaMsg = new Event();
 				juttaMsg.setSender(authorFemale.getForename());
 				juttaMsg.setPayload("Hallo zurück...");
 				juttaMsg.setType(1);
+				juttaMsg.setSendTime(LocalDateTime.now());
 				juttaMsg.setRecipients(new HashSet<>(Arrays.asList(author)));
 				eventRepository.save(juttaMsg);
 
@@ -130,13 +134,23 @@ public class TestDataCreator {
 				msgAll.setSender(authorFemale.getForename());
 				msgAll.setPayload("Hallo Broadcast...");
 				msgAll.setType(1);
+				msgAll.setSendTime(LocalDateTime.now());
 				msgAll.setRecipients(new HashSet<>(Arrays.asList(group)));
 				eventRepository.save(msgAll);
 
 				log.info("creating test data finished");
 
-				eventRepository.findByRecipientsIn(Arrays.asList(author, group), null).forEach(event -> System.out.println("" + event));
+				eventRepository.findByTypeAndRecipientsIn(1, Arrays.asList(author, group), null).forEach(event -> System.out.println("" + event));
 				log.warn("" + groupRepo.findByMembersIn(author));
+
+				log.warn("" + groupRepo.findUserGroupForDialogBetweenMembers(authorFemale, author));
+
+				log.warn("" + groupRepo.findOneByMembersInAndMembersIn(authorFemale, author));
+
+				log.warn("cnt: " + eventRepository.countEventsByTypeOfRecipient(1, now, author));
+				log.warn("ts: " + eventRepository.findEarliestSendTimeOfEventsByTypeOfRecipient(1,author));
+
+				log.warn("test: " + eventRepository.test(1, author));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

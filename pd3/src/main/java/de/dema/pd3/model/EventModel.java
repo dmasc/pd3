@@ -4,7 +4,6 @@ import de.dema.pd3.model.events.EventTypes;
 import de.dema.pd3.persistence.Event;
 import de.dema.pd3.persistence.EventRecipient;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -86,7 +85,7 @@ public class EventModel {
         eventModel.setRecipients(recipientIds);
         eventModel.setPayload(event.getPayload());
         eventModel.setType(EventTypes.fromId(event.getType()));
-        eventModel.setTimestamp(event.getTimestamp());
+        eventModel.setTimestamp(event.getSendTime());
         return eventModel;
     }
 
