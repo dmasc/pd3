@@ -1,10 +1,15 @@
 package de.dema.pd3.model;
 
+<<<<<<< HEAD
+=======
+import java.time.LocalDate;
+>>>>>>> branch 'master' of https://github.com/dmasc/pd3.git
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import javax.validation.constraints.Pattern;
 
+import de.dema.pd3.validation.MatchingFields;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -12,6 +17,7 @@ import de.dema.pd3.persistence.User;
 import de.dema.pd3.validation.Age;
 import de.dema.pd3.validation.MatchingFields;
 import de.dema.pd3.validation.PersoId;
+import org.springframework.format.datetime.joda.DateTimeFormatterFactory;
 
 @MatchingFields(message = "{register_user_model.passwordRepeat.notequal}", first = "password",
 		second = "passwordRepeat", groups = RegisterUserModel.RegisterUserValidation.class)
