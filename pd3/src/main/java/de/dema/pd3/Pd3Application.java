@@ -21,6 +21,7 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.OutputStreamAppender;
 import ch.qos.logback.ext.spring.ApplicationContextHolder;
+import de.dema.pd3.controller.CommonInterceptor;
 import de.dema.pd3.security.Pd3AuthenticationSuccessHandler;
 import nz.net.ultraq.thymeleaf.LayoutDialect;
 
@@ -55,6 +56,11 @@ public class Pd3Application {
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 	    return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public CommonInterceptor commonInterceptor() {
+		return new CommonInterceptor();
 	}
 	
 	@Bean

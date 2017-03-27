@@ -50,8 +50,13 @@ div.menu {
 	padding-right: 15px;
 }
 
-div.menu #user-search-field {
+div.menu div.menu-right {
 	float: right;
+}
+
+div.menu div.menu-right #user-search-field {
+	vertical-align: top;
+	margin-left: 10px;
 }
 
 div.autocomplete-suggestions {
@@ -75,6 +80,7 @@ div.autocomplete-suggestions div.autocomplete-suggestion.autocomplete-selected {
 #logoutform {
 	display: inline-block;
 }
+
 div.content {
 	margin: 15px;
 }

@@ -119,5 +119,10 @@ public class UserService {
 		}
 		return null;
 	}
+
+	public boolean areNewMessagesAvailable(Long userId) {
+		//TODO Abfrage implementieren
+		return true;		
+	}
 	
 }
