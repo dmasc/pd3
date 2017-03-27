@@ -1,5 +1,6 @@
 package de.dema.pd3.services;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ public class UserService {
 		log.debug("registerUser called [model:{}]", userModel);
 		
 		User user = new User();
-		user.setBirthday(userModel.getBirthday());
+		user.setBirthday(userModel.getBirthday() != null ? LocalDate.parse(userModel.getBirthday()) : null);
 		user.setDistrict(userModel.getDistrict());
 		user.setEmail(userModel.getEmail());
 		user.setForename(userModel.getForename());
@@ -97,6 +98,15 @@ public class UserService {
 		User user = userRepo.findOne(userId);
 		user.setLastLogin(LocalDateTime.now());
 		userRepo.save(user);
+	}
+
+	public void storeChatroomNewMessageNotificationActivationStatus(Long userId, Long roomId, boolean notificationsActive) {
+    	//TODO Änderung der Chatraum-Notification-Einstellung abspeichern.		
+	}
+
+	public void deleteChatroom(Long userId, Long roomId) {
+		//TODO Lösche Assoziierung (geschrieben sieht das Wort echt schräg aus) des Users mit dem Raum
+		//TODO Lösche den Raum, wenn keine weiteren Assoziierungen mit Usern mehr bestehen
 	}
 	
 }

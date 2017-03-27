@@ -1,54 +1,59 @@
 package de.dema.pd3.model;
 
-import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.validation.Age;
+import de.dema.pd3.validation.MatchingFields;
 import de.dema.pd3.validation.PersoId;
 
+@MatchingFields(message = "{register_user_model.passwordRepeat.notequal}", first = "password",
+		second = "passwordRepeat", groups = RegisterUserModel.RegisterUserValidation.class)
 public class RegisterUserModel {
+
+	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy", new Locale("de"));
 
 	private Long id;
 	
-	@NotEmpty(message = "{register_user_model.forename.null}")
+	@NotEmpty(message = "{register_user_model.forename.null}", groups = RegisterUserValidation.class)
 	private String forename;
 
-	@NotEmpty(message = "{register_user_model.surname.null}")
+	@NotEmpty(message = "{register_user_model.surname.null}", groups = RegisterUserValidation.class)
 	private String surname;
 
-	@Email(message = "{register_user_model.email.format}")
-	@NotEmpty(message = "{register_user_model.email.null}")
+	@Email(message = "{register_user_model.email.format}", groups = RegisterUserValidation.class)
+	@NotEmpty(message = "{register_user_model.email.null}", groups = RegisterUserValidation.class)
 	private String email;
 
-	@NotEmpty(message = "{register_user_model.password.null}")
+	@NotEmpty(message = "{register_user_model.password.null}", groups = RegisterUserValidation.class)
 	private String password;
 
-	@NotEmpty(message = "{register_user_model.passwordRepeat.null}")
+	@NotEmpty(message = "{register_user_model.passwordRepeat.null}", groups = RegisterUserValidation.class)
     private String passwordRepeat;
 
-	@NotEmpty(message = "{register_user_model.street.null}")
+	@NotEmpty(message = "{register_user_model.street.null}", groups = RegisterUserValidation.class)
 	private String street;
 
-	@NotEmpty(message = "{register_user_model.district.null}")
+	@NotEmpty(message = "{register_user_model.district.null}", groups = RegisterUserValidation.class)
 	private String district;
 
-	@Pattern(regexp = "\\d{5}}", message = "{register_user_model.zip.format}")
+	@Pattern(regexp = "\\d{5}", message = "{register_user_model.zip.format}", groups = RegisterUserValidation.class)
 	private String zip;
 	
-	@Pattern(regexp = "\\+?[\\d -/]{6m}", message = "{register_user_model.phone.format}")
+	@Pattern(regexp = "\\+?[\\d -/]{6}", message = "{register_user_model.phone.format}", groups = RegisterUserValidation.class)
 	private String phone;
 
-	@Age(message = "{register_user_model.birthday.age}", minAge = 16)
-	@DateTimeFormat(pattern = "dd.MM.yyyy")
-	private LocalDate birthday; // TODO: Validation does not work for invalid dates (no err msg shown)
+	@Pattern(message = "{register_user_model.birthday.format}", regexp = "\\d{2}\\.\\d{2}\\.\\d{4}", groups = RegisterUserValidation.class)
+	@Age(message = "{register_user_model.birthday.age}", minAge = 16, groups = RegisterUserValidation.class)
+	private String birthday;
 
-	@PersoId(message = "{register_user_model.idCardNumber.format}")
+	@PersoId(message = "{register_user_model.idCardNumber.format}", groups = RegisterUserValidation.class)
 	private String idCardNumber;
 
 	public Long getId() {
@@ -131,11 +136,11 @@ public class RegisterUserModel {
 		this.phone = phone;
 	}
 
-	public LocalDate getBirthday() {
+	public String getBirthday() {
 		return birthday;
 	}
 
-	public void setBirthday(LocalDate birthday) {
+	public void setBirthday(String birthday) {
 		this.birthday = birthday;
 	}
 
@@ -154,7 +159,7 @@ public class RegisterUserModel {
 		
 		RegisterUserModel model = new RegisterUserModel();
 		model.setId(user.getId());
-		model.setBirthday(user.getBirthday());
+		model.setBirthday(user.getBirthday().format(DATE_FORMATTER));
 		model.setDistrict(user.getDistrict());
 		model.setEmail(user.getEmail());
 		model.setForename(user.getForename());
@@ -166,4 +171,7 @@ public class RegisterUserModel {
 		
 		return model;
 	}
+
+	public interface RegisterUserValidation {}
+
 }

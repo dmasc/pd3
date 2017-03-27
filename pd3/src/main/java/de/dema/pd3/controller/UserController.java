@@ -15,11 +15,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import de.dema.pd3.model.ChatroomModel;
@@ -46,7 +48,7 @@ public class UserController {
     }
 
     @PostMapping("/public/register")
-    public String registerSubmit(@Valid @ModelAttribute RegisterUserModel user, BindingResult bindingResult) {
+    public String registerSubmit(@Validated(value = RegisterUserModel.RegisterUserValidation.class) @ModelAttribute RegisterUserModel user, BindingResult bindingResult) {
     	log.debug("register form submitted [data:{}]", user);
         if (bindingResult.hasErrors()) {
             log.error("register form invalid [data:{}]", user);
@@ -68,7 +70,7 @@ public class UserController {
     	model.addAttribute("user", user);
     	model.addAttribute("ownvotes", votePage);
 
-    	return "profile";
+        return "profile";
     }
     
     @GetMapping("/user/inbox")
@@ -104,12 +106,22 @@ public class UserController {
     }    
     
     @PostMapping("/user/delete-chatroom")
-    public String deleteChatroom(@ModelAttribute("roomId") Long roomId, 
-    		Authentication auth, RedirectAttributes attr) {
+    public String deleteChatroom(@ModelAttribute("roomId") Long roomId, Authentication auth, RedirectAttributes attr) {
     	Long id = ((CurrentUser) auth.getPrincipal()).getId();
-		//TODO Service-Methode für "lösche Chatraum" aufrufen
+    	log.debug("user wants to delete a chatroom [userId:{}] [roomId:{}]", id, roomId);
+    	userService.deleteChatroom(id, roomId);
     	
     	return "redirect:/user/inbox";
+    }
+    
+    @PostMapping("/user/chatroom-notifications")
+    @ResponseBody
+    public void chatroomNotifications(@ModelAttribute("roomId") Long roomId, Model model, @ModelAttribute("notificationsActive") String activeString, 
+    		Authentication auth, RedirectAttributes attr) {
+    	Long id = ((CurrentUser) auth.getPrincipal()).getId();
+    	log.debug("chatroom notifications option changed [userId:{}] [roomId:{}] [activeString:{}]", id, roomId, activeString);
+    	
+    	userService.storeChatroomNewMessageNotificationActivationStatus(id, roomId, "on".equals(activeString));
     }
     
 }
