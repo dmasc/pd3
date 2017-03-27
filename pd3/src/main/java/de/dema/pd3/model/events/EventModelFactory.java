@@ -18,9 +18,13 @@ public class EventModelFactory {
      * @param recipients Group and User id's
      * @return Event for sending text message
      */
-    public static EventModel createUserMessage(String sender, String msg, Long ... recipients) {
+    public static EventModel createUserMessage(String sender, Long senderId, String msg, Long ... recipients) {
+        if (recipients == null) {
+            throw new NullPointerException("Cannot create EventModel without recipients");
+        }
         EventModel msgEvent = createEvent(EventTypes.USER_MESSAGE);
         msgEvent.setSender(sender);
+        msgEvent.setSenderId(senderId);
         msgEvent.setPayload(msg);
         msgEvent.setRecipients(new HashSet<>(Arrays.asList(recipients)));
         return msgEvent;

@@ -21,6 +21,8 @@ public class EventModel {
 
     private String sender;
 
+    private Long senderId;
+
     private Set<Long> recipients;
 
     private String payload;
@@ -74,10 +76,19 @@ public class EventModel {
         this.sender = sender;
     }
 
+    public Long getSenderId() {
+        return senderId;
+    }
+
+    public void setSenderId(Long senderId) {
+        this.senderId = senderId;
+    }
+
     public static EventModel map(Event event) {
         EventModel eventModel = new EventModel();
         eventModel.setId(event.getId());
-        eventModel.setSender(event.getSender());
+        eventModel.setSender(event.getSender().getName());
+        eventModel.setSenderId(event.getSender().getId());
         Set<Long> recipientIds = new HashSet<>();
         for (EventRecipient eventRecipient : event.getRecipients()) {
             recipientIds.add(eventRecipient.getId());

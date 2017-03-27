@@ -5,7 +5,6 @@ import de.dema.pd3.model.EventModel;
 import de.dema.pd3.model.events.EventTypes;
 import de.dema.pd3.persistence.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -34,46 +33,27 @@ public class EventService {
     private EventRecipientRepository eventRecipientRepository;
 
     public List<EventModel> getEventsFor(Pageable page, Long id, int type) {
-        List<EventRecipient> recipientList = new ArrayList<>();
-        User user = userRepository.findOne(id);
-        if (user != null) {
-            recipientList.add(user);
-        } else {
-            UserGroup group = userGroupRepository.findOne(id);
-            recipientList.add(group);
-        }
+        EventRecipient recipient =  eventRecipientRepository.findOne(id);
         List<EventModel> result = new ArrayList<>();
-        eventRepository.findByTypeAndRecipientsIn(type, recipientList, page).forEach(event -> result.add(EventModel.map(event)));
-        return result;
-    }
-
-    public List<EventModel> getEventsForUser(Pageable page, Long userId, int type) {
-        List<EventRecipient> recipientList = new ArrayList<>();
-        User user = userRepository.findOne(userId);
-        recipientList.add(user);
-
-        List<UserGroup> groups = userGroupRepository.findByMembersIn(user);
-        for (UserGroup group : groups) {
-            recipientList.add(group);
-        }
-        List<EventModel> result = new ArrayList<>();
-        eventRepository.findByTypeAndRecipientsIn(type, recipientList, page).forEach(event -> result.add(EventModel.map(event)));
+        eventRepository.findByTypeAndRecipientsInOrderBySendTimeDesc(type, recipient, page).forEach(
+                event -> result.add(EventModel.map(event)));
         return result;
     }
 
     public void sendEvent(EventModel eventModel) throws Exception {
-        sendEvent(eventModel.getType(), eventModel.getSender(), Optional.ofNullable(eventModel.getPayload()), eventModel.getRecipients());
+        EventRecipient sender = eventRecipientRepository.findOne(eventModel.getSenderId());
+        sendEvent(eventModel.getType(), sender, Optional.ofNullable(eventModel.getPayload()), eventModel.getRecipients());
     }
 
     public void sendEvent(EventTypes type,
-                          String sender,
-                          Optional<? extends Serializable> payload,
+                          EventRecipient sender,
+                          Optional<String> payload,
                           Set<Long> recipients) throws Exception {
         Event event = new Event();
         event.setType(type.getId());
         event.setSender(sender);
         if (payload.isPresent()) {
-            event.setPayload(transformPayload(payload.get()));
+            event.setPayload(payload.get());
         }
 
         Set<EventRecipient> listOfRecipients = new HashSet<>();
@@ -90,8 +70,27 @@ public class EventService {
         }
     }
 
-    private String transformPayload(Serializable payload) throws Exception {
+    /**
+     * Kodiert alle nicht Strings nach json
+     * @param payload Ein serialisierbares Object
+     * @return payload als String wie er war oder json Representation des payload
+     * @throws Exception
+     */
+    public static String encodePayload(Serializable payload) throws Exception {
         return payload instanceof String ? (String) payload : OM.writeValueAsString(payload);
+    }
+
+    /**
+     * Kodiert json zu String oder gibt den String an sich zurück
+     * @param payload String oder json Objekt Representation
+     * @return Ein serialisierbares Object
+     * @throws Exception
+     */
+    public static Serializable decodePayload(String payload) throws Exception {
+        if (payload != null && payload.startsWith("Object::")) {
+            return OM.readValue(payload.replaceFirst("Object::", ""), Serializable.class);
+        }
+        return payload;
     }
 
 }

@@ -1,5 +1,6 @@
 package de.dema.pd3.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -77,32 +78,33 @@ public class UserController {
     public String userInbox(Model model, @RequestParam(value = "selRoom", required = false) Long roomId, Authentication auth, 
     		@PageableDefault(size = 10, direction = Direction.DESC) Pageable pageable) {
 		Long userId = ((CurrentUser) auth.getPrincipal()).getId();
-    	
+		LocalDateTime checkTime = LocalDateTime.now();
     	List<ChatroomModel> rooms = userService.loadAllChatroomsOrderedByTimestampOfLastMessageDesc(userId);
     	model.addAttribute("rooms", rooms);
 
     	if (roomId != null) {
     		model.addAttribute("messages", userService.loadMessagesforChatroom(userId, roomId));
     	}
-    	
+		userService.updateLastCheckForMessages(checkTime, userId);
     	return "inbox";
     }    		
 
     @PostMapping("/user/send-message/{target}")
     public String sendMessage(@PathVariable("target") String target, @ModelAttribute("recipientId") Long recipientId, 
     		@ModelAttribute("text") String text, Authentication auth, RedirectAttributes attr) {
-    	String redirect = "/";
+		userService.sendMessageToUser(text, ((CurrentUser) auth.getPrincipal()).getId(), recipientId);
     	if ("user".equals(target)) {
-    		userService.sendMessageToUser(text, ((CurrentUser) auth.getPrincipal()).getId(), recipientId);
         	attr.addAttribute("id", recipientId);
-        	redirect = "/user/profile";
+
+			return "redirect:/user/profile";
     	} else if ("room".equals(target)) {
-    		//TODO Service-Methode für "in den Raum reinsenden" aufrufen
         	attr.addAttribute("selRoom", recipientId);
-        	redirect = "/user/inbox";
-    	}
-    	
-    	return "redirect:" + redirect;
+
+			return "redirect:/user/inbox";
+    	} else {
+
+			return "/";
+		}
     }    
     
     @PostMapping("/user/delete-chatroom")

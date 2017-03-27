@@ -35,6 +35,9 @@ public class UserService {
 
 	@Autowired
 	private UserGroupRepository userGroupRepo;
+
+	@Autowired
+	private EventRecipientRepository eventRecipientRepository;
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -87,24 +90,31 @@ public class UserService {
      */
 	public void sendMessageToUser(String text, Long senderId, Long recipientUserId) {
 		User sendingUser = userRepo.findOne(senderId);
-		User receivingUser = userRepo.findOne(recipientUserId);
-		UserGroup recipientGroup = userGroupRepo.findUserGroupForDialogBetweenMembers(sendingUser, receivingUser);
-		if (recipientGroup == null) {
-			recipientGroup = new UserGroup();
-			recipientGroup.setName(sendingUser.getForename() + "<->" + receivingUser.getForename());
-			recipientGroup.setCreated(LocalDateTime.now());
-			List<User> members = new ArrayList<>();
-			members.add(sendingUser);
-			members.add(receivingUser);
-			recipientGroup.setMembers(members);
-			recipientGroup = userGroupRepo.save(recipientGroup);
+		EventRecipient recipient = eventRecipientRepository.findOne(recipientUserId);
+		if (recipient == null) {
+			// recipientUserId no exists in User nor UserGroup, try to find chat room by recipient id's
+			User receivingUser = userRepo.findOne(recipientUserId);
+			recipient = userGroupRepo.findUserGroupForDialogBetweenMembers(sendingUser, receivingUser);
+			if (recipient == null) {
+				// No chatroom found for recipientUserId, create a new one
+				UserGroup recipientGroup = new UserGroup();
+				recipientGroup.setName(normalizeDialogGroupName(sendingUser, receivingUser));
+				recipientGroup.setCreated(LocalDateTime.now());
+				List<User> members = new ArrayList<>();
+				members.add(sendingUser);
+				members.add(receivingUser);
+				recipientGroup.setMembers(members);
+				recipientGroup = userGroupRepo.save(recipientGroup);
+				recipient = recipientGroup;
+			}
 		}
 		try {
 			eventService.sendEvent(
                     EventModelFactory.createUserMessage(
                             sendingUser.getForename() + " " + sendingUser.getSurname(),
+							sendingUser.getId(),
                             text,
-                            recipientGroup.getId()));
+							recipient.getId()));
 		} catch (Exception e) {
 			log.warn("Cannot send event", e);
 		}
@@ -131,7 +141,7 @@ public class UserService {
 		for (UserGroup group : groups) {
 			model = new ChatroomModel();
 			model.setId(group.getId());
-			model.setName(group.getName());
+			model.setName(denormalizeDialogGroupName(group.getName(), user));
 			model.setUnreadMessagesCount(eventRepository.countEventsByTypeOfRecipient(
 					EventTypes.USER_MESSAGE.getId(),
 					user.getLastCheckForMessages(),
@@ -159,24 +169,19 @@ public class UserService {
 	}
 
 	public List<ChatroomMessageModel> loadMessagesforChatroom(Long userId, Long chatroomId) {
-		EventRecipient recipientGroup = userGroupRepo.findOne(chatroomId);
-		if (recipientGroup == null) {
-			recipientGroup = userRepo.findOne(userId);
-		}
+		EventRecipient recipientGroup = eventRecipientRepository.findOne(chatroomId);
 		List<ChatroomMessageModel> messages = new ArrayList<>();
-		Page<Event> eventsPage = eventRepository.findByTypeAndRecipientsIn(
-				EventTypes.USER_MESSAGE.getId(), Arrays.asList(recipientGroup), new PageRequest(0, 1000));
+		Page<Event> eventsPage = eventRepository.findByTypeAndRecipientsInOrderBySendTimeDesc(
+				EventTypes.USER_MESSAGE.getId(), recipientGroup, new PageRequest(0, 1000));
 		ChatroomMessageModel model;
 		for (Event event : eventsPage) {
 			model = new ChatroomMessageModel();
 			model.setSendTimestamp(event.getSendTime());
-			model.setSender(event.getSender());
+			model.setSender(event.getSender().getName());
 			model.setText(event.getPayload());
 
 			messages.add(model);
 		}
-
-		//TODO Bedenke, dass auch LAST_MSG_READ_TIMESTAMP geupdatet werden muss!
 		return messages;
 	}
 
@@ -193,16 +198,24 @@ public class UserService {
 		}
 	}
 
-	public static String[] denormalizeDialogGroupName(String dialogGroupName) {
-		Pattern pattern = Pattern.compile("\\>(.+)\\<\\>(.+)\\<");
-		Matcher m = pattern.matcher(dialogGroupName);
-		if (m.find()) {
-			String[] result = new String[2];
-			result[0] = m.group(1);
-			result[1] = m.group(2);
-			return result;
+	public static String denormalizeDialogGroupName(String dialogGroupName, User user) {
+		if (user != null) {
+			Pattern pattern = Pattern.compile("\\>(.+)\\<\\>(.+)\\<");
+			Matcher m = pattern.matcher(dialogGroupName);
+			if (m.find()) {
+				String[] result = new String[2];
+				result[0] = m.group(1);
+				result[1] = m.group(2);
+				if (user.getForename().equals(result[0])) {
+					return result[1];
+				} else if (user.getForename().equals(result[1])) {
+					return result[0];
+				} else {
+					return dialogGroupName;
+				}
+			}
 		}
-		return null;
+		return dialogGroupName;
 	}
 
 	public void updateLastLoginDate(Long userId) {
@@ -211,8 +224,18 @@ public class UserService {
 		userRepo.save(user);
 	}
 
+	public void updateLastCheckForMessages(LocalDateTime date, Long userId) {
+		User user = userRepo.findOne(userId);
+		user.setLastCheckForMessages(date);
+		userRepo.save(user);
+	}
+
 	public void storeChatroomNewMessageNotificationActivationStatus(Long userId, Long roomId, boolean notificationsActive) {
-    	//TODO Änderung der Chatraum-Notification-Einstellung abspeichern.
+    	EventRecipient group = eventRecipientRepository.findOne(roomId);
+		if (group != null) {
+			group.setNotificationsActive(notificationsActive);
+			eventRecipientRepository.save(group);
+		}
 	}
 
 	public void deleteChatroom(Long userId, Long roomId) {

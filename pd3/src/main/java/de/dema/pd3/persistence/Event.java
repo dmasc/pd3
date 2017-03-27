@@ -18,13 +18,17 @@ public class Event {
     @Column(nullable = false)
     private Integer type;
 
+    @Column(nullable = false)
     private LocalDateTime sendTime;
 
-    private String sender;
+    @OneToOne(optional = true)
+    private EventRecipient sender;
 
-    @OneToMany()
+    @ManyToMany()
     private Set<EventRecipient> recipients;
 
+    @Lob
+    @Column(name="CONTENT", length=4096)
     private String payload;
 
 
@@ -68,11 +72,11 @@ public class Event {
         this.payload = payload;
     }
 
-    public String getSender() {
+    public EventRecipient getSender() {
         return sender;
     }
 
-    public void setSender(String sender) {
+    public void setSender(EventRecipient sender) {
         this.sender = sender;
     }
 

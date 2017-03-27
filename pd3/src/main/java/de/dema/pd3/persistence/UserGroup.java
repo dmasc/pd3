@@ -44,4 +44,5 @@ public class UserGroup extends EventRecipient {
     public String toString() {
         return "Group :" + getName();
     }
+
 }

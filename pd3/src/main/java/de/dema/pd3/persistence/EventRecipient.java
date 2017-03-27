@@ -23,6 +23,8 @@ public class EventRecipient implements Serializable {
     @Column(nullable = false)
     private Character type;
 
+    private Boolean notificationsActive;
+
     public Long getId() {
         return id;
     }
@@ -45,5 +47,13 @@ public class EventRecipient implements Serializable {
 
     public void setType(Character type) {
         this.type = type;
+    }
+
+    public Boolean getNotificationsActive() {
+        return notificationsActive;
+    }
+
+    public void setNotificationsActive(Boolean notificationsActive) {
+        this.notificationsActive = notificationsActive;
     }
 }

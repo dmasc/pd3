@@ -9,6 +9,7 @@ import java.util.Random;
 import javax.annotation.PostConstruct;
 
 import de.dema.pd3.persistence.*;
+import de.dema.pd3.services.EventService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,8 @@ public class TestDataCreator {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+
+	private EventService eventService;
 	
 	// Der Wert kann in der Run Config als VM-Parameter gesetzt werden: -Dtestdata=true
 	@Value("${testdata:false}")
@@ -118,22 +121,34 @@ public class TestDataCreator {
 
 				Event franzMsg = new Event();
 				franzMsg.setPayload("Hallo Jutta!");
-				franzMsg.setSender(author.getForename());
+				franzMsg.setSender(author);
 				franzMsg.setType(1);
-				franzMsg.setRecipients(new HashSet<>(Arrays.asList(authorFemale)));
+				franzMsg.setRecipients(new HashSet<>(Arrays.asList(group)));
 				franzMsg.setSendTime(LocalDateTime.now());
 				eventRepository.save(franzMsg);
 
 				Event juttaMsg = new Event();
-				juttaMsg.setSender(authorFemale.getForename());
+				juttaMsg.setSender(authorFemale);
 				juttaMsg.setPayload("Hallo zurück...");
 				juttaMsg.setType(1);
 				juttaMsg.setSendTime(LocalDateTime.now());
-				juttaMsg.setRecipients(new HashSet<>(Arrays.asList(author)));
+				juttaMsg.setRecipients(new HashSet<>(Arrays.asList(group)));
 				eventRepository.save(juttaMsg);
 
+				Event msg;
+				for (int i = 0; i < 4; i++) {
+					msg = new Event();
+					msg.setSender(authorFemale);
+					msg.setPayload("Text " + (i +1));
+					msg.setType(1);
+					msg.setSendTime(LocalDateTime.now());
+					msg.setRecipients(new HashSet<>(Arrays.asList(group)));
+					eventRepository.save(msg);
+				}
+
+
 				Event msgAll = new Event();
-				msgAll.setSender(authorFemale.getForename());
+				msgAll.setSender(group);
 				msgAll.setPayload("Hallo Broadcast...");
 				msgAll.setType(1);
 				msgAll.setSendTime(LocalDateTime.now());
@@ -141,18 +156,6 @@ public class TestDataCreator {
 				eventRepository.save(msgAll);
 
 				log.info("creating test data finished");
-
-				eventRepository.findByTypeAndRecipientsIn(1, Arrays.asList(author, group), null).forEach(event -> System.out.println("" + event));
-				log.warn("" + groupRepo.findByMembersIn(author));
-
-				log.warn("" + groupRepo.findUserGroupForDialogBetweenMembers(authorFemale, author));
-
-				log.warn("" + groupRepo.findOneByMembersInAndMembersIn(authorFemale, author));
-
-				log.warn("cnt: " + eventRepository.countEventsByTypeOfRecipient(1, now, author));
-				log.warn("ts: " + eventRepository.findEarliestSendTimeOfEventsByTypeOfRecipient(1,author));
-
-				log.warn("test: " + eventRepository.test(1, author));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
