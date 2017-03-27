@@ -23,9 +23,9 @@
 	   				<input type="hidden" name="commentId" th:value="${model.id}" />
 	   				<input type="hidden" name="page" th:value="${pageIndex}" />
 	   				<input type="image" name="like" value="like" th:src="${'/img/thumb-up-'+(model.userLikeSelection == T(de.dema.pd3.VoteOption).ACCEPTED?'black':'white')+'.svg'}" 
-	   						th:disabled="${(model.userLikeSelection == T(de.dema.pd3.VoteOption).ACCEPTED?true:false)}" th:alt-title="Zustimmen" class="like" />
+	   						th:alt-title="Zustimmen" class="like" />
 	   				<input type="image" name="dislike" th:src="${'/img/thumb-down-'+(model.userLikeSelection == T(de.dema.pd3.VoteOption).REJECTED?'black':'white')+'.svg'}" 
-	   						th:disabled="${(model.userLikeSelection == T(de.dema.pd3.VoteOption).REJECTED?true:false)}" th:alt-title="Ablehnen" class="like" />
+	   						th:alt-title="Ablehnen" class="like" />
 	   			</form>
 	   		</div>
    		</div>

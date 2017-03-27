@@ -1,7 +1,9 @@
 package de.dema.pd3.services;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import de.dema.pd3.TestDataCreator;
 import de.dema.pd3.model.ChatroomMessageModel;
 import de.dema.pd3.model.ChatroomModel;
 import de.dema.pd3.model.RegisterUserModel;
@@ -55,14 +58,45 @@ public class UserService {
 	}
 	
 	public List<ChatroomModel> loadAllChatroomsOrderedByTimestampOfLastMessageDesc(Long userId) {
-		//TODO RONNY, EINBAUEN!!!
-		return null;
+		// TESTDATEN
+		Random r = new Random();
+		ArrayList<ChatroomModel> list = new ArrayList<>();
+		int count = r.nextInt(19) + 1;
+		for (int i = 0; i < count; i++) {
+			ChatroomModel model = new ChatroomModel();
+			model.setId(Long.valueOf(i));
+			model.setName(TestDataCreator.createRandomText(r.nextInt(17) + 3));
+			model.setSendTimestamp(LocalDateTime.now().minusHours(i + 1).minusMinutes(r.nextInt(60)));
+			model.setUnreadMessagesCount(r.nextBoolean() ? r.nextInt(50) : 0);
+			list.add(model);
+		}
+		return list;
 	}
 	
-	public List<ChatroomMessageModel> loadMessagesforChatroom(Long userId, Long chatroomiid) {
+	public List<ChatroomMessageModel> loadMessagesForChatroom(Long userId, Long chatroomId) {
+		// TESTDATEN
+		Random r = new Random();
+		ArrayList<ChatroomMessageModel> list = new ArrayList<>();
+		int count = r.nextInt(19) + 1;
+		for (int i = 0; i < count; i++) {
+			ChatroomMessageModel model = new ChatroomMessageModel();
+			model.setSender(TestDataCreator.createRandomText(r.nextInt(14) + 6));
+			model.setSenderId(Long.valueOf(r.nextInt(2) + 1));
+			model.setSendTimestamp(LocalDateTime.now().minusHours(i + 1).minusMinutes(r.nextInt(60)));
+			model.setText(TestDataCreator.createRandomText(r.nextInt(300) + 3));
+			list.add(model);
+		}
+		return list;
+	}
+	
+	public void sendMessageToChatroom(String text, Long senderId, Long chatroomId) {
 		//TODO RONNY, EINBAUEN!!!
-		//TODO Bedenke, dass auch LAST_MSG_READ_TIMESTAMP geupdatet werden muss!
-		return null;
+	}
+
+	public void updateLastLoginDate(Long userId) {
+		User user = userRepo.findOne(userId);
+		user.setLastLogin(LocalDateTime.now());
+		userRepo.save(user);
 	}
 	
 }

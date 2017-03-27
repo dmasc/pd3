@@ -10,7 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import de.dema.pd3.VoteOption;
-import de.dema.pd3.model.VoteModel;
+import de.dema.pd3.model.CommentVoteModel;
+import de.dema.pd3.model.TopicVoteModel;
 import de.dema.pd3.persistence.Comment;
 import de.dema.pd3.persistence.CommentRepository;
 import de.dema.pd3.persistence.CommentVote;
@@ -65,25 +66,36 @@ public class VoteService {
         Comment comment = commentRepo.findOne(commentId);
 
         CommentVote vote = commentVoteRepo.findByUserIdAndCommentId(userId, comment.getId());
-        if (vote == null) {
-            vote = new CommentVote();
-            vote.setUser(user);
-            vote.setComment(comment);
+        if (vote != null && vote.getSelectedOption().equals(selectedOption)) {
+        	log.info("removing comment vote [vote:{}]", vote);
+        	commentVoteRepo.delete(vote);
+        	return null;
+        } else {
+        	if (vote == null) {
+	            vote = new CommentVote();
+	            vote.setUser(user);
+	            vote.setComment(comment);
+	        }
+        
+        	vote.setSelectedOption(selectedOption);
+        	vote.setVoteTimestamp(LocalDateTime.now());
+        	vote = commentVoteRepo.save(vote);
+        	log.info("comment vote stored [vote:{}]", vote);
+        	return vote.getId();
         }
-        vote.setSelectedOption(selectedOption);
-        vote.setVoteTimestamp(LocalDateTime.now());
-        vote = commentVoteRepo.save(vote);
-        log.info("comment vote stored [vote:{}]", vote);
-        return vote.getId();
     }
     
-	public Page<VoteModel> findByUserId(Long userId, Pageable pageable) {
+	public Page<TopicVoteModel> findByUserId(Long userId, Pageable pageable) {
 		Page<TopicVote> page = topicVoteRepo.findByUserId(userId, pageable);
-		return page.map(VoteModel::map);
+		return page.map(TopicVoteModel::map);
 	}
 	
-	public VoteModel findByUserIdAndTopicId(Long userId, Long topicId) {
-		return VoteModel.map(topicVoteRepo.findByUserIdAndTopicId(userId, topicId));
+	public TopicVoteModel findByUserIdAndTopicId(Long userId, Long topicId) {
+		return TopicVoteModel.map(topicVoteRepo.findByUserIdAndTopicId(userId, topicId));
+	}
+
+	public CommentVoteModel findByUserIdAndCommentId(Long userId, Long commentId) {
+		return CommentVoteModel.map(commentVoteRepo.findByUserIdAndCommentId(userId, commentId));
 	}
 
 }

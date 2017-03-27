@@ -6,6 +6,8 @@ public class ChatroomMessageModel {
 
 	private String sender;
 	
+	private Long senderId;
+	
 	private LocalDateTime sendTimestamp;
 	
 	private String text;
@@ -32,6 +34,14 @@ public class ChatroomMessageModel {
 
 	public void setText(String text) {
 		this.text = text;
+	}
+
+	public Long getSenderId() {
+		return senderId;
+	}
+
+	public void setSenderId(Long senderId) {
+		this.senderId = senderId;
 	}
 	
 }
