@@ -14,6 +14,11 @@ import org.springframework.stereotype.Service;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
 
+/**
+ * Service zur Ermittlung einer User-Instanz beim Login mit Spring Security.
+ * 
+ * @author dmasc
+ */
 @Service
 @Transactional
 public class Pd3UserDetailsService implements UserDetailsService {

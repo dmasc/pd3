@@ -57,8 +57,12 @@ public class TopicController {
 	public String topicDetails(Model model, @RequestParam("id") Long id, Authentication auth,
 			@PageableDefault(sort = "creationDate", size = 10, direction = Direction.DESC) Pageable pageable) {
 		log.debug("showing details [topicID:{}]", id);
-		Long userId = ((CurrentUser) auth.getPrincipal()).getId();
 		TopicModel topicModel = topicService.loadTopic(id);
+		if (topicModel == null) {
+			log.warn("requested topic does not exist [topicId:{}]", id);
+			return "redirect:/";
+		}
+		Long userId = ((CurrentUser) auth.getPrincipal()).getId();
 		model.addAttribute("topic", topicModel);
 		TopicVoteModel topicVote = voteService.findByUserIdAndTopicId(userId, id);
 		if (topicVote != null) {

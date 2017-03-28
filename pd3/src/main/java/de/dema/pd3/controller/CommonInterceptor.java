@@ -22,7 +22,7 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
 			ModelAndView modelAndView) throws Exception {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
-		if (auth != null && auth.getPrincipal() instanceof CurrentUser) {
+		if (modelAndView != null && auth != null && auth.getPrincipal() instanceof CurrentUser) {
 			boolean newMessagesAvailable = userService.areNewMessagesAvailable(((CurrentUser) auth.getPrincipal()).getId());		
 			modelAndView.addObject("newMessagesAvailable", newMessagesAvailable);
 		}

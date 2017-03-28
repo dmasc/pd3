@@ -1,14 +1,16 @@
 package de.dema.pd3;
 
-import de.dema.pd3.persistence.Comment;
-import de.dema.pd3.persistence.CommentRepository;
-import de.dema.pd3.persistence.Topic;
-import de.dema.pd3.persistence.User;
-import org.apache.commons.lang3.RandomStringUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Random;
+
+import org.apache.commons.lang3.RandomStringUtils;
+
+import de.dema.pd3.persistence.Comment;
+import de.dema.pd3.persistence.CommentRepository;
+import de.dema.pd3.persistence.CommentVote;
+import de.dema.pd3.persistence.Topic;
+import de.dema.pd3.persistence.User;
 
 public class TestUtil {
 
@@ -77,4 +79,13 @@ public class TestUtil {
 		return comment;
 	}
 
+	public static CommentVote createRandomCommentVote(User user, Comment comment) {
+		CommentVote vote = new CommentVote();
+		vote.setComment(comment);
+		vote.setUser(user);
+		vote.setVoteTimestamp(LocalDateTime.now().minusDays(r.nextInt(90)).plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
+		vote.setSelectedOption(r.nextBoolean() ? VoteOption.ACCEPTED : VoteOption.REJECTED);
+
+		return vote;
+	}
 }

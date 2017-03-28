@@ -13,9 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import de.dema.pd3.model.TopicModel;
 import de.dema.pd3.persistence.Topic;
 import de.dema.pd3.persistence.TopicRepository;
+import de.dema.pd3.persistence.TopicVoteRepository;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
-import de.dema.pd3.persistence.TopicVoteRepository;
 
 @Service
 public class TopicService {
@@ -39,7 +39,7 @@ public class TopicService {
 
 	public TopicModel loadTopic(Long id) {
 		Topic topic = topicRepo.findOne(id);
-		return mapTopic(topic);
+		return topic != null ? mapTopic(topic) : null;
 	}
 
     public TopicModel save(TopicModel topicModel, Long userId) {

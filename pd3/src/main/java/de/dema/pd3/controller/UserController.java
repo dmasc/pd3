@@ -1,12 +1,7 @@
 package de.dema.pd3.controller;
 
-import de.dema.pd3.model.ChatroomModel;
-import de.dema.pd3.model.NamedIdModel;
-import de.dema.pd3.model.RegisterUserModel;
-import de.dema.pd3.model.TopicVoteModel;
-import de.dema.pd3.security.CurrentUser;
-import de.dema.pd3.services.UserService;
-import de.dema.pd3.services.VoteService;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +22,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
+import de.dema.pd3.model.ChatroomMessageModel;
+import de.dema.pd3.model.ChatroomModel;
+import de.dema.pd3.model.NamedIdModel;
+import de.dema.pd3.model.RegisterUserModel;
+import de.dema.pd3.model.TopicVoteModel;
+import de.dema.pd3.security.CurrentUser;
+import de.dema.pd3.services.UserService;
+import de.dema.pd3.services.VoteService;
 
 @Controller
 public class UserController {
@@ -49,7 +51,7 @@ public class UserController {
     public String registerSubmit(@Validated(value = RegisterUserModel.RegisterUserValidation.class) @ModelAttribute RegisterUserModel user, BindingResult bindingResult) {
     	log.debug("register form submitted [data:{}]", user);
         if (bindingResult.hasErrors()) {
-            log.error("register form invalid [data:{}]", user);
+            log.debug("register form invalid [data:{}]", user);
             return "/public/register";
         }
         return "public/home";
@@ -63,10 +65,16 @@ public class UserController {
     	}
     	
     	RegisterUserModel user = userService.findRegisterUserById(id);
-    	Page<TopicVoteModel> votePage = voteService.findByUserId(id, pageable);
+    	if (user == null) {
+    		log.warn("requested user not found [userId:{}]", id);
+    		return "redirect:/";
+    	}
 
     	model.addAttribute("user", user);
-    	model.addAttribute("ownvotes", votePage);
+    	Page<TopicVoteModel> votePage = voteService.findByUserId(id, pageable);
+    	if (votePage != null) {
+    		model.addAttribute("ownvotes", votePage);
+    	}
 
         return "profile";
     }
@@ -80,7 +88,10 @@ public class UserController {
     	model.addAttribute("rooms", rooms);
     	
     	if (roomId != null) {
-    		model.addAttribute("messages", userService.loadMessagesForChatroom(userId, roomId));
+    		List<ChatroomMessageModel> messages = userService.loadMessagesForChatroom(userId, roomId);
+    		if (messages != null) {
+    			model.addAttribute("messages", messages);
+    		}
     	}
     	
     	return "inbox";
