@@ -6,14 +6,14 @@ public class NamedIdModel {
 	
 	private Long id;
 	
-	private String text;
+	private String name;
 
-	public String getText() {
-		return text;
+	public String getName() {
+		return name;
 	}
 
-	public void setText(String text) {
-		this.text = text;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public Long getId() {
@@ -27,7 +27,7 @@ public class NamedIdModel {
 	public static NamedIdModel map(User user) {
 		NamedIdModel model = new NamedIdModel();
 		model.setId(user.getId());
-		model.setText(user.getForename() + " " + user.getSurname());
+		model.setName(user.getForename() + " " + user.getSurname());
 		
 		return model;
 	}

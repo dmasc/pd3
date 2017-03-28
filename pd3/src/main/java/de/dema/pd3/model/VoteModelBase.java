@@ -1,36 +1,16 @@
 package de.dema.pd3.model;
 
-import java.time.LocalDateTime;
-
 import de.dema.pd3.VoteOption;
 import de.dema.pd3.persistence.VoteBase;
 
-public class VoteModelBase {
-	
-	private String topicTitle;
+import java.time.LocalDateTime;
 
-	private Long topicId;
+public class VoteModelBase {
 	
 	private LocalDateTime voteTimestamp;
 
 	private VoteOption selectedOption;
 	
-	public String getTopicTitle() {
-		return topicTitle;
-	}
-
-	public void setTopicTitle(String topicTitle) {
-		this.topicTitle = topicTitle;
-	}
-
-	public Long getTopicId() {
-		return topicId;
-	}
-
-	public void setTopicId(Long topicId) {
-		this.topicId = topicId;
-	}
-
 	public LocalDateTime getVoteTimestamp() {
 		return voteTimestamp;
 	}

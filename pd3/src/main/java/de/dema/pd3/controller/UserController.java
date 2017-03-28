@@ -1,7 +1,12 @@
 package de.dema.pd3.controller;
 
-import java.util.List;
-
+import de.dema.pd3.model.ChatroomModel;
+import de.dema.pd3.model.NamedIdModel;
+import de.dema.pd3.model.RegisterUserModel;
+import de.dema.pd3.model.TopicVoteModel;
+import de.dema.pd3.security.CurrentUser;
+import de.dema.pd3.services.UserService;
+import de.dema.pd3.services.VoteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import de.dema.pd3.model.ChatroomModel;
-import de.dema.pd3.model.NamedIdModel;
-import de.dema.pd3.model.RegisterUserModel;
-import de.dema.pd3.model.TopicVoteModel;
-import de.dema.pd3.security.CurrentUser;
-import de.dema.pd3.services.UserService;
-import de.dema.pd3.services.VoteService;
+import java.util.List;
 
 @Controller
 public class UserController {
@@ -134,7 +133,7 @@ public class UserController {
     	List<NamedIdModel> result = userService.findByQuery(query);
     	String json = "{\"suggestions\": [";
     	for (NamedIdModel model : result) {
-    		json += "{\"value\": \"" + model.getText() + "\", \"data\": \"" + model.getId() + "\"},";
+    		json += "{\"value\": \"" + model.getName() + "\", \"data\": \"" + model.getId() + "\"},";
 		}
     	json = json.substring(0, json.length() - 1);
     	json += "]}";
