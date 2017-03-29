@@ -1,17 +1,19 @@
 package de.dema.pd3.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import de.dema.pd3.security.CurrentUser;
+import de.dema.pd3.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import de.dema.pd3.security.CurrentUser;
-import de.dema.pd3.services.UserService;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Ein HandlerInterceptor, der Daten, die von vielen oder allen Seiten verwendet werden (bspw. "Neue Nachricht verfügbar"), im Model verfügbar macht.
+ */
 public class CommonInterceptor extends HandlerInterceptorAdapter {
 
 	@Autowired

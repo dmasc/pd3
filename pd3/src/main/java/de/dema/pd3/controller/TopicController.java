@@ -1,5 +1,6 @@
 package de.dema.pd3.controller;
 
+import de.dema.pd3.Pd3Util;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,7 @@ public class TopicController {
 			log.warn("requested topic does not exist [topicId:{}]", id);
 			return "redirect:/";
 		}
-		Long userId = ((CurrentUser) auth.getPrincipal()).getId();
+		Long userId = Pd3Util.currentUserId(auth);
 		model.addAttribute("topic", topicModel);
 		TopicVoteModel topicVote = voteService.findByUserIdAndTopicId(userId, id);
 		if (topicVote != null) {
@@ -134,7 +135,7 @@ public class TopicController {
     @PostMapping("/comment/delete")
     public String deleteComment(@RequestParam("topicId") Long topicId, @RequestParam("commentId") Long commentId, @RequestParam("page") int page, 
     		Authentication auth, RedirectAttributes attr) {
-    	Long userId = ((CurrentUser) auth.getPrincipal()).getId();
+    	Long userId = Pd3Util.currentUserId(auth);
     	log.debug("deleting comment [userId:{}] [topicId:{}] [commentId:{}]", userId, topicId, commentId);
     	
     	//TODO Admins das Löschen von Kommentaren anderer Benutzer erlauben

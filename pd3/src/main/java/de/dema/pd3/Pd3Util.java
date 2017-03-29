@@ -5,7 +5,11 @@ import org.springframework.security.core.Authentication;
 
 import de.dema.pd3.security.CurrentUser;
 
-public class Pd3Util {
+
+public final class Pd3Util {
+
+	private Pd3Util() {
+	}
 
 	public static String injectHtmlTags(String text) {
 		text = StringEscapeUtils.escapeHtml4(text);

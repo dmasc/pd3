@@ -1,7 +1,13 @@
 package de.dema.pd3.controller;
 
-import java.util.List;
-
+import de.dema.pd3.Pd3Util;
+import de.dema.pd3.model.ChatroomMessageModel;
+import de.dema.pd3.model.ChatroomModel;
+import de.dema.pd3.model.NamedIdModel;
+import de.dema.pd3.model.RegisterUserModel;
+import de.dema.pd3.model.TopicVoteModel;
+import de.dema.pd3.services.UserService;
+import de.dema.pd3.services.VoteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,14 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import de.dema.pd3.model.ChatroomMessageModel;
-import de.dema.pd3.model.ChatroomModel;
-import de.dema.pd3.model.NamedIdModel;
-import de.dema.pd3.model.RegisterUserModel;
-import de.dema.pd3.model.TopicVoteModel;
-import de.dema.pd3.security.CurrentUser;
-import de.dema.pd3.services.UserService;
-import de.dema.pd3.services.VoteService;
+import java.util.List;
 
 @Controller
 public class UserController {
@@ -61,7 +60,7 @@ public class UserController {
     public String userProfile(Model model, @RequestParam(value = "id", required = false) Long id, Authentication auth, 
     		@PageableDefault(sort = "voteTimestamp", size = 10, direction = Direction.DESC) Pageable pageable) {
     	if (id == null) {
-    		id = ((CurrentUser) auth.getPrincipal()).getId();
+    		id = Pd3Util.currentUserId(auth);
     	}
     	
     	RegisterUserModel user = userService.findRegisterUserById(id);
@@ -82,12 +81,14 @@ public class UserController {
     @GetMapping("/user/inbox")
     public String userInbox(Model model, @RequestParam(value = "selRoom", required = false) Long roomId, Authentication auth, 
     		@PageableDefault(size = 10, direction = Direction.DESC) Pageable pageable) {
-		Long userId = ((CurrentUser) auth.getPrincipal()).getId();
+		Long userId = Pd3Util.currentUserId(auth);
     	
     	List<ChatroomModel> rooms = userService.loadAllChatroomsOrderedByTimestampOfLastMessageDesc(userId);
     	model.addAttribute("rooms", rooms);
     	
     	if (roomId != null) {
+			//TODO Pageable-Methodenparameter beim Aufruf der Service-Methode verwenden
+            //TODO Rückgabewert der Service-Methode zu Page<ChatroomMessageModel> ändern
     		List<ChatroomMessageModel> messages = userService.loadMessagesForChatroom(userId, roomId);
     		if (messages != null) {
     			model.addAttribute("messages", messages);
@@ -100,7 +101,7 @@ public class UserController {
     @PostMapping("/user/send-message/{target}")
     public String sendMessage(@PathVariable("target") String target, @ModelAttribute("targetId") Long targetId, 
     		@ModelAttribute("text") String text, Authentication auth, RedirectAttributes attr) {
-    	Long userId = ((CurrentUser) auth.getPrincipal()).getId();
+    	Long userId = Pd3Util.currentUserId(auth);
     	log.debug("user sends message [userId:{}] [target:{}] [targetId:{}]", userId, target, targetId);
     	String redirect = "/";
     	if ("user".equals(target)) {
@@ -118,7 +119,7 @@ public class UserController {
     
     @PostMapping("/user/delete-chatroom")
     public String deleteChatroom(@ModelAttribute("roomId") Long roomId, Authentication auth, RedirectAttributes attr) {
-    	Long id = ((CurrentUser) auth.getPrincipal()).getId();
+    	Long id = Pd3Util.currentUserId(auth);
     	log.debug("user wants to delete a chatroom [userId:{}] [roomId:{}]", id, roomId);
     	userService.deleteChatroom(id, roomId);
     	
@@ -129,7 +130,7 @@ public class UserController {
     @ResponseBody
     public void chatroomNotifications(@ModelAttribute("roomId") Long roomId, Model model, @ModelAttribute("notificationsActive") String activeString, 
     		Authentication auth, RedirectAttributes attr) {
-    	Long id = ((CurrentUser) auth.getPrincipal()).getId();
+    	Long id = Pd3Util.currentUserId(auth);
     	log.debug("chatroom notifications option changed [userId:{}] [roomId:{}] [activeString:{}]", id, roomId, activeString);
     	
     	userService.storeChatroomNewMessageNotificationActivationStatus(id, roomId, "on".equals(activeString));
@@ -138,7 +139,7 @@ public class UserController {
     @GetMapping("/user/find")
     @ResponseBody
     public String findUsers(@RequestParam("query") String query, Authentication auth) {
-    	Long id = ((CurrentUser) auth.getPrincipal()).getId();
+    	Long id = Pd3Util.currentUserId(auth);
     	log.debug("find user invoked [userId:{}] [query:{}]", id, query);
     	
     	List<NamedIdModel> result = userService.findByQuery(query);

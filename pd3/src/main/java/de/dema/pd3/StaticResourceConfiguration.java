@@ -4,6 +4,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+/**
+ * Konfiguration der Pfade im Projekt, die statische Resourcen enthalten.
+ */
 @Configuration
 public class StaticResourceConfiguration extends WebMvcConfigurerAdapter {
 	
