@@ -1,6 +1,7 @@
 package de.dema.pd3.services;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -103,7 +104,7 @@ public class UserService {
 				List<User> members = new ArrayList<>();
 				members.add(sendingUser);
 				members.add(receivingUser);
-				recipientGroup.setMembers(members);
+				recipientGroup.addMembers(members.toArray(new User[members.size()]));
 				recipientGroup = userGroupRepo.save(recipientGroup);
 				recipient = recipientGroup;
 			}
@@ -115,6 +116,7 @@ public class UserService {
 							sendingUser.getId(),
                             text,
 							recipient.getId()));
+			updateLastCheckForMessagesForChatroom(LocalDateTime.now(), senderId, recipientUserId);
 		} catch (Exception e) {
 			log.warn("Cannot send event", e);
 		}
@@ -144,7 +146,7 @@ public class UserService {
 			model.setName(denormalizeDialogGroupName(group.getName(), user));
 			model.setUnreadMessagesCount(eventRepository.countEventsByTypeOfRecipient(
 					EventTypes.USER_MESSAGE.getId(),
-					user.getLastCheckForMessages(),
+					group.getMember(userId).getLastCheckForMessages(),
 					group));
 			model.setSendTimestamp(eventRepository.findEarliestSendTimeOfEventsByTypeOfRecipient(
 					EventTypes.USER_MESSAGE.getId(),
@@ -168,12 +170,14 @@ public class UserService {
 		}
 	}
 
-	public List<ChatroomMessageModel> loadMessagesforChatroom(Long userId, Long chatroomId) {
+	// TODO: Limit für nachrichten!
+	public List<ChatroomMessageModel> loadMessagesForChatroom(Long userId, Long chatroomId) {
 		EventRecipient recipientGroup = eventRecipientRepository.findOne(chatroomId);
 		List<ChatroomMessageModel> messages = new ArrayList<>();
 		Page<Event> eventsPage = eventRepository.findByTypeAndRecipientsInOrderBySendTimeDesc(
 				EventTypes.USER_MESSAGE.getId(), recipientGroup, new PageRequest(0, 1000));
-		ChatroomMessageModel model;
+		ChatroomMessageModel model = null;
+		LocalDateTime latestMessageDate = null;
 		for (Event event : eventsPage) {
 			model = new ChatroomMessageModel();
 			model.setSendTimestamp(event.getSendTime());
@@ -181,7 +185,15 @@ public class UserService {
 			model.setText(event.getPayload());
 
 			messages.add(model);
+			if (latestMessageDate == null) {
+				// sendTime der neuesten nachricht dieses chats
+				latestMessageDate = event.getSendTime();
+			}
 		}
+		if (latestMessageDate != null) {
+			updateLastCheckForMessagesForChatroom(latestMessageDate, userId, chatroomId);
+		}
+
 		return messages;
 	}
 
@@ -224,22 +236,29 @@ public class UserService {
 		userRepo.save(user);
 	}
 
-	public void updateLastCheckForMessages(LocalDateTime date, Long userId) {
-		User user = userRepo.findOne(userId);
-		user.setLastCheckForMessages(date);
-		userRepo.save(user);
-	}
-
-	public void storeChatroomNewMessageNotificationActivationStatus(Long userId, Long roomId, boolean notificationsActive) {
-    	EventRecipient group = eventRecipientRepository.findOne(roomId);
-		if (group != null) {
-			group.setNotificationsActive(notificationsActive);
-			eventRecipientRepository.save(group);
+	public void updateLastCheckForMessagesForChatroom(LocalDateTime date, Long userId, Long roomId) {
+		if (userId.equals(roomId)) {
+			User user = userRepo.findOne(userId);
+			user.setLastCheckForMessages(date);
+			userRepo.save(user);
+		} else {
+			userGroupRepo.updateMembersLastCheckDatte(roomId, userId, date);
 		}
 	}
 
+	public void storeChatroomNewMessageNotificationActivationStatus(Long userId, Long roomId, boolean notificationsActive) {
+    	userGroupRepo.updateMembersNotificationStatus(roomId, userId, notificationsActive);
+	}
+
 	public void deleteChatroom(Long userId, Long roomId) {
-		//TODO Lösche Assoziierung (geschrieben sieht das Wort echt schräg aus) des Users mit dem Raum
-		//TODO Lösche den Raum, wenn keine weiteren Assoziierungen mit Usern mehr bestehen
+		UserGroup group = userGroupRepo.findOne(roomId);
+		if (group != null) {
+			group.getMembers().remove(group.getMember(userId));
+			if (group.getMembers().size() == 0) {
+				userGroupRepo.delete(group);
+			} else {
+				userGroupRepo.save(group);
+			}
+		}
 	}
 }

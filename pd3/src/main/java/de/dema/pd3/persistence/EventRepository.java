@@ -14,13 +14,18 @@ import java.util.List;
  */
 public interface EventRepository extends CrudRepository<Event, Long> {
 
-    @Query(value = "SELECT e FROM Event e WHERE :recipient MEMBER OF e.recipients AND e.type = :type ORDER BY e.sendTime DESC")
-    Page<Event> findByTypeAndRecipientsInOrderBySendTimeDesc(@Param("type") Integer type, @Param("recipient") EventRecipient recipient, Pageable pageable);
+    @Query(value = "SELECT e FROM Event e INNER JOIN e.recipients AS r WHERE r = :recipient AND e.type = :type ORDER BY e.sendTime DESC")
+    Page<Event> findByTypeAndRecipientsInOrderBySendTimeDesc(@Param("type") Integer type,
+                                                             @Param("recipient") EventRecipient recipient,
+                                                             Pageable pageable);
 
-    @Query(value = "SELECT COUNT(e.id) FROM Event e WHERE :recipient MEMBER OF e.recipients AND e.type = :type AND e.sendTime > :lastCheck")
-    Integer countEventsByTypeOfRecipient(@Param("type") Integer type, @Param("lastCheck") LocalDateTime lastCheck, @Param("recipient") EventRecipient recipient);
+    @Query(value = "SELECT COUNT(e.id) FROM Event e INNER JOIN e.recipients AS r WHERE r = :recipient AND e.type = :type AND e.sendTime > :lastCheck")
+    Integer countEventsByTypeOfRecipient(@Param("type") Integer type,
+                                         @Param("lastCheck") LocalDateTime lastCheck,
+                                         @Param("recipient") EventRecipient recipient);
 
-    @Query(value = "SELECT MAX(e.sendTime) FROM Event e WHERE :recipient MEMBER OF e.recipients AND e.type = :type")
-    LocalDateTime findEarliestSendTimeOfEventsByTypeOfRecipient(@Param("type") Integer type, @Param("recipient") EventRecipient recipient);
+    @Query(value = "SELECT MAX(e.sendTime) FROM Event e INNER JOIN e.recipients AS r WHERE r = :recipient AND e.type = :type")
+    LocalDateTime findEarliestSendTimeOfEventsByTypeOfRecipient(@Param("type") Integer type,
+                                                                @Param("recipient") EventRecipient recipient);
 
 }

@@ -83,9 +83,8 @@ public class UserController {
     	model.addAttribute("rooms", rooms);
 
     	if (roomId != null) {
-    		model.addAttribute("messages", userService.loadMessagesforChatroom(userId, roomId));
+    		model.addAttribute("messages", userService.loadMessagesForChatroom(userId, roomId));
     	}
-		userService.updateLastCheckForMessages(checkTime, userId);
     	return "inbox";
     }    		
 

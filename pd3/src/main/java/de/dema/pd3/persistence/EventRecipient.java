@@ -18,12 +18,10 @@ public class EventRecipient implements Serializable {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String name = UUID.randomUUID().toString();
+    private String name;
 
     @Column(nullable = false)
     private Character type;
-
-    private Boolean notificationsActive;
 
     public Long getId() {
         return id;
@@ -49,11 +47,4 @@ public class EventRecipient implements Serializable {
         this.type = type;
     }
 
-    public Boolean getNotificationsActive() {
-        return notificationsActive;
-    }
-
-    public void setNotificationsActive(Boolean notificationsActive) {
-        this.notificationsActive = notificationsActive;
-    }
 }

@@ -3,6 +3,7 @@ package de.dema.pd3.persistence;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Locale;
 
 import javax.persistence.*;
@@ -48,6 +49,9 @@ public class User extends EventRecipient implements Serializable {
 	private boolean male;
     
     private Boolean locked = Boolean.FALSE;
+
+	@OneToMany(mappedBy = "user")
+	private List<UserGroupMembers> members;
 	
 	public User() {
 		setType('u');
@@ -171,5 +175,14 @@ public class User extends EventRecipient implements Serializable {
 
 	public void setLastCheckForMessages(LocalDateTime lastCheckForMessages) {
 		this.lastCheckForMessages = lastCheckForMessages;
+	}
+
+
+	private List<UserGroupMembers> getMembers() {
+		return members;
+	}
+
+	private void setMembers(List<UserGroupMembers> members) {
+		this.members = members;
 	}
 }

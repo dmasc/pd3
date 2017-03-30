@@ -1,7 +1,11 @@
 package de.dema.pd3;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.TemporalField;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
@@ -97,12 +101,12 @@ public class TestDataCreator {
 
 				UserGroup group = new UserGroup();
 				group.setName("TestGroup");
-				group.setMembers(Arrays.asList(author, authorFemale));
+				group.addMembers(author, authorFemale);
 				groupRepo.save(group);
 
 				UserGroup group2 = new UserGroup();
 				group2.setName("TestGroupMale");
-				group2.setMembers(Arrays.asList(author));
+				group2.addMembers(author);
 				groupRepo.save(group2);
 
 				for (int i = 0; i < 25; i++) {
