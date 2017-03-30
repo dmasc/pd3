@@ -3,7 +3,14 @@ package de.dema.pd3.controller;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.validation.Valid;
+import de.dema.pd3.Pd3Util;
+import de.dema.pd3.model.ChatroomMessageModel;
+import de.dema.pd3.model.ChatroomModel;
+import de.dema.pd3.model.NamedIdModel;
+import de.dema.pd3.model.RegisterUserModel;
+import de.dema.pd3.model.TopicVoteModel;
+import de.dema.pd3.services.UserService;
+import de.dema.pd3.services.VoteService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,13 +32,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import de.dema.pd3.model.ChatroomModel;
-import de.dema.pd3.model.RegisterUserModel;
-import de.dema.pd3.model.TopicVoteModel;
-import de.dema.pd3.security.CurrentUser;
-import de.dema.pd3.services.UserService;
-import de.dema.pd3.services.VoteService;
-
 @Controller
 public class UserController {
 
@@ -52,7 +52,7 @@ public class UserController {
     public String registerSubmit(@Validated(value = RegisterUserModel.RegisterUserValidation.class) @ModelAttribute RegisterUserModel user, BindingResult bindingResult) {
     	log.debug("register form submitted [data:{}]", user);
         if (bindingResult.hasErrors()) {
-            log.error("register form invalid [data:{}]", user);
+            log.debug("register form invalid [data:{}]", user);
             return "/public/register";
         }
         return "public/home";
@@ -62,14 +62,20 @@ public class UserController {
     public String userProfile(Model model, @RequestParam(value = "id", required = false) Long id, Authentication auth, 
     		@PageableDefault(sort = "voteTimestamp", size = 10, direction = Direction.DESC) Pageable pageable) {
     	if (id == null) {
-    		id = ((CurrentUser) auth.getPrincipal()).getId();
+    		id = Pd3Util.currentUserId(auth);
     	}
     	
     	RegisterUserModel user = userService.findRegisterUserById(id);
-    	Page<TopicVoteModel> votePage = voteService.findByUserId(id, pageable);
+    	if (user == null) {
+    		log.warn("requested user not found [userId:{}]", id);
+    		return "redirect:/";
+    	}
 
     	model.addAttribute("user", user);
-    	model.addAttribute("ownvotes", votePage);
+    	Page<TopicVoteModel> votePage = voteService.findByUserId(id, pageable);
+    	if (votePage != null) {
+    		model.addAttribute("ownvotes", votePage);
+    	}
 
         return "profile";
     }
@@ -77,38 +83,42 @@ public class UserController {
     @GetMapping("/user/inbox")
     public String userInbox(Model model, @RequestParam(value = "selRoom", required = false) Long roomId, Authentication auth, 
     		@PageableDefault(size = 10, direction = Direction.DESC) Pageable pageable) {
-		Long userId = ((CurrentUser) auth.getPrincipal()).getId();
-		LocalDateTime checkTime = LocalDateTime.now();
+		Long userId = Pd3Util.currentUserId(auth);
     	List<ChatroomModel> rooms = userService.loadAllChatroomsOrderedByTimestampOfLastMessageDesc(userId);
     	model.addAttribute("rooms", rooms);
 
     	if (roomId != null) {
-    		model.addAttribute("messages", userService.loadMessagesForChatroom(userId, roomId));
+			//TODO Pageable-Methodenparameter beim Aufruf der Service-Methode verwenden
+            //TODO Rückgabewert der Service-Methode zu Page<ChatroomMessageModel> ändern
+    		List<ChatroomMessageModel> messages = userService.loadMessagesForChatroom(userId, roomId);
+    		if (messages != null) {
+    			model.addAttribute("messages", messages);
+    		}
     	}
     	return "inbox";
     }    		
 
     @PostMapping("/user/send-message/{target}")
-    public String sendMessage(@PathVariable("target") String target, @ModelAttribute("recipientId") Long recipientId, 
+    public String sendMessage(@PathVariable("target") String target, @ModelAttribute("targetId") Long targetId, 
     		@ModelAttribute("text") String text, Authentication auth, RedirectAttributes attr) {
-		userService.sendMessageToUser(text, ((CurrentUser) auth.getPrincipal()).getId(), recipientId);
-    	if ("user".equals(target)) {
-        	attr.addAttribute("id", recipientId);
+		userService.sendMessageToUser(text, Pd3Util.currentUserId(auth), targetId);
+		if ("user".equals(target)) {
+			attr.addAttribute("id", targetId);
 
 			return "redirect:/user/profile";
-    	} else if ("room".equals(target)) {
-        	attr.addAttribute("selRoom", recipientId);
+		} else if ("room".equals(target)) {
+			attr.addAttribute("selRoom", targetId);
 
 			return "redirect:/user/inbox";
-    	} else {
+		} else {
 
 			return "/";
 		}
-    }    
+	}
     
     @PostMapping("/user/delete-chatroom")
     public String deleteChatroom(@ModelAttribute("roomId") Long roomId, Authentication auth, RedirectAttributes attr) {
-    	Long id = ((CurrentUser) auth.getPrincipal()).getId();
+    	Long id = Pd3Util.currentUserId(auth);
     	log.debug("user wants to delete a chatroom [userId:{}] [roomId:{}]", id, roomId);
     	userService.deleteChatroom(id, roomId);
     	
@@ -119,10 +129,27 @@ public class UserController {
     @ResponseBody
     public void chatroomNotifications(@ModelAttribute("roomId") Long roomId, Model model, @ModelAttribute("notificationsActive") String activeString, 
     		Authentication auth, RedirectAttributes attr) {
-    	Long id = ((CurrentUser) auth.getPrincipal()).getId();
+    	Long id = Pd3Util.currentUserId(auth);
     	log.debug("chatroom notifications option changed [userId:{}] [roomId:{}] [activeString:{}]", id, roomId, activeString);
     	
     	userService.storeChatroomNewMessageNotificationActivationStatus(id, roomId, "on".equals(activeString));
+    }
+
+    @GetMapping("/user/find")
+    @ResponseBody
+    public String findUsers(@RequestParam("query") String query, Authentication auth) {
+    	Long id = Pd3Util.currentUserId(auth);
+    	log.debug("find user invoked [userId:{}] [query:{}]", id, query);
+    	
+    	List<NamedIdModel> result = userService.findByQuery(query);
+    	String json = "{\"suggestions\": [";
+    	for (NamedIdModel model : result) {
+    		json += "{\"value\": \"" + model.getName() + "\", \"data\": \"" + model.getId() + "\"},";
+		}
+    	json = json.substring(0, json.length() - 1);
+    	json += "]}";
+    	
+    	return json;
     }
     
 }

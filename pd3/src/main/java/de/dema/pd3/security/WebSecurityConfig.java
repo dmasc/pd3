@@ -10,6 +10,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/**
+ * Sicherheitskonfiguration für die Web-Anwendung. Durch die Annotationen erkennt Spring diese Klasse automatisch.
+ */
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -29,7 +32,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-                .antMatchers("/", "/public/**", "/css/**", "/img/**", "/db/**", "/webjars/**").permitAll()
+                .antMatchers("/", "/public/**", "/css/**", "/js/**", "/img/**", "/db/**", "/webjars/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
             .requiresChannel().anyRequest().requiresSecure()
@@ -61,7 +64,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		auth.userDetailsService(userDetailsService);
 		auth.authenticationProvider(provider);
-//            .inMemoryAuthentication().withUser("user").password("password").roles("USER");
     }
     
 }

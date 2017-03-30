@@ -14,6 +14,11 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 
 import de.dema.pd3.services.UserService;
 
+/**
+ * Handler für die Nachverarbeitung eines erfolgreichen Logins.
+ *  
+ * @author dmasc
+ */
 public class Pd3AuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(Pd3AuthenticationSuccessHandler.class);	
@@ -25,6 +30,8 @@ public class Pd3AuthenticationSuccessHandler extends SavedRequestAwareAuthentica
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
 		Long userId = ((CurrentUser) authentication.getPrincipal()).getId();
+		log.info("user logged in [userId:{}]", userId);
+		
 		userService.updateLastLoginDate(userId);
 		log.debug("last login timestamp saved [userId:{}]", userId);
 		

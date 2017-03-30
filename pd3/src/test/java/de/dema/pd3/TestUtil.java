@@ -8,12 +8,13 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import de.dema.pd3.persistence.Comment;
 import de.dema.pd3.persistence.CommentRepository;
+import de.dema.pd3.persistence.CommentVote;
 import de.dema.pd3.persistence.Topic;
 import de.dema.pd3.persistence.User;
 
 public class TestUtil {
 
-	public static Random r = new Random();
+	private static Random r = new Random();
 	
 	public static User createRandomUser() {
 		String name = RandomStringUtils.randomAlphabetic(r.nextInt(10) + 3);
@@ -61,18 +62,32 @@ public class TestUtil {
 	public static void createRandomComments(Topic topic, User author, int counter, int level, CommentRepository commentRepo, Comment parent) {
 		int commentsCount = r.nextInt(counter - 1) + 1;
 		for (int i = 0; i < commentsCount; i++) {
-			Comment comment = new Comment();
-			comment.setCreationDate(LocalDateTime.now().minusDays(r.nextInt(120)).plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
-			comment.setText(createRandomText(r.nextInt(290) + 10));
-			comment.setTopic(topic);
-			comment.setAuthor(author);
-			comment.setParent(parent);
+			Comment comment = createRandomComment(topic, author, parent);
 			comment = commentRepo.save(comment);
-			
+
 			if (level > 0) {
 				createRandomComments(topic, author, counter, r.nextInt(level), commentRepo, comment);
 			}
 		}
 	}
 
+	public static Comment createRandomComment(Topic topic, User author, Comment parent) {
+		Comment comment = new Comment();
+		comment.setCreationDate(LocalDateTime.now().minusDays(r.nextInt(120)).plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
+		comment.setText(createRandomText(r.nextInt(290) + 10));
+		comment.setTopic(topic);
+		comment.setAuthor(author);
+		comment.setParent(parent);
+		return comment;
+	}
+
+	public static CommentVote createRandomCommentVote(User user, Comment comment) {
+		CommentVote vote = new CommentVote();
+		vote.setComment(comment);
+		vote.setUser(user);
+		vote.setVoteTimestamp(LocalDateTime.now().minusDays(r.nextInt(90)).plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
+		vote.setSelectedOption(r.nextBoolean() ? VoteOption.ACCEPTED : VoteOption.REJECTED);
+
+		return vote;
+	}
 }

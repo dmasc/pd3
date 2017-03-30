@@ -1,7 +1,6 @@
 package de.dema.pd3.services;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,7 +8,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.dema.pd3.model.EventModel;
+import java.util.stream.Collectors;
+
 import de.dema.pd3.model.events.EventModelFactory;
 import de.dema.pd3.model.events.EventTypes;
 import de.dema.pd3.persistence.*;
@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import de.dema.pd3.model.ChatroomMessageModel;
 import de.dema.pd3.model.ChatroomModel;
+import de.dema.pd3.model.NamedIdModel;
 import de.dema.pd3.model.RegisterUserModel;
 
 @Service
@@ -170,7 +171,7 @@ public class UserService {
 		}
 	}
 
-	// TODO: Limit für nachrichten!
+	// TODO: Limit für nachrichten (text länge und anzahl!
 	public List<ChatroomMessageModel> loadMessagesForChatroom(Long userId, Long chatroomId) {
 		EventRecipient recipientGroup = eventRecipientRepository.findOne(chatroomId);
 		List<ChatroomMessageModel> messages = new ArrayList<>();
@@ -261,4 +262,19 @@ public class UserService {
 			}
 		}
 	}
+
+	public List<NamedIdModel> findByQuery(String query) {
+		List<User> result = userRepo.findByQuery("%" + query + "%");
+
+		if (result != null) {
+			return result.stream().map(NamedIdModel::map).collect(Collectors.toList());
+		}
+		return null;
+	}
+
+	public boolean areNewMessagesAvailable(Long userId) {
+		//TODO Abfrage implementieren
+		return true;		
+	}
+
 }

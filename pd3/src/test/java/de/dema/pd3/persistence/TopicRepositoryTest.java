@@ -1,12 +1,6 @@
 package de.dema.pd3.persistence;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDateTime;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
+import de.dema.pd3.TestUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +10,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import de.dema.pd3.TestUtil;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.time.LocalDateTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -43,11 +41,7 @@ public class TopicRepositoryTest {
 			topic.setCreationDate(LocalDateTime.now().plusWeeks(i - 11).minusMinutes(10));
 			topic = topicRepo.save(topic);
 			if (i % 5 == 0) {
-				TopicVote vote = new TopicVote();
-				vote.setUser(user);
-				vote.setTopic(topic);
-				vote.setVoteTimestamp(LocalDateTime.now().minusHours(i));
-				voteRepo.save(vote);
+				createAndStoreTopicVote(i, topic);
 			}
 		}
 		User anotherUser = userRepo.save(TestUtil.createRandomUser());
@@ -57,15 +51,19 @@ public class TopicRepositoryTest {
 			topic.setCreationDate(LocalDateTime.now().plusWeeks(i - 6).minusMinutes(10));
 			topicRepo.save(topic);
 			if (i == 4) {
-				TopicVote vote = new TopicVote();
-				vote.setUser(user);
-				vote.setTopic(topic);
-				vote.setVoteTimestamp(LocalDateTime.now().minusHours(i));
-				voteRepo.save(vote);
+				createAndStoreTopicVote(i, topic);
 			}
 		}
 	}
-	
+
+	private void createAndStoreTopicVote(int i, Topic topic) {
+		TopicVote vote = new TopicVote();
+		vote.setUser(user);
+		vote.setTopic(topic);
+		vote.setVoteTimestamp(LocalDateTime.now().minusHours(i));
+		voteRepo.save(vote);
+	}
+
 	@PreDestroy
 	public void shutdown() {
 		topicRepo.delete(topicRepo.findByAuthor(user, null));

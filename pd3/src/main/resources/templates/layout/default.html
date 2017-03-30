@@ -4,6 +4,8 @@
 	<title layout:title-pattern="$DECORATOR_TITLE - $CONTENT_TITLE">PD3</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+	<script th:src="@{/js/ext/jquery.autocomplete.js}"></script>
+	<script th:src="@{/js/base.js}"></script>
     <link rel="stylesheet" type="text/css" href="/css/base.css" th:href="@{/css/base.css}" />
 	<link rel="shortcut icon" type="image/x-icon" th:href="@{/img/favicon.png}" />
 </head>
@@ -13,6 +15,10 @@
 	<div class="header"><div class="headercontent"><div class="headline">Partei Der Direkten Demokratie</div></div></div>
 
 	<div class="menu">
+		<div sec:authorize="isAuthenticated()" class="menu-right">
+			<a th:href="@{/user/inbox}" th:if="${newMessagesAvailable}" th:alt-title="'Neue Nachrichten verfügbar'"><img th:src="@{/img/new-message.svg}" height="24" /></a>
+			<input id="user-search-field" type="text" placeholder="Mitglied suchen" />
+		</div>
 		<a href="/">Home</a> | <a href="/public/register">Registrieren</a> | <a href="/topic/edit">Abstimmung erstellen</a> |
 		<a href="/topic/overview">Übersicht Abstimmungsthemen</a> | <a href="/user/profile">Profil</a> | <a href="/user/inbox">Postfach</a> | 
 		<a href="/db">Datenbank</a> |
