@@ -45,7 +45,7 @@ public class RegisterUserModel {
 
 	@Pattern(regexp = "\\d{5}", message = "{register_user_model.zip.format}", groups = RegisterUserValidation.class)
 	private String zip;
-	
+
 	@Pattern(regexp = "\\+?[\\d -/]{6}", message = "{register_user_model.phone.format}", groups = RegisterUserValidation.class)
 	private String phone;
 

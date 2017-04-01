@@ -1,39 +1,43 @@
 package de.dema.pd3;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.TemporalField;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
 
 import javax.annotation.PostConstruct;
 
+import de.dema.pd3.persistence.*;
+import de.dema.pd3.services.EventService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
-import de.dema.pd3.persistence.Comment;
-import de.dema.pd3.persistence.CommentRepository;
-import de.dema.pd3.persistence.CommentVote;
-import de.dema.pd3.persistence.CommentVoteRepository;
-import de.dema.pd3.persistence.Topic;
-import de.dema.pd3.persistence.TopicRepository;
-import de.dema.pd3.persistence.TopicVote;
-import de.dema.pd3.persistence.TopicVoteRepository;
-import de.dema.pd3.persistence.User;
-import de.dema.pd3.persistence.UserRepository;
 
 @Component
 public class TestDataCreator {
 
 	private static final Logger log = LoggerFactory.getLogger(TestDataCreator.class);
 
-	private static Random r = new Random();	
+	@Autowired
+	private EventRepository eventRepository;
+
+	private static Random r = new Random();
 
 	@Autowired
 	private UserRepository userRepo;
+
+	@Autowired
+	private UserGroupRepository groupRepo;
 	
 	@Autowired
 	private CommentRepository commentRepo;
@@ -49,6 +53,8 @@ public class TestDataCreator {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+
+	private EventService eventService;
 	
 	// Der Wert kann in der Run Config als VM-Parameter gesetzt werden: -Dtestdata=true
 	@Value("${testdata:false}")
@@ -58,50 +64,105 @@ public class TestDataCreator {
 	public void createTestData() {
 		if (shouldCreateTestData) {
 			log.info("creating test data...");
-			User author = new User();
-			author.setBirthday(LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12)));
-			author.setDistrict("Hamburg");
-			author.setEmail("a");
-			author.setForename("Franz");
-			author.setIdCardNumber("T220001293");
-			author.setPassword(passwordEncoder.encode(""));
-			author.setPhone("0171-1234567");
-			author.setStreet("Herbert-Weichmann-Straße 117");
-			author.setSurname("Remmenscheid");
-			author.setZip("21709");
-			author.setMale(true);
-			userRepo.save(author);
+			try {
+				LocalDateTime now = LocalDateTime.of(2017, 1, 1, 0, 0);
 
-			User authorFemale = new User();
-			authorFemale.setBirthday(LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12)));
-			authorFemale.setDistrict("Hamburg");
-			authorFemale.setEmail("jutta");
-			authorFemale.setForename("Jutta");
-			authorFemale.setIdCardNumber("T210001741");
-			authorFemale.setPassword(passwordEncoder.encode("test"));
-			authorFemale.setPhone("040-2225256");
-			authorFemale.setStreet("Otto-von-Bismark-Allee 32");
-			authorFemale.setSurname("Sorin-Gießmann");
-			authorFemale.setZip("22177");
-			authorFemale.setMale(false);
-			userRepo.save(authorFemale);
+				User author = new User();
+				author.setName("Franz");
+				author.setBirthday(LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12)));
+				author.setDistrict("Hamburg");
+				author.setEmail("a");
+				author.setForename("Franz");
+				author.setIdCardNumber("T220001293");
+				author.setPassword(passwordEncoder.encode(""));
+				author.setPhone("0171-1234567");
+				author.setStreet("Herbert-Weichmann-Straße 117");
+				author.setSurname("Remmenscheid");
+				author.setZip("21709");
+				author.setMale(true);
+				author.setLastCheckForMessages(now);
+				userRepo.save(author);
 
-			for (int i = 0; i < 25; i++) {
-				Topic topic = createTopic(author, authorFemale);
-				topic = topicRepo.save(topic);
+				User authorFemale = new User();
+				authorFemale.setBirthday(LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12)));
+				authorFemale.setDistrict("Hamburg");
+				authorFemale.setName("Jutta");
+				authorFemale.setEmail("jutta");
+				authorFemale.setForename("Jutta");
+				authorFemale.setIdCardNumber("T210001741");
+				authorFemale.setPassword(passwordEncoder.encode("test"));
+				authorFemale.setPhone("040-2225256");
+				authorFemale.setStreet("Otto-von-Bismark-Allee 32");
+				authorFemale.setSurname("Sorin-Gießmann");
+				authorFemale.setZip("22177");
+				authorFemale.setMale(false);
+				authorFemale.setLastCheckForMessages(now);
+				userRepo.save(authorFemale);
 
-				createComments(topic, 15, 4, null, author, authorFemale);
-				
-				TopicVote vote = new TopicVote();
-				vote.setUser(r.nextBoolean() ? author : authorFemale);
-				vote.setTopic(topic);
-				vote.setVoteTimestamp(LocalDateTime.now().minusDays(r.nextInt(7)).minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
-				vote.setSelectedOption(VoteOption.values()[r.nextInt(VoteOption.values().length)]);
-				topicVoteRepo.save(vote);
+				UserGroup group = new UserGroup();
+				group.setName("TestGroup");
+				group.addMembers(author, authorFemale);
+				groupRepo.save(group);
+
+				UserGroup group2 = new UserGroup();
+				group2.setName("TestGroupMale");
+				group2.addMembers(author);
+				groupRepo.save(group2);
+
+				for (int i = 0; i < 25; i++) {
+                    Topic topic = createTopic(author, authorFemale);
+                    topic = topicRepo.save(topic);
+
+                    createComments(topic, 15, 4, null, author, authorFemale);
+
+                    TopicVote vote = new TopicVote();
+                    vote.setUser(r.nextBoolean() ? author : authorFemale);
+                    vote.setTopic(topic);
+                    vote.setVoteTimestamp(LocalDateTime.now().minusDays(r.nextInt(7)).minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
+                    vote.setSelectedOption(VoteOption.values()[r.nextInt(VoteOption.values().length)]);
+                    topicVoteRepo.save(vote);
+                }
+
+				Event franzMsg = new Event();
+				franzMsg.setPayload("Hallo Jutta!");
+				franzMsg.setSender(author);
+				franzMsg.setType(1);
+				franzMsg.setRecipients(new HashSet<>(Arrays.asList(group)));
+				franzMsg.setSendTime(LocalDateTime.now());
+				eventRepository.save(franzMsg);
+
+				Event juttaMsg = new Event();
+				juttaMsg.setSender(authorFemale);
+				juttaMsg.setPayload("Hallo zurück...");
+				juttaMsg.setType(1);
+				juttaMsg.setSendTime(LocalDateTime.now());
+				juttaMsg.setRecipients(new HashSet<>(Arrays.asList(group)));
+				eventRepository.save(juttaMsg);
+
+				Event msg;
+				for (int i = 0; i < 4; i++) {
+					msg = new Event();
+					msg.setSender(authorFemale);
+					msg.setPayload("Text " + (i +1));
+					msg.setType(1);
+					msg.setSendTime(LocalDateTime.now());
+					msg.setRecipients(new HashSet<>(Arrays.asList(group)));
+					eventRepository.save(msg);
+				}
+
+
+				Event msgAll = new Event();
+				msgAll.setSender(group);
+				msgAll.setPayload("Hallo Broadcast...");
+				msgAll.setType(1);
+				msgAll.setSendTime(LocalDateTime.now());
+				msgAll.setRecipients(new HashSet<>(Arrays.asList(group)));
+				eventRepository.save(msgAll);
+
+				log.info("creating test data finished");
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			
-			
-			log.info("creating test data finished");
 		}
 	}
 

@@ -1,5 +1,8 @@
 package de.dema.pd3.controller;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import de.dema.pd3.Pd3Util;
 import de.dema.pd3.model.ChatroomMessageModel;
 import de.dema.pd3.model.ChatroomModel;
@@ -8,6 +11,7 @@ import de.dema.pd3.model.RegisterUserModel;
 import de.dema.pd3.model.TopicVoteModel;
 import de.dema.pd3.services.UserService;
 import de.dema.pd3.services.VoteService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +31,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.List;
 
 @Controller
 public class UserController {
@@ -82,10 +84,9 @@ public class UserController {
     public String userInbox(Model model, @RequestParam(value = "selRoom", required = false) Long roomId, Authentication auth, 
     		@PageableDefault(size = 10, direction = Direction.DESC) Pageable pageable) {
 		Long userId = Pd3Util.currentUserId(auth);
-    	
     	List<ChatroomModel> rooms = userService.loadAllChatroomsOrderedByTimestampOfLastMessageDesc(userId);
     	model.addAttribute("rooms", rooms);
-    	
+
     	if (roomId != null) {
 			//TODO Pageable-Methodenparameter beim Aufruf der Service-Methode verwenden
             //TODO Rückgabewert der Service-Methode zu Page<ChatroomMessageModel> ändern
@@ -94,28 +95,26 @@ public class UserController {
     			model.addAttribute("messages", messages);
     		}
     	}
-    	
     	return "inbox";
     }    		
 
     @PostMapping("/user/send-message/{target}")
     public String sendMessage(@PathVariable("target") String target, @ModelAttribute("targetId") Long targetId, 
     		@ModelAttribute("text") String text, Authentication auth, RedirectAttributes attr) {
-    	Long userId = Pd3Util.currentUserId(auth);
-    	log.debug("user sends message [userId:{}] [target:{}] [targetId:{}]", userId, target, targetId);
-    	String redirect = "/";
-    	if ("user".equals(target)) {
-    		userService.sendMessage(text, userId, targetId);
-        	attr.addAttribute("id", targetId);
-        	redirect = "/user/profile";
-    	} else if ("room".equals(target)) {
-    		//TODO Service-Methode für "in den Raum reinsenden" aufrufen
-        	attr.addAttribute("selRoom", targetId);
-        	redirect = "/user/inbox";
-    	}
-    	
-    	return "redirect:" + redirect;
-    }    
+		userService.sendMessageToUser(text, Pd3Util.currentUserId(auth), targetId);
+		if ("user".equals(target)) {
+			attr.addAttribute("id", targetId);
+
+			return "redirect:/user/profile";
+		} else if ("room".equals(target)) {
+			attr.addAttribute("selRoom", targetId);
+
+			return "redirect:/user/inbox";
+		} else {
+
+			return "/";
+		}
+	}
     
     @PostMapping("/user/delete-chatroom")
     public String deleteChatroom(@ModelAttribute("roomId") Long roomId, Authentication auth, RedirectAttributes attr) {
