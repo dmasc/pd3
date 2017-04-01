@@ -2,22 +2,29 @@ package de.dema.pd3.services;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import de.dema.pd3.TestDataCreator;
 import de.dema.pd3.model.ChatroomMessageModel;
 import de.dema.pd3.model.ChatroomModel;
 import de.dema.pd3.model.NamedIdModel;
 import de.dema.pd3.model.RegisterUserModel;
+import de.dema.pd3.persistence.Chatroom;
+import de.dema.pd3.persistence.ChatroomRepository;
+import de.dema.pd3.persistence.ChatroomUser;
+import de.dema.pd3.persistence.ChatroomUserId;
+import de.dema.pd3.persistence.ChatroomUserRepository;
+import de.dema.pd3.persistence.Message;
+import de.dema.pd3.persistence.MessageRepository;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
 
@@ -31,6 +38,15 @@ public class UserService {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private ChatroomRepository chatroomRepo;
+	
+	@Autowired
+	private ChatroomUserRepository chatroomUserRepo;
+	
+	@Autowired
+	private MessageRepository messageRepo;
 	
 	public User registerUser(RegisterUserModel userModel) {
 		log.debug("registerUser called [model:{}]", userModel);
@@ -56,44 +72,61 @@ public class UserService {
 		return RegisterUserModel.map(userRepo.findOne(id));
 	}
 	
-	public void sendMessage(String text, Long senderId, Long... recipient) {
-		//TODO RONNY, EINBAUEN!!!
+	public void sendMessage(String text, Long senderId, Long recipientId) {
+		Chatroom room = chatroomRepo.findBilateralRoom(senderId, recipientId);
+		if (room == null) {
+			room = new Chatroom();
+			room.setUsers(new HashSet<>(2));
+			ChatroomUser chatroomUser = new ChatroomUser();
+			chatroomUser.setId(room, userRepo.findOne(senderId));
+			room.getUsers().add(chatroomUser);
+			chatroomUser = new ChatroomUser();
+			chatroomUser.setId(room, userRepo.findOne(recipientId));
+			room.getUsers().add(chatroomUser);
+			chatroomRepo.save(room);
+		}
+		sendMessageToChatroom(text, senderId, room.getId());
 	}
 	
 	public List<ChatroomModel> loadAllChatroomsOrderedByTimestampOfLastMessageDesc(Long userId) {
-		// TESTDATEN
-		Random r = new Random();
-		ArrayList<ChatroomModel> list = new ArrayList<>();
-		int count = r.nextInt(19) + 1;
-		for (int i = 0; i < count; i++) {
-			ChatroomModel model = new ChatroomModel();
-			model.setId(Long.valueOf(i));
-			model.setName(TestDataCreator.createRandomText(r.nextInt(17) + 3));
-			model.setSendTimestamp(LocalDateTime.now().minusHours(i + 1).minusMinutes(r.nextInt(60)));
-			model.setUnreadMessagesCount(r.nextBoolean() ? r.nextInt(50) : 0);
-			list.add(model);
-		}
-		return list;
+		return userRepo.findOne(userId).getChatroomUsers().stream()
+//			.filter(cu -> cu.isNotificationActive() && (cu.getLastMessageRead() == null || cu.getLastMessageRead().isBefore(cu.getChatroom().getLastMessageSent())))
+			.map(chatroomUser -> ChatroomModel.map(chatroomUser, c -> {
+				return chatroomRepo.countNewMessages(chatroomUser.getChatroom().getId(), userId);
+			}))
+			.sorted().collect(Collectors.toList());
 	}
 	
-	public List<ChatroomMessageModel> loadMessagesForChatroom(Long userId, Long chatroomId) {
-		// TESTDATEN
-		Random r = new Random();
-		ArrayList<ChatroomMessageModel> list = new ArrayList<>();
-		int count = r.nextInt(19) + 1;
-		for (int i = 0; i < count; i++) {
-			ChatroomMessageModel model = new ChatroomMessageModel();
-			model.setSender(TestDataCreator.createRandomText(r.nextInt(14) + 6));
-			model.setSenderId(Long.valueOf(r.nextInt(2) + 1));
-			model.setSendTimestamp(LocalDateTime.now().minusHours(i + 1).minusMinutes(r.nextInt(60)));
-			model.setText(TestDataCreator.createRandomText(r.nextInt(300) + 3));
-			list.add(model);
+	public Page<ChatroomMessageModel> loadMessagesForChatroom(Long userId, Long chatroomId, Pageable pageable) {
+		Page<ChatroomMessageModel> page = messageRepo.findByRoomIdOrderBySendTimestampDesc(chatroomId, pageable).map(ChatroomMessageModel::map);
+		if (pageable.getPageNumber() == 0) {
+			ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(chatroomRepo.findOne(chatroomId), userRepo.findOne(userId)));
+			chatroomUser.setLastMessageRead(LocalDateTime.now());
+			chatroomUserRepo.save(chatroomUser);
 		}
-		return list;
+		return page;
 	}
 	
 	public void sendMessageToChatroom(String text, Long senderId, Long chatroomId) {
-		//TODO RONNY, EINBAUEN!!!
+		LocalDateTime now = LocalDateTime.now();
+
+		Chatroom chatroom = chatroomRepo.findOne(chatroomId);
+		chatroom.setLastMessageSent(now);
+		chatroom = chatroomRepo.save(chatroom);
+
+		Message msg = new Message();
+		msg.setRoom(chatroom);
+		msg.setSender(userRepo.findOne(senderId));
+		msg.setSendTimestamp(now);
+		msg.setText(text);
+		msg = messageRepo.save(msg);
+		
+		ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(
+				chatroomRepo.findOne(chatroomId), 
+				userRepo.findOne(senderId)
+		));
+		chatroomUser.setLastMessageRead(now);
+		chatroomUser = chatroomUserRepo.save(chatroomUser);		
 	}
 
 	public void updateLastLoginDate(Long userId) {
@@ -103,12 +136,23 @@ public class UserService {
 	}
 
 	public void storeChatroomNewMessageNotificationActivationStatus(Long userId, Long roomId, boolean notificationsActive) {
-    	//TODO Änderung der Chatraum-Notification-Einstellung abspeichern.		
+		ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(
+				chatroomRepo.findOne(roomId), 
+				userRepo.findOne(userId)
+		));
+		chatroomUser.setNotificationsActive(notificationsActive);
+		chatroomUser = chatroomUserRepo.save(chatroomUser);		
 	}
 
 	public void deleteChatroom(Long userId, Long roomId) {
-		//TODO Lösche Assoziierung (geschrieben sieht das Wort echt schräg aus) des Users mit dem Raum
-		//TODO Lösche den Raum, wenn keine weiteren Assoziierungen mit Usern mehr bestehen
+		if (chatroomUserRepo.countByIdChatroomId(roomId) > 1) {
+			chatroomUserRepo.delete(new ChatroomUserId(
+					chatroomRepo.findOne(roomId), 
+					userRepo.findOne(userId)
+			));
+		} else {
+			chatroomRepo.delete(roomId);
+		}
 	}
 
 	public List<NamedIdModel> findByQuery(String query) {
@@ -121,8 +165,10 @@ public class UserService {
 	}
 
 	public boolean areNewMessagesAvailable(Long userId) {
-		//TODO Abfrage implementieren
-		return true;		
+		User user = userRepo.findOne(userId);
+		return user.getChatroomUsers().parallelStream()
+				.filter(cu -> cu.isNotificationsActive() && (cu.getLastMessageRead() == null || cu.getLastMessageRead().isBefore(cu.getChatroom().getLastMessageSent())))
+				.findAny().isPresent();
 	}
 	
 }

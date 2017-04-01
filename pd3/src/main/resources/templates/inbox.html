@@ -27,7 +27,7 @@
 					<div class="actions">
 						<form id="room-notifications-form" th:action="@{/user/chatroom-notifications}" method="post">
 							<input type="hidden" name="roomId" th:value="${param.selRoom[0]}" />
-							<input type="checkbox" name="notificationsActive" id="notificationsActive" />
+							<input type="checkbox" name="notificationsActive" th:checked="${notificationsActive}" id="notificationsActive" />
 							<label for="notificationsActive">Bei neuen Nachrichten alarmieren</label>
 						</form>
 						<form th:action="@{/user/delete-chatroom}" method="post">

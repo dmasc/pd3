@@ -1,13 +1,8 @@
 package de.dema.pd3.controller;
 
-import de.dema.pd3.Pd3Util;
-import de.dema.pd3.model.ChatroomMessageModel;
-import de.dema.pd3.model.ChatroomModel;
-import de.dema.pd3.model.NamedIdModel;
-import de.dema.pd3.model.RegisterUserModel;
-import de.dema.pd3.model.TopicVoteModel;
-import de.dema.pd3.services.UserService;
-import de.dema.pd3.services.VoteService;
+import java.util.List;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +23,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
+import de.dema.pd3.Pd3Util;
+import de.dema.pd3.model.ChatroomMessageModel;
+import de.dema.pd3.model.ChatroomModel;
+import de.dema.pd3.model.NamedIdModel;
+import de.dema.pd3.model.RegisterUserModel;
+import de.dema.pd3.model.TopicVoteModel;
+import de.dema.pd3.services.UserService;
+import de.dema.pd3.services.VoteService;
 
 @Controller
 public class UserController {
@@ -83,17 +85,18 @@ public class UserController {
     		@PageableDefault(size = 10, direction = Direction.DESC) Pageable pageable) {
 		Long userId = Pd3Util.currentUserId(auth);
     	
-    	List<ChatroomModel> rooms = userService.loadAllChatroomsOrderedByTimestampOfLastMessageDesc(userId);
-    	model.addAttribute("rooms", rooms);
-    	
     	if (roomId != null) {
-			//TODO Pageable-Methodenparameter beim Aufruf der Service-Methode verwenden
-            //TODO Rückgabewert der Service-Methode zu Page<ChatroomMessageModel> ändern
-    		List<ChatroomMessageModel> messages = userService.loadMessagesForChatroom(userId, roomId);
+    		Page<ChatroomMessageModel> messages = userService.loadMessagesForChatroom(userId, roomId, pageable);
     		if (messages != null) {
     			model.addAttribute("messages", messages);
     		}
     	}
+    	
+    	List<ChatroomModel> rooms = userService.loadAllChatroomsOrderedByTimestampOfLastMessageDesc(userId);
+    	model.addAttribute("rooms", rooms);
+    	
+    	Optional<ChatroomModel> activeRoom = rooms.stream().filter(room -> room.getId().equals(roomId)).findFirst();
+    	model.addAttribute("notificationsActive", activeRoom.isPresent() ? activeRoom.get().isNotificationsActive() : true);
     	
     	return "inbox";
     }    		
@@ -109,7 +112,7 @@ public class UserController {
         	attr.addAttribute("id", targetId);
         	redirect = "/user/profile";
     	} else if ("room".equals(target)) {
-    		//TODO Service-Methode für "in den Raum reinsenden" aufrufen
+    		userService.sendMessageToChatroom(text, userId, targetId);
         	attr.addAttribute("selRoom", targetId);
         	redirect = "/user/inbox";
     	}

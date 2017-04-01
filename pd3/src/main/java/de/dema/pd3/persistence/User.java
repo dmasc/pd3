@@ -4,12 +4,14 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 @Entity
 @Cacheable
@@ -54,6 +56,9 @@ public class User implements Serializable {
 	private boolean male;
     
     private Boolean locked = Boolean.FALSE;
+    
+    @OneToMany(mappedBy = "id.user")
+    private Set<ChatroomUser> chatroomUsers;
 	
 	public User() {
 	}
@@ -176,6 +181,14 @@ public class User implements Serializable {
 
 	public void setMale(boolean male) {
 		this.male = male;
+	}
+
+	public Set<ChatroomUser> getChatroomUsers() {
+		return chatroomUsers;
+	}
+
+	public void setChatroomUsers(Set<ChatroomUser> chatroomUsers) {
+		this.chatroomUsers = chatroomUsers;
 	}
 	
 }

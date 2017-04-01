@@ -2,6 +2,7 @@ package de.dema.pd3;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Random;
 
 import javax.annotation.PostConstruct;
@@ -14,10 +15,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import de.dema.pd3.persistence.Chatroom;
+import de.dema.pd3.persistence.ChatroomRepository;
+import de.dema.pd3.persistence.ChatroomUser;
 import de.dema.pd3.persistence.Comment;
 import de.dema.pd3.persistence.CommentRepository;
 import de.dema.pd3.persistence.CommentVote;
 import de.dema.pd3.persistence.CommentVoteRepository;
+import de.dema.pd3.persistence.Message;
 import de.dema.pd3.persistence.Topic;
 import de.dema.pd3.persistence.TopicRepository;
 import de.dema.pd3.persistence.TopicVote;
@@ -46,6 +51,9 @@ public class TestDataCreator {
 	
 	@Autowired
 	private CommentVoteRepository commentVoteRepo;
+	
+	@Autowired
+	private ChatroomRepository chatroomRepo;
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -100,9 +108,39 @@ public class TestDataCreator {
 				topicVoteRepo.save(vote);
 			}
 			
+			createMessages(author, authorFemale);
 			
 			log.info("creating test data finished");
 		}
+	}
+
+	private void createMessages(User u1, User u2) {
+		Chatroom room = new Chatroom();
+		room.setUsers(new HashSet<>(2));
+		ChatroomUser chatroomUser = new ChatroomUser();
+		chatroomUser.setId(room, u1);
+		room.getUsers().add(chatroomUser);
+		chatroomUser = new ChatroomUser();
+		chatroomUser.setId(room, u2);
+		room.getUsers().add(chatroomUser);
+		
+		room.setMessages(new HashSet<>());
+		int msgCount = r.nextInt(50) + 1;
+		LocalDateTime lastMsgSent = null; 
+		for (int i = 0; i < msgCount; i++) {
+			Message msg = new Message();
+			msg.setRoom(room);
+			msg.setSender(r.nextBoolean() ? u1 : u2);
+			msg.setSendTimestamp(createRandomDateTime(-1, -50));
+			msg.setText(createRandomText(r.nextInt(1000) + 2));
+			if (lastMsgSent == null || lastMsgSent.isBefore(msg.getSendTimestamp())) {
+				lastMsgSent = msg.getSendTimestamp();
+			}
+			room.getMessages().add(msg);
+		}
+		room.setLastMessageSent(lastMsgSent);
+
+		chatroomRepo.save(room);
 	}
 
 	private Topic createTopic(User... author) {
@@ -158,4 +196,18 @@ public class TestDataCreator {
 			}
 		}
 	}
+
+	public static LocalDateTime createRandomDateTime(int minOffsetDays, int maxOffsetDays) {
+		LocalDateTime dateTime = LocalDateTime.now();
+		if (minOffsetDays < 0 || maxOffsetDays < 0) {
+			dateTime = dateTime.minusDays(r.nextInt(Math.abs(maxOffsetDays - minOffsetDays)) - minOffsetDays)
+					.minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60));
+		} else {
+			dateTime = dateTime.plusDays(r.nextInt(maxOffsetDays - minOffsetDays) + minOffsetDays)
+					.plusHours(r.nextInt(24)).plusMinutes(r.nextInt(60));
+		}
+		
+		return dateTime;
+	}
+
 }
