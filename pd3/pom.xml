@@ -85,6 +85,11 @@
 			<artifactId>logback-ext-spring</artifactId>
 			<version>${logback-spring.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+			<version>4.1</version>
+		</dependency>
 		<!-- H2DB -->		
 		<dependency>
 		    <groupId>com.h2database</groupId>

@@ -46,7 +46,7 @@ public class CommentService {
     }
 
 	public Long save(Long userId, Long topicId, String text) {
-		log.info("saving comment [userId:{}] [topicId:{}] [text:{}]");
+		log.info("saving comment [userId:{}] [topicId:{}] [text:{}]", userId, topicId, text);
 		Comment comment = new Comment();
 		comment.setAuthor(userRepo.findOne(userId));
 		comment.setTopic(topicRepo.findOne(topicId));
@@ -56,7 +56,7 @@ public class CommentService {
 	}
 
 	public Long saveReply(Long userId, Long commentId, String text) {
-		log.info("saving reply to comment [userId:{}] [commentId:{}] [text:{}]");
+		log.info("saving reply to comment [userId:{}] [commentId:{}] [text:{}]", userId, commentId, text);
 		Comment parent = commentRepo.findOne(commentId);
 		Comment comment = new Comment();
 		comment.setParent(parent);

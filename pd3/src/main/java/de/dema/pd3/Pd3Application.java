@@ -1,13 +1,9 @@
 package de.dema.pd3;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.OutputStreamAppender;
-import ch.qos.logback.ext.spring.ApplicationContextHolder;
-import de.dema.pd3.controller.CommonInterceptor;
-import de.dema.pd3.security.Pd3AuthenticationSuccessHandler;
-import nz.net.ultraq.thymeleaf.LayoutDialect;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -20,9 +16,14 @@ import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.concurrent.LinkedBlockingDeque;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.OutputStreamAppender;
+import ch.qos.logback.ext.spring.ApplicationContextHolder;
+import de.dema.pd3.controller.CommonInterceptor;
+import de.dema.pd3.security.Pd3AuthenticationSuccessHandler;
+import nz.net.ultraq.thymeleaf.LayoutDialect;
 
 @SpringBootApplication
 @EnableCaching
@@ -86,14 +87,14 @@ public class Pd3Application {
 	 *
 	 * @return Deque mit Lognachrichten in Form von einzelnen Strings.
      */
-	@Bean(name = "logdeque")
-	public LinkedBlockingDeque<String> createLogDeque() {
-		return new LinkedBlockingDeque<>(10000);
+	@Bean(name = "logmessages")
+	public CircularFifoQueue<String> createLogDeque() {
+		return new CircularFifoQueue<>(200);
 	}
 
 	@Bean(name = "logpageAppender", destroyMethod = "stop")
 	public OutputStreamAppender<ILoggingEvent> logpageAppender(LoggerContext ctx, PatternLayoutEncoder encoder,
-			LinkedBlockingDeque<String> logdeque) {
+			CircularFifoQueue<String> logdeque) {
 		OutputStreamAppender<ILoggingEvent> appender = new OutputStreamAppender<>();
 		appender.setContext(ctx);
 		appender.setEncoder(encoder);
@@ -106,11 +107,7 @@ public class Pd3Application {
 
 			@Override
 			public void write(byte[] b) throws IOException {
-				try {
-					logdeque.put(new String(b));
-				} catch (InterruptedException e) {
-					// ignore
-				}
+				logdeque.add(new String(b));
 			}
 		};
 		appender.setOutputStream(dos);
