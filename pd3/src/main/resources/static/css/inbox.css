@@ -96,6 +96,15 @@ div.room-content a.author {
 	font-weight: 700;
 }
 
+div.room-content a.more-msgs {
+	text-decoration: none;
+	color: #6a97c2;
+	font-weight: 700;
+    margin-bottom: 8px;
+    display: block;
+    text-align: center;
+}
+
 div.room-send-panel {
 	border-bottom: 1px solid gray;
 }

@@ -82,15 +82,10 @@ public class UserController {
     
     @GetMapping("/user/inbox")
     public String userInbox(Model model, @RequestParam(value = "selRoom", required = false) Long roomId, Authentication auth, 
-    		@PageableDefault(size = 10, direction = Direction.DESC) Pageable pageable) {
+    		@PageableDefault(size = 20, direction = Direction.DESC) Pageable pageable) {
 		Long userId = Pd3Util.currentUserId(auth);
     	
-    	if (roomId != null) {
-    		Page<ChatroomMessageModel> messages = userService.loadMessagesForChatroom(userId, roomId, pageable);
-    		if (messages != null) {
-    			model.addAttribute("messages", messages);
-    		}
-    	}
+    	userInboxAjax(model, roomId, pageable, auth);
     	
     	List<ChatroomModel> rooms = userService.loadAllChatroomsOrderedByTimestampOfLastMessageDesc(userId);
     	model.addAttribute("rooms", rooms);
@@ -99,7 +94,20 @@ public class UserController {
     	model.addAttribute("notificationsActive", activeRoom.isPresent() ? activeRoom.get().isNotificationsActive() : true);
     	
     	return "inbox";
-    }    		
+    }
+
+    @GetMapping("/user/inbox-ajax")
+	public String userInboxAjax(Model model, @RequestParam("roomId") Long roomId, Pageable pageable, Authentication auth) {
+		Long userId = Pd3Util.currentUserId(auth);
+
+		if (roomId != null) {
+    		Page<ChatroomMessageModel> messages = userService.loadMessagesForChatroom(userId, roomId, pageable);
+    		if (messages != null) {
+    			model.addAttribute("messages", messages);
+    		}
+    	}
+		return "inbox :: messages-panel";
+	}    		
 
     @PostMapping("/user/send-message/{target}")
     public String sendMessage(@PathVariable("target") String target, @ModelAttribute("targetId") Long targetId, 

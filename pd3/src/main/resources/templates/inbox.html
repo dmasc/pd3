@@ -55,13 +55,18 @@
 					</form>
 				</div>
 				<div class="room-content">
-					<div class="message" th:each="msg : ${messages}">
-						<span th:text="${{msg.sendTimestamp}}" class="timestamp"></span><a th:href="@{/user/profile(id=${msg.senderId})}" th:text="${msg.sender}" class="author"></a>
-						<div th:text="${msg.text}" class="message-text"></div>
-					</div>
+					<div th:replace="inbox :: messages-panel"></div>
 				</div>
 			</div>
 		</div>
+	</div>
+	
+	<div th:fragment="messages-panel">
+		<div class="message" th:each="msg : ${messages}">
+			<span th:text="${{msg.sendTimestamp}}" class="timestamp"></span><a th:href="@{/user/profile(id=${msg.senderId})}" th:text="${msg.sender}" class="author"></a>
+			<div th:text="${msg.text}" class="message-text"></div>
+		</div>
+		<a th:href="${'javascript: showMoreMessages(' + param.selRoom[0] + ',' + (messages.number + 1) + ',' + messages.size + ');'}" th:if="${messages != null and not messages.last}" class="more-msgs">Ältere Nachrichten anzeigen</a>
 	</div>
 	
 </body>
