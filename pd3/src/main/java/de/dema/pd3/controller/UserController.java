@@ -164,4 +164,11 @@ public class UserController {
     	return json;
     }
     
+    @PostMapping("/user/newmsgs")
+    @ResponseBody
+    public boolean newMessagesAvailable(Model model, Authentication auth) {
+    	Long id = Pd3Util.currentUserId(auth);
+    	return userService.areNewMessagesAvailable(id);
+    }
+    
 }

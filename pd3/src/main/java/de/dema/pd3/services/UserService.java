@@ -111,22 +111,26 @@ public class UserService {
 		LocalDateTime now = LocalDateTime.now();
 
 		Chatroom chatroom = chatroomRepo.findOne(chatroomId);
+		LocalDateTime previousMsgSent = chatroom.getLastMessageSent();
 		chatroom.setLastMessageSent(now);
 		chatroom = chatroomRepo.save(chatroom);
 
+		User sender = userRepo.findOne(senderId);
 		Message msg = new Message();
 		msg.setRoom(chatroom);
-		msg.setSender(userRepo.findOne(senderId));
+		msg.setSender(sender);
 		msg.setSendTimestamp(now);
 		msg.setText(text);
 		msg = messageRepo.save(msg);
 		
 		ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(
 				chatroomRepo.findOne(chatroomId), 
-				userRepo.findOne(senderId)
+				sender
 		));
-		chatroomUser.setLastMessageRead(now);
-		chatroomUser = chatroomUserRepo.save(chatroomUser);		
+		if (chatroomUser.getLastMessageRead() != null && !chatroomUser.getLastMessageRead().isBefore(previousMsgSent)) {
+			chatroomUser.setLastMessageRead(now);
+			chatroomUser = chatroomUserRepo.save(chatroomUser);
+		}
 	}
 
 	public void updateLastLoginDate(Long userId) {
@@ -165,6 +169,7 @@ public class UserService {
 	}
 
 	public boolean areNewMessagesAvailable(Long userId) {
+		log.debug("checking if new messages are available [userId:{}]", userId);
 		User user = userRepo.findOne(userId);
 		return user.getChatroomUsers().parallelStream()
 				.filter(cu -> cu.isNotificationsActive() && (cu.getLastMessageRead() == null || cu.getLastMessageRead().isBefore(cu.getChatroom().getLastMessageSent())))
