@@ -2,49 +2,13 @@ package de.dema.pd3.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
 
+import de.dema.pd3.DBTestBase;
 import de.dema.pd3.TestUtil;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@TestPropertySource(locations="classpath:application.properties")
-public class CommonEntityTest {
+public class CommonEntityTest extends DBTestBase {
 
-    @Autowired
-    private TopicRepository topicRepo;
-
-    @Autowired
-    private UserRepository userRepo;
-
-    @Autowired
-    private TopicVoteRepository voteRepo;
-
-    @Autowired
-    private CommentRepository commentRepo;
-
-    @Autowired
-    private CommentVoteRepository commentVoteRepo;
-    
-    @Autowired
-    private DataSource dataSource;
-    
-    private JdbcTemplate jdbc;
-
-	@PostConstruct
-	public void setup() {
-		jdbc = new JdbcTemplate(dataSource);
-	}
-	
     @Test
     public void testCommentDeletionAlsoRemovesChildCommentsAndLikes() {
         User user = givenRandomUserIsRegistered();

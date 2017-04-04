@@ -1,12 +1,22 @@
 package de.dema.pd3.validation;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+<<<<<<< HEAD
+
 import java.time.LocalDate;
 import java.time.Period;
 
+=======
+>>>>>>> branch 'master' of https://github.com/dmasc/pd3.git
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+<<<<<<< HEAD
+=======
+import java.time.LocalDate;
+import java.time.Period;
+>>>>>>> branch 'master' of https://github.com/dmasc/pd3.git
+
 /**
- * Validates brithday
+ * Validates birthday
  * Created by Ronny on 22.03.2017.
  */
 public class AgeValidator implements ConstraintValidator<Age, String> {
