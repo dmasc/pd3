@@ -21,7 +21,7 @@
 		</div>
 		<a href="/">Home</a> | <a href="/public/register">Registrieren</a> | <a href="/topic/edit">Abstimmung erstellen</a> |
 		<a href="/topic/overview">Übersicht Abstimmungsthemen</a> | <a href="/user/profile">Profil</a> | <a href="/user/inbox">Postfach</a> | 
-		<a href="/db">Datenbank</a> |
+		<a href="/log">Log</a> | <a href="/db">Datenbank</a> |
 		<form sec:authorize="isAuthenticated()" id="logoutform" th:action="@{/logout}" method="post" class="undecorated">
             <a href="#" onclick="document.getElementById('logoutform').submit();">Logout</a>
 		</form>

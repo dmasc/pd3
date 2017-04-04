@@ -1,0 +1,19 @@
+<html layout:decorator="layout/default" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+	<title>Log</title>
+	<script th:src="@{/js/log.js}"></script>
+	<link rel="stylesheet" type="text/css" href="/css/log.css" th:href="@{/css/log.css}" />
+</head>
+
+<body>
+
+	<div layout:fragment="content" class="content">
+
+		<div class="log" th:if="${messages} != null">
+			<span th:each="msg : ${messages}" th:text="${msg}" th:class="${#strings.contains(msg, ' DEBUG ')}? 'debug' : (${#strings.contains(msg, ' ERROR ')}? 'error' : (${#strings.contains(msg, ' WARN  ')}? 'warn' : ''))"></span>
+		</div>
+
+	</div>
+
+</body>
+</html>
