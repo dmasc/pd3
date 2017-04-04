@@ -1,19 +1,10 @@
 package de.dema.pd3.validation;
 
-<<<<<<< HEAD
-
 import java.time.LocalDate;
 import java.time.Period;
 
-=======
->>>>>>> branch 'master' of https://github.com/dmasc/pd3.git
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-<<<<<<< HEAD
-=======
-import java.time.LocalDate;
-import java.time.Period;
->>>>>>> branch 'master' of https://github.com/dmasc/pd3.git
 
 /**
  * Validates birthday
