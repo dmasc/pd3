@@ -1,8 +1,8 @@
 package de.dema.pd3.controller;
 
 import java.util.List;
-
 import java.util.Optional;
+
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -90,6 +90,7 @@ public class UserController {
     	
     	List<ChatroomModel> rooms = userService.loadAllChatroomsOrderedByTimestampOfLastMessageDesc(userId);
     	model.addAttribute("rooms", rooms);
+		model.addAttribute("roomId", roomId);
     	
     	Optional<ChatroomModel> activeRoom = rooms.stream().filter(room -> room.getId().equals(roomId)).findFirst();
     	model.addAttribute("notificationsActive", activeRoom.isPresent() ? activeRoom.get().isNotificationsActive() : true);
@@ -107,6 +108,7 @@ public class UserController {
     			model.addAttribute("messages", messages);
     		}
     	}
+		model.addAttribute("roomId", roomId);
 		return "inbox :: messages-panel";
 	}    		
 

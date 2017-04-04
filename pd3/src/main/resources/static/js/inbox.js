@@ -19,7 +19,7 @@ $(function() {
 function showMoreMessages(roomId, page, size) {
 	var link = $("div.room-content a:last");
 
-	$.get("/user/inbox-ajax?roomId=" + roomId + "&page=" + page + "&size= "+ size, function(data) {
+	$.get("/user/inbox-ajax?roomId=" + roomId + "&page=" + page + "&size="+ size, function(data) {
 		link.replaceWith(data);
 	});
 }
