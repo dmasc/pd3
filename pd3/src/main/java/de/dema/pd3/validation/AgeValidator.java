@@ -1,13 +1,9 @@
 package de.dema.pd3.validation;
 
-
-import org.apache.tomcat.jni.Local;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.format.DateTimeParseException;
 
 /**
  * Validates brithday
