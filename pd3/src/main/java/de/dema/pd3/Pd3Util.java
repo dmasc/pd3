@@ -3,6 +3,7 @@ package de.dema.pd3;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.security.core.Authentication;
 
+import de.dema.pd3.persistence.User;
 import de.dema.pd3.security.CurrentUser;
 
 
@@ -20,6 +21,10 @@ public final class Pd3Util {
 	
 	public static Long currentUserId(Authentication auth) {
 		return ((CurrentUser) auth.getPrincipal()).getId();
+	}
+
+	public static String username(User user) {
+		return user.getForename() + " " + user.getSurname();
 	}
 	
 }

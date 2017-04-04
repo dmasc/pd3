@@ -2,13 +2,21 @@ package de.dema.pd3;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
+import de.dema.pd3.persistence.Chatroom;
+import de.dema.pd3.persistence.ChatroomUser;
 import de.dema.pd3.persistence.Comment;
 import de.dema.pd3.persistence.CommentRepository;
 import de.dema.pd3.persistence.CommentVote;
+import de.dema.pd3.persistence.Message;
 import de.dema.pd3.persistence.Topic;
 import de.dema.pd3.persistence.User;
 
@@ -17,6 +25,10 @@ public class TestUtil {
 	private static Random r = new Random();
 	
 	public static User createRandomUser() {
+		return createRandomUser(null);
+	}
+	
+	public static User createRandomUser(RepositoryProvider repoProvider) {
 		User user = new User();
 		user.setBirthday(LocalDate.now().minusYears(r.nextInt(80) + 18).minusMonths(r.nextInt(12)).minusDays(r.nextInt(28)));
 		user.setDistrict(RandomStringUtils.randomAlphabetic(r.nextInt(20) + 3));
@@ -29,7 +41,7 @@ public class TestUtil {
 		user.setSurname(RandomStringUtils.randomAlphabetic(r.nextInt(15) + 3));
 		user.setZip(String.valueOf(r.nextInt(90000) + 10000));
 
-		return user;
+		return repoProvider != null ? repoProvider.getUserRepository().save(user) : user;
 	}
 	
 	public static Topic createRandomTopic(User author) {
@@ -88,4 +100,52 @@ public class TestUtil {
 
 		return vote;
 	}
+
+	public static ChatroomUser createChatroomUser(Chatroom room, User user, boolean notificationsActive) {
+		ChatroomUser chatroomUser = new ChatroomUser();
+		chatroomUser.setId(room, user);
+		chatroomUser.setNotificationsActive(notificationsActive);
+		
+		return chatroomUser;
+	}
+
+	public static Chatroom createChatroom(RepositoryProvider repoProvider, User... users) {
+		Chatroom chatroom = new Chatroom();
+		chatroom.setUsers(Arrays.asList(users).stream().map(u -> createChatroomUser(chatroom, u, true)).collect(Collectors.toSet()));
+		
+		return repoProvider.getChatroomRepository().save(chatroom);
+	}
+	
+	public static Message createRandomMessage(RepositoryProvider repoProvider, Chatroom room, User sender) {
+		Message message = new Message();
+		message.setRoom(room);
+		message.setSender(sender);
+		message.setSendTimestamp(createRandomDateTime(-1, -60));
+		message.setText(createRandomText(r.nextInt(1000) + 2));
+
+		return repoProvider.getMessageRepository().save(message);		
+	}
+
+	public static List<Message> createRandomMessages(RepositoryProvider repoProvider, Chatroom room, User sender, int amount) {
+		List<Message> result = new ArrayList<>();
+		for (int i = 0; i < amount; i++) {
+			result.add(createRandomMessage(repoProvider, room, sender));
+		}
+		Collections.sort(result, (msg1, msg2) -> msg1.getSendTimestamp().compareTo(msg2.getSendTimestamp()));
+		return result;
+	}
+	
+	public static LocalDateTime createRandomDateTime(int minOffsetDays, int maxOffsetDays) {
+		LocalDateTime dateTime = LocalDateTime.now().plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60));
+		if (minOffsetDays < 0 || maxOffsetDays < 0) {
+			dateTime = dateTime.minusDays(r.nextInt(Math.abs(maxOffsetDays - minOffsetDays)) - minOffsetDays)
+					.minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60));
+		} else {
+			dateTime = dateTime.plusDays(r.nextInt(maxOffsetDays - minOffsetDays) + minOffsetDays)
+					.plusHours(r.nextInt(24)).plusMinutes(r.nextInt(60));
+		}
+		
+		return dateTime;
+	}
+	
 }

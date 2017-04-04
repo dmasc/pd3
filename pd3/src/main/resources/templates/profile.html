@@ -12,7 +12,7 @@
 		<div th:if="${not isCurrentUser}">
 			<h2>Persönliche Nachricht senden</h2>
 			<form th:action="@{/user/send-message/user}" method="post">
-				<input type="hidden" name="recipientId" th:value="${user.id}" />
+				<input type="hidden" name="targetId" th:value="${user.id}" />
 				<textarea name="text" cols="50" rows="6"></textarea><br/>
 				<input type="submit" value="Nachricht senden" />
 			</form>

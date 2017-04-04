@@ -16,7 +16,7 @@
 
 	<div class="menu">
 		<div sec:authorize="isAuthenticated()" class="menu-right">
-			<a th:href="@{/user/inbox}" th:if="${newMessagesAvailable}" th:alt-title="'Neue Nachrichten verfügbar'"><img th:src="@{/img/new-message.svg}" height="24" /></a>
+			<a th:href="@{/user/inbox}" th:style="${not newMessagesAvailable}?'display:none;'" th:alt-title="'Neue Nachrichten verfügbar'" id="new-messages-indicator"><img th:src="@{/img/new-message.svg}" height="24" /></a>
 			<input id="user-search-field" type="text" placeholder="Mitglied suchen" />
 		</div>
 		<a href="/">Home</a> | <a href="/public/register">Registrieren</a> | <a href="/topic/edit">Abstimmung erstellen</a> |
