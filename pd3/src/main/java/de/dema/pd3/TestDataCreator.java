@@ -125,7 +125,7 @@ public class TestDataCreator {
 		room.getUsers().add(chatroomUser);
 		
 		room.setMessages(new HashSet<>());
-		int msgCount = r.nextInt(50) + 1;
+		int msgCount = r.nextInt(10) + 41;
 		LocalDateTime lastMsgSent = null; 
 		for (int i = 0; i < msgCount; i++) {
 			Message msg = new Message();

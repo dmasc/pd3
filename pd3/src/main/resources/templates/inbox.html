@@ -14,7 +14,7 @@
 		<div class="inbox">
 			<div class="room-choice-container">
 			<div style="height: 500px; overflow: auto;">
-				<div class="room-choice-item" th:each="room : ${rooms}" th:with="isSelectedRoom=${param.selRoom != null and param.selRoom[0] == #strings.toString(room.id)}"
+				<div class="room-choice-item" th:each="room : ${rooms}" th:with="isSelectedRoom=${roomId != null and roomId == room.id}"
 						th:onclick="${not isSelectedRoom}?'window.location.href=\''+@{/user/inbox(selRoom=${room.id})}+'\''" 
 						th:classappend="${isSelectedRoom}?selected:(${room.unreadMessagesCount > 0}?new-message)">
 					<div class="room-choice-item-text"><span th:text="${room.name}"></span><span th:if="${room.unreadMessagesCount > 0}" th:text="${' ('+room.unreadMessagesCount+')'}"></span></div>
@@ -22,16 +22,16 @@
 			</div>
 			</div>
 
-			<div class="room" th:if="${param.selRoom}">
+			<div class="room" th:if="${roomId}">
 				<div class="room-info">
 					<div class="actions">
 						<form id="room-notifications-form" th:action="@{/user/chatroom-notifications}" method="post">
-							<input type="hidden" name="roomId" th:value="${param.selRoom[0]}" />
+							<input type="hidden" name="roomId" th:value="${roomId}" />
 							<input type="checkbox" name="notificationsActive" th:checked="${notificationsActive}" id="notificationsActive" />
 							<label for="notificationsActive">Bei neuen Nachrichten alarmieren</label>
 						</form>
 						<form th:action="@{/user/delete-chatroom}" method="post">
-							<input type="hidden" name="roomId" th:value="${param.selRoom[0]}" />
+							<input type="hidden" name="roomId" th:value="${roomId}" />
 							<button type="submit" th:alt-title="@{Unterhaltung löschen}"> 
 								<img th:src="@{/img/delete.svg}" height="16" width="16" />
 							</button>
@@ -40,7 +40,7 @@
 				</div>
 				<div class="room-send-panel">
 					<form th:action="@{/user/send-message/room}" method="post">
-						<input type="hidden" name="targetId" th:value="${param.selRoom[0]}" />
+						<input type="hidden" name="targetId" th:value="${roomId}" />
 						<div style="display: table; width: 100%;">
 							<div style="display: table-cell">
 								<textarea name="text" autofocus="autofocus" 
@@ -66,7 +66,7 @@
 			<span th:text="${{msg.sendTimestamp}}" class="timestamp"></span><a th:href="@{/user/profile(id=${msg.senderId})}" th:text="${msg.sender}" class="author"></a>
 			<div th:text="${msg.text}" class="message-text"></div>
 		</div>
-		<a th:href="${'javascript: showMoreMessages(' + param.selRoom[0] + ',' + (messages.number + 1) + ',' + messages.size + ');'}" th:if="${messages != null and not messages.last}" class="more-msgs">Ältere Nachrichten anzeigen</a>
+		<a th:href="${'javascript: showMoreMessages(' + roomId + ',' + (messages.number + 1) + ',' + messages.size + ');'}" th:if="${messages != null and not messages.last}" class="more-msgs">Ältere Nachrichten anzeigen</a>
 	</div>
 	
 </body>
