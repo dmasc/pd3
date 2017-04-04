@@ -3,7 +3,7 @@ package de.dema.pd3.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import net.sf.ehcache.hibernate.management.impl.BeanUtils;
+import java.lang.reflect.Field;
 
 public class MatchingFieldsValidator implements ConstraintValidator<MatchingFields, Object> {
 
@@ -16,9 +16,19 @@ public class MatchingFieldsValidator implements ConstraintValidator<MatchingFiel
     }
 
     public boolean isValid(final Object value, final ConstraintValidatorContext context) {
-        final Object firstObj = BeanUtils.getBeanProperty(value, firstFieldName);
-        final Object secondObj = BeanUtils.getBeanProperty(value, secondFieldName);
+        final Object firstObj = getBeanProperty(value, firstFieldName);
+        final Object secondObj = getBeanProperty(value, secondFieldName);
         return (firstObj == null && secondObj == null) || (firstObj != null && firstObj.equals(secondObj));
+    }
+
+    private Object getBeanProperty(Object value, String fieldname) {
+        try {
+            Field field = value.getClass().getDeclaredField(fieldname);
+            field.setAccessible(true);
+            return field.get(value);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
     
 }
