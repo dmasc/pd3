@@ -22,25 +22,33 @@
 			</div>
 			</div>
 
-			<div class="room" th:if="${roomId}">
+			<div class="room" th:if="${selectedRoom}">
 				<div class="room-info">
+					<div class="name">
+						<form id="chatroomNameForm" th:action="@{/user/rename-chatroom}" method="post">
+							<input type="hidden" name="roomId" th:value="${selectedRoom.id}" />
+							<input type="text" name="name" th:value="${selectedRoom.customName == true ? selectedRoom.name : null}" 
+									placeholder="Hier kann dem Chatraum ein individueller Name gegeben werden" onkeypress="return event.keyCode != 13;" />
+						</form>
+					</div>
 					<div class="actions">
 						<form id="room-notifications-form" th:action="@{/user/chatroom-notifications}" method="post">
-							<input type="hidden" name="roomId" th:value="${roomId}" />
-							<input type="checkbox" name="notificationsActive" th:checked="${notificationsActive}" id="notificationsActive" />
+							<input type="hidden" name="roomId" th:value="${selectedRoom.id}" />
+							<input type="checkbox" name="notificationsActive" th:checked="${selectedRoom.notificationsActive}" id="notificationsActive" />
 							<label for="notificationsActive">Bei neuen Nachrichten alarmieren</label>
 						</form>
 						<form th:action="@{/user/delete-chatroom}" method="post">
-							<input type="hidden" name="roomId" th:value="${roomId}" />
+							<input type="hidden" name="roomId" th:value="${selectedRoom.id}" />
 							<button type="submit" th:alt-title="@{Unterhaltung löschen}"> 
 								<img th:src="@{/img/delete.svg}" height="16" width="16" />
 							</button>
 						</form>
 					</div>
 				</div>
+				<div class="members"><span th:each="member : ${selectedRoom.members}"><a th:href="@{/user/profile(id=${member.id})}" th:text="${member.name}" class="user"></a> </span></div>
 				<div class="room-send-panel">
 					<form th:action="@{/user/send-message/room}" method="post">
-						<input type="hidden" name="targetId" th:value="${roomId}" />
+						<input type="hidden" name="targetId" th:value="${selectedRoom.id}" />
 						<div style="display: table; width: 100%;">
 							<div style="display: table-cell">
 								<textarea name="text" autofocus="autofocus" 
@@ -63,7 +71,7 @@
 	
 	<div th:fragment="messages-panel">
 		<div class="message" th:each="msg : ${messages}">
-			<span th:text="${{msg.sendTimestamp}}" class="timestamp"></span><a th:href="@{/user/profile(id=${msg.senderId})}" th:text="${msg.sender}" class="author"></a>
+			<span th:text="${{msg.sendTimestamp}}" class="timestamp"></span><a th:href="@{/user/profile(id=${msg.senderId})}" th:text="${msg.sender}" class="user"></a>
 			<div th:text="${msg.text}" class="message-text"></div>
 		</div>
 		<a th:href="${'javascript: showMoreMessages(' + roomId + ',' + lastMsgId + ');'}" th:if="${messages != null and not messages.last}" class="more-msgs">Ältere Nachrichten anzeigen</a>

@@ -1,9 +1,11 @@
 package de.dema.pd3.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import de.dema.pd3.Pd3Util;
 import de.dema.pd3.persistence.ChatroomUser;
 
 public class ChatroomModel extends NamedIdModel implements Comparable<ChatroomModel> {
@@ -13,7 +15,9 @@ public class ChatroomModel extends NamedIdModel implements Comparable<ChatroomMo
 	private int unreadMessagesCount;
 	
 	private boolean notificationsActive;
-
+	
+	private List<NamedIdModel> members;
+	
 	public LocalDateTime getLastMessageSentTimestamp() {
 		return lastMessageSentTimestamp;
 	}
@@ -38,6 +42,26 @@ public class ChatroomModel extends NamedIdModel implements Comparable<ChatroomMo
 		this.notificationsActive = notificationsActive;
 	}
 
+	public List<NamedIdModel> getMembers() {
+		return members;
+	}
+
+	public void setMembers(List<NamedIdModel> members) {
+		this.members = members;
+	}
+
+	public boolean isCustomName() {
+		return super.getName() != null;
+	}
+
+	@Override
+	public String getName() {
+		if (isCustomName()) {
+			return super.getName();
+		}
+		return getMembers().toString();
+	}
+
 	@Override
 	public int compareTo(ChatroomModel o) {
 		return o.getLastMessageSentTimestamp().compareTo(getLastMessageSentTimestamp());
@@ -49,14 +73,12 @@ public class ChatroomModel extends NamedIdModel implements Comparable<ChatroomMo
 		model.setLastMessageSentTimestamp(room.getChatroom().getLastMessageSent());
 		model.setNotificationsActive(room.isNotificationsActive());
 		model.setUnreadMessagesCount(unreadMessageCountReader.apply(room));
-		if (room.getName() != null) {
-			model.setName(room.getName());
-		} else {
-			model.setName(room.getChatroom().getUsers().stream()
+		model.setName(room.getName());
+		model.setMembers(room.getChatroom().getUsers().stream()
 					.filter(u -> u.getUser().getId() != room.getUser().getId())
-					.map(u -> u.getUser().getSurname())
-					.sorted().collect(Collectors.toList()).toString());
-		}
+					.map(u -> new NamedIdModel(u.getUser().getId(), Pd3Util.username(u.getUser())))
+					.sorted((n1, n2) -> n1.getName().compareTo(n2.getName()))
+					.collect(Collectors.toList()));
 		
 		return model;
 	}

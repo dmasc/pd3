@@ -85,14 +85,22 @@ public class UserController {
     public String userInbox(Model model, @RequestParam(value = "selRoom", required = false) Long roomId, Authentication auth) {
 		Long userId = Pd3Util.currentUserId(auth);
     	
-    	userInboxAjax(model, roomId, null, auth);
+    	boolean userRoomAssociationExists = false;
     	
+    	if (roomId != null) {
+    		userRoomAssociationExists = userService.storeLastMessageRead(userId, roomId);
+    	}
+
     	List<ChatroomModel> rooms = userService.loadAllChatroomsOrderedByTimestampOfLastMessageDesc(userId);
     	model.addAttribute("rooms", rooms);
 
-		if (roomId != null) {
+		if (userRoomAssociationExists) {
 	    	Optional<ChatroomModel> activeRoom = rooms.stream().filter(room -> room.getId().equals(roomId)).findFirst();
-	    	model.addAttribute("notificationsActive", activeRoom.isPresent() ? activeRoom.get().isNotificationsActive() : true);
+	    	if (activeRoom.isPresent()) {
+	    		userInboxAjax(model, roomId, null, auth);
+	        	
+		    	model.addAttribute("selectedRoom", activeRoom.get());
+	    	}
 		}
     	
     	return "inbox";
@@ -169,9 +177,18 @@ public class UserController {
     
     @PostMapping("/user/newmsgs")
     @ResponseBody
-    public boolean newMessagesAvailable(Model model, Authentication auth) {
+    public boolean newMessagesAvailable(Authentication auth) {
     	Long id = Pd3Util.currentUserId(auth);
     	return userService.areNewMessagesAvailable(id);
+    }
+
+    @PostMapping("/user/rename-chatroom")
+    @ResponseBody
+    public boolean changeChatroomName(@RequestParam("roomId") Long roomId, @RequestParam("name") String name, Authentication auth) {
+    	Long id = Pd3Util.currentUserId(auth);
+    	log.debug("renaming chatroom [userId:{}] [name:{}]", id, name);
+    	
+    	return userService.renameChatroom(id, roomId, name);
     }
     
 }

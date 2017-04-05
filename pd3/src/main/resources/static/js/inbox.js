@@ -5,6 +5,21 @@ $(function() {
 		$.post($form.attr("action"), $form.serialize());
 	});
 	
+	$("#chatroomNameForm input[type='text']").change(function(event) {
+		var $form = $("#chatroomNameForm"), namefield = $form.find("input[type='text']:first"),
+				roomChoiceItem = $("div.room-choice-item.selected div.room-choice-item-text span:first");
+		
+		if (namefield.val().trim().length == 0) {
+			namefield.val(roomChoiceItem.text());
+			return false;
+		}
+		$.post($form.attr("action"), $form.serialize(), function(result) {
+			if (result) {
+				roomChoiceItem.text(namefield.val());
+			}
+		});
+	});
+	
 	$("div.room-send-panel form").submit(function(event) {
 		var $area = $(this).find("textarea");
 

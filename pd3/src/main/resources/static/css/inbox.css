@@ -22,6 +22,7 @@ div.room-choice-item {
 	padding: 5px;
 	display: flex;
 	align-items: center;
+	overflow: hidden;
 }
 
 div.room-choice-item:last-of-type {
@@ -41,6 +42,8 @@ div.room-choice-item.selected {
 }
 
 div.room-choice-item-text {
+	overflow: hidden;
+	vertical-align: middle;
 }
 
 div.room {
@@ -53,11 +56,33 @@ div.room-info {
 	background-color: #e9dfc6;
 	height: 27px;
 	width: 100%;
-	border-bottom: 1px solid gray;
+	display: table;
+}
+
+div.room div.members {
+	vertical-align: middle;
+	padding-left: 4px;
+	line-height: 1em;
+	background-color: #e9dfc6;
+	overflow: auto;
+	max-height: 38px;
+}
+
+div.room-info div.name {
+	display: table-cell;
+	width: 100%;
+	vertical-align: middle;
+	padding-right: 5px;
+}
+
+div.room-info div.name form input[type=text] {
+	width: 100%;
+	margin-left: 2px;
 }
 
 div.room-info div.actions {
-	float: right;
+	display: table-cell;
+	white-space: nowrap;
 }
 
 div.room-info div.actions form {
@@ -90,10 +115,15 @@ div.room-content span.timestamp {
 	margin-right: 10px;
 }
 
-div.room-content a.author {
-	text-decoration: none;
+div.room div.members a,
+div.room-content a.user {
 	color: #b19448;
-	font-weight: 700;
+}
+
+div.room div.members a {
+	margin-right: 10px;
+	font-size: 0.8em;
+	color: #496ea7;
 }
 
 div.room-content a.more-msgs {
@@ -105,7 +135,12 @@ div.room-content a.more-msgs {
     text-align: center;
 }
 
+div.room-content a.more-msgs:hover {
+	text-decoration: underline;
+}
+
 div.room-send-panel {
+	border-top: 1px solid gray;
 	border-bottom: 1px solid gray;
 }
 

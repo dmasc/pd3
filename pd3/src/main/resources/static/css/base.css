@@ -224,3 +224,14 @@ input[type=image]:disabled {
 	pointer-events: none;
 	cursor: default;
 }
+
+a.user {
+	text-decoration: none;
+	color: #b19448;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+a.user:hover {
+	text-decoration: underline;
+}

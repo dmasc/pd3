@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import de.dema.pd3.Pd3Util;
 import de.dema.pd3.model.ChatroomMessageModel;
 import de.dema.pd3.model.ChatroomModel;
 import de.dema.pd3.model.NamedIdModel;
@@ -96,6 +98,13 @@ public class UserService {
 	
 	public Page<ChatroomMessageModel> loadMessagesForChatroom(Long userId, Long chatroomId, Long lastMsgId) {
 		log.debug("loading messages for chatroom [userId:{}] [chatroomId:{}] [lastMsgId:{}]", userId, chatroomId, lastMsgId);
+		
+		// verify that the chatroom exists and user is allowed to see its messages
+		Chatroom room = chatroomRepo.findOne(chatroomId);
+		if (room == null || chatroomUserRepo.findOne(new ChatroomUserId(room, userRepo.findOne(userId))) == null) {
+			return null;
+		}
+		
 		Page<Message> findResult;
 		if (lastMsgId == null) {
 			findResult = messageRepo.findByRoomIdOrderBySendTimestampDesc(chatroomId, new PageRequest(0, 20));
@@ -103,13 +112,19 @@ public class UserService {
 			Message referenceMessage = messageRepo.findOne(lastMsgId);
 			findResult = messageRepo.findByRoomIdAndOlderThanParticularMessage(chatroomId, referenceMessage.getSendTimestamp(), new PageRequest(0, 20));
 		}
-		Page<ChatroomMessageModel> page = findResult.map(ChatroomMessageModel::map);
-		if (lastMsgId == null) {
-			ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(chatroomRepo.findOne(chatroomId), userRepo.findOne(userId)));
+		return findResult.map(ChatroomMessageModel::map);
+	}
+
+	public boolean storeLastMessageRead(Long userId, Long chatroomId) {
+		ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(chatroomRepo.findOne(chatroomId), userRepo.findOne(userId)));
+		if (chatroomUser != null) {
 			chatroomUser.setLastMessageRead(LocalDateTime.now());
 			chatroomUserRepo.save(chatroomUser);
+			return true;
+		} else {
+			log.warn("unable to find ChatroomUser entity [userId:{}] [chatroomId:{}]", userId, chatroomId);
 		}
-		return page;
+		return false;
 	}
 	
 	public void sendMessageToChatroom(String text, Long senderId, Long chatroomId) {
@@ -176,6 +191,32 @@ public class UserService {
 		return user.getChatroomUsers().parallelStream()
 				.filter(cu -> cu.isNotificationsActive() && (cu.getLastMessageRead() == null || cu.getLastMessageRead().isBefore(cu.getChatroom().getLastMessageSent())))
 				.findAny().isPresent();
+	}
+
+	public List<NamedIdModel> loadMembersOfChatroom(Long userId, Long roomId) {
+		Chatroom room = chatroomRepo.findOne(roomId);
+		return room.getUsers().stream()
+				.filter(cu -> !cu.getUser().getId().equals(userId))
+				.map(cu -> new NamedIdModel(cu.getUser().getId(), Pd3Util.username(cu.getUser())))
+				.sorted((m1, m2) -> m1.getName().compareTo(m2.getName()))
+				.collect(Collectors.toList());
+	}
+
+	public boolean renameChatroom(Long userId, Long roomId, String name) {
+		Chatroom room = chatroomRepo.findOne(roomId);
+		if (room != null) {
+			ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(room, userRepo.findOne(userId)));
+			if (chatroomUser != null) {
+				chatroomUser.setName(StringUtils.isBlank(name) ? null : name);
+				chatroomUserRepo.save(chatroomUser);
+				return true;
+			} else {
+				log.warn("cannot find user to chatroom association [userId:{}] [roomId:{}]", userId, roomId);
+			}
+		} else {
+			log.warn("cannot find chatroom [roomId:{}]", roomId);
+		}
+		return false;
 	}
 	
 }

@@ -8,6 +8,14 @@ public class NamedIdModel {
 	
 	private String name;
 
+	public NamedIdModel() {		
+	}
+	
+	public NamedIdModel(Long id, String name) {
+		this.id = id;
+		this.name = name;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -24,6 +32,11 @@ public class NamedIdModel {
 		this.id = id;
 	}
 	
+	@Override
+	public String toString() {
+		return name;
+	}
+
 	public static NamedIdModel map(User user) {
 		NamedIdModel model = new NamedIdModel();
 		model.setId(user.getId());
