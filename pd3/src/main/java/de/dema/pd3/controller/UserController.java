@@ -82,30 +82,31 @@ public class UserController {
     }
     
     @GetMapping("/user/inbox")
-    public String userInbox(Model model, @RequestParam(value = "selRoom", required = false) Long roomId, Authentication auth, 
-    		@PageableDefault(size = 20, direction = Direction.DESC) Pageable pageable) {
+    public String userInbox(Model model, @RequestParam(value = "selRoom", required = false) Long roomId, Authentication auth) {
 		Long userId = Pd3Util.currentUserId(auth);
     	
-    	userInboxAjax(model, roomId, pageable, auth);
+    	userInboxAjax(model, roomId, null, auth);
     	
     	List<ChatroomModel> rooms = userService.loadAllChatroomsOrderedByTimestampOfLastMessageDesc(userId);
     	model.addAttribute("rooms", rooms);
-		model.addAttribute("roomId", roomId);
-    	
-    	Optional<ChatroomModel> activeRoom = rooms.stream().filter(room -> room.getId().equals(roomId)).findFirst();
-    	model.addAttribute("notificationsActive", activeRoom.isPresent() ? activeRoom.get().isNotificationsActive() : true);
+
+		if (roomId != null) {
+	    	Optional<ChatroomModel> activeRoom = rooms.stream().filter(room -> room.getId().equals(roomId)).findFirst();
+	    	model.addAttribute("notificationsActive", activeRoom.isPresent() ? activeRoom.get().isNotificationsActive() : true);
+		}
     	
     	return "inbox";
     }
 
-    @GetMapping("/user/inbox-ajax")
-	public String userInboxAjax(Model model, @RequestParam("roomId") Long roomId, Pageable pageable, Authentication auth) {
+    @PostMapping("/user/inbox-ajax")
+	public String userInboxAjax(Model model, @RequestParam("roomId") Long roomId, @RequestParam("lastMsgId") Long lastMsgId, Authentication auth) {
 		Long userId = Pd3Util.currentUserId(auth);
 
 		if (roomId != null) {
-    		Page<ChatroomMessageModel> messages = userService.loadMessagesForChatroom(userId, roomId, pageable);
+    		Page<ChatroomMessageModel> messages = userService.loadMessagesForChatroom(userId, roomId, lastMsgId);
     		if (messages != null) {
     			model.addAttribute("messages", messages);
+    			model.addAttribute("lastMsgId", messages.getContent().get(messages.getNumberOfElements() - 1).getId());
     		}
     	}
 		model.addAttribute("roomId", roomId);

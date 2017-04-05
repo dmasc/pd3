@@ -16,10 +16,10 @@ $(function() {
 	});
 });
 
-function showMoreMessages(roomId, page, size) {
+function showMoreMessages(roomId, lastMsgId) {
 	var link = $("div.room-content a:last");
 
-	$.get("/user/inbox-ajax?roomId=" + roomId + "&page=" + page + "&size="+ size, function(data) {
+	$.post("/user/inbox-ajax?roomId=" + roomId + "&lastMsgId="+ lastMsgId, function(data) {
 		link.replaceWith(data);
 	});
 }

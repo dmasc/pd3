@@ -1,5 +1,7 @@
 package de.dema.pd3;
 
+import java.util.Random;
+
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
@@ -24,6 +26,8 @@ import de.dema.pd3.persistence.UserRepository;
 @SpringBootTest
 @TestPropertySource(locations="classpath:application.properties")
 public class DBTestBase implements RepositoryProvider {
+	
+	protected static final Random r = new Random(); 
 
     @Autowired
     protected TopicRepository topicRepo;

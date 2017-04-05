@@ -141,6 +141,10 @@ public class TestUtil {
 		return repoProvider.getChatroomRepository().save(chatroom);
 	}
 	
+	public static Message createRandomMessage(Chatroom room, User sender) {
+		return createRandomMessage(null, room, sender);
+	}
+	
 	public static Message createRandomMessage(RepositoryProvider repoProvider, Chatroom room, User sender) {
 		Message message = new Message();
 		message.setRoom(room);
@@ -148,7 +152,7 @@ public class TestUtil {
 		message.setSendTimestamp(createRandomDateTime(-1, -60));
 		message.setText(createRandomText(r.nextInt(1000) + 2));
 
-		return repoProvider.getMessageRepository().save(message);		
+		return repoProvider != null ? repoProvider.getMessageRepository().save(message) : message;		
 	}
 
 	public static List<Message> createRandomMessages(RepositoryProvider repoProvider, Chatroom room, User sender, int amount) {

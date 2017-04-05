@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +49,7 @@ public class UserService {
 	private MessageRepository messageRepo;
 	
 	public User registerUser(RegisterUserModel userModel) {
-		log.debug("registerUser called [model:{}]", userModel);
+		log.debug("registering user [model:{}]", userModel);
 		
 		User user = new User();
 		user.setBirthday(userModel.getBirthday() != null ? LocalDate.parse(userModel.getBirthday()) : null);
@@ -73,6 +73,7 @@ public class UserService {
 	}
 	
 	public void sendMessage(String text, Long senderId, Long recipientId) {
+		log.debug("sending message to user [senderId:{}] [recipientId:{}] [text:{}]", senderId, recipientId, text);
 		Chatroom room = chatroomRepo.findBilateralRoom(senderId, recipientId);
 		if (room == null) {
 			room = new Chatroom();
@@ -85,6 +86,7 @@ public class UserService {
 	}
 	
 	public List<ChatroomModel> loadAllChatroomsOrderedByTimestampOfLastMessageDesc(Long userId) {
+		log.debug("loading all chatrooms [userId:{}]", userId);
 		return userRepo.findOne(userId).getChatroomUsers().stream()
 			.map(chatroomUser -> ChatroomModel.map(chatroomUser, c -> {
 				return chatroomRepo.countNewMessages(chatroomUser.getChatroom().getId(), userId);
@@ -92,9 +94,17 @@ public class UserService {
 			.sorted().collect(Collectors.toList());
 	}
 	
-	public Page<ChatroomMessageModel> loadMessagesForChatroom(Long userId, Long chatroomId, Pageable pageable) {
-		Page<ChatroomMessageModel> page = messageRepo.findByRoomIdOrderBySendTimestampDesc(chatroomId, pageable).map(ChatroomMessageModel::map);
-		if (pageable.getPageNumber() == 0) {
+	public Page<ChatroomMessageModel> loadMessagesForChatroom(Long userId, Long chatroomId, Long lastMsgId) {
+		log.debug("loading messages for chatroom [userId:{}] [chatroomId:{}] [lastMsgId:{}]", userId, chatroomId, lastMsgId);
+		Page<Message> findResult;
+		if (lastMsgId == null) {
+			findResult = messageRepo.findByRoomIdOrderBySendTimestampDesc(chatroomId, new PageRequest(0, 20));
+		} else {
+			Message referenceMessage = messageRepo.findOne(lastMsgId);
+			findResult = messageRepo.findByRoomIdAndOlderThanParticularMessage(chatroomId, referenceMessage.getSendTimestamp(), new PageRequest(0, 20));
+		}
+		Page<ChatroomMessageModel> page = findResult.map(ChatroomMessageModel::map);
+		if (lastMsgId == null) {
 			ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(chatroomRepo.findOne(chatroomId), userRepo.findOne(userId)));
 			chatroomUser.setLastMessageRead(LocalDateTime.now());
 			chatroomUserRepo.save(chatroomUser);
@@ -103,6 +113,7 @@ public class UserService {
 	}
 	
 	public void sendMessageToChatroom(String text, Long senderId, Long chatroomId) {
+		log.debug("sending message to chatroom [senderId:{}] [chatroomId:{}] [text:{}]", senderId, chatroomId, text);
 		LocalDateTime now = LocalDateTime.now();
 
 		Chatroom chatroom = chatroomRepo.findOne(chatroomId);
@@ -118,10 +129,7 @@ public class UserService {
 		msg.setText(text);
 		msg = messageRepo.save(msg);
 		
-		ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(
-				chatroomRepo.findOne(chatroomId), 
-				sender
-		));
+		ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(chatroomRepo.findOne(chatroomId), sender));
 		if (chatroomUser.getLastMessageRead() != null && !chatroomUser.getLastMessageRead().isBefore(previousMsgSent)) {
 			chatroomUser.setLastMessageRead(now);
 			chatroomUser = chatroomUserRepo.save(chatroomUser);
@@ -129,32 +137,31 @@ public class UserService {
 	}
 
 	public void updateLastLoginDate(Long userId) {
+		log.debug("updating last login date [userId:{}]", userId);
 		User user = userRepo.findOne(userId);
 		user.setLastLogin(LocalDateTime.now());
 		userRepo.save(user);
 	}
 
 	public void storeChatroomNewMessageNotificationActivationStatus(Long userId, Long roomId, boolean notificationsActive) {
-		ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(
-				chatroomRepo.findOne(roomId), 
-				userRepo.findOne(userId)
-		));
+		log.debug("updating notification activation status for chatroom [userId:{}] [roomId:{}] [notificationsActive:{}]", userId, roomId, notificationsActive);
+		ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(chatroomRepo.findOne(roomId), userRepo.findOne(userId)));
 		chatroomUser.setNotificationsActive(notificationsActive);
 		chatroomUser = chatroomUserRepo.save(chatroomUser);		
 	}
 
 	public void deleteChatroom(Long userId, Long roomId) {
 		if (chatroomUserRepo.countByIdChatroomId(roomId) > 1) {
-			chatroomUserRepo.delete(new ChatroomUserId(
-					chatroomRepo.findOne(roomId), 
-					userRepo.findOne(userId)
-			));
+			log.debug("deleting user association with chatroom [userId:{}] [roomId:{}]", userId, roomId);
+			chatroomUserRepo.delete(new ChatroomUserId(chatroomRepo.findOne(roomId), userRepo.findOne(userId)));
 		} else {
+			log.debug("deleting chatroom after last associated user left [userId:{}] [roomId:{}]", userId, roomId);
 			chatroomRepo.delete(roomId);
 		}
 	}
 
 	public List<NamedIdModel> findByQuery(String query) {
+		log.debug("finding users [query:{}]", query);
 		List<User> result = userRepo.findByQuery("%" + query + "%");
 
 		if (result != null) {

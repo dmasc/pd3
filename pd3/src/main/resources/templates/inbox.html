@@ -66,7 +66,7 @@
 			<span th:text="${{msg.sendTimestamp}}" class="timestamp"></span><a th:href="@{/user/profile(id=${msg.senderId})}" th:text="${msg.sender}" class="author"></a>
 			<div th:text="${msg.text}" class="message-text"></div>
 		</div>
-		<a th:href="${'javascript: showMoreMessages(' + roomId + ',' + (messages.number + 1) + ',' + messages.size + ');'}" th:if="${messages != null and not messages.last}" class="more-msgs">Ältere Nachrichten anzeigen</a>
+		<a th:href="${'javascript: showMoreMessages(' + roomId + ',' + lastMsgId + ');'}" th:if="${messages != null and not messages.last}" class="more-msgs">Ältere Nachrichten anzeigen</a>
 	</div>
 	
 </body>
