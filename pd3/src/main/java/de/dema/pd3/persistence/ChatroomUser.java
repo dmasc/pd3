@@ -20,6 +20,13 @@ public class ChatroomUser implements Serializable {
 	
 	private boolean notificationsActive = true;
 
+	public ChatroomUser() {
+	}
+
+	public ChatroomUser(User user, Chatroom chatroom) {
+		setId(new ChatroomUserId(chatroom, user));
+	}
+	
 	public Chatroom getChatroom() {
 		return id != null ? id.getChatroom() : null;
 	}

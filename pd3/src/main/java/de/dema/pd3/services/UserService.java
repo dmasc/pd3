@@ -77,12 +77,8 @@ public class UserService {
 		if (room == null) {
 			room = new Chatroom();
 			room.setUsers(new HashSet<>(2));
-			ChatroomUser chatroomUser = new ChatroomUser();
-			chatroomUser.setId(room, userRepo.findOne(senderId));
-			room.getUsers().add(chatroomUser);
-			chatroomUser = new ChatroomUser();
-			chatroomUser.setId(room, userRepo.findOne(recipientId));
-			room.getUsers().add(chatroomUser);
+			room.getUsers().add(new ChatroomUser(userRepo.findOne(senderId), room));
+			room.getUsers().add(new ChatroomUser(userRepo.findOne(recipientId), room));
 			chatroomRepo.save(room);
 		}
 		sendMessageToChatroom(text, senderId, room.getId());
@@ -90,7 +86,6 @@ public class UserService {
 	
 	public List<ChatroomModel> loadAllChatroomsOrderedByTimestampOfLastMessageDesc(Long userId) {
 		return userRepo.findOne(userId).getChatroomUsers().stream()
-//			.filter(cu -> cu.isNotificationActive() && (cu.getLastMessageRead() == null || cu.getLastMessageRead().isBefore(cu.getChatroom().getLastMessageSent())))
 			.map(chatroomUser -> ChatroomModel.map(chatroomUser, c -> {
 				return chatroomRepo.countNewMessages(chatroomUser.getChatroom().getId(), userId);
 			}))

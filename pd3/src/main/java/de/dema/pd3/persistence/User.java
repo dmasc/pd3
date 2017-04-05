@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -57,7 +58,7 @@ public class User implements Serializable {
     
     private Boolean locked = Boolean.FALSE;
     
-    @OneToMany(mappedBy = "id.user")
+    @OneToMany(mappedBy = "id.user", cascade = CascadeType.REMOVE)
     private Set<ChatroomUser> chatroomUsers;
 	
 	public User() {

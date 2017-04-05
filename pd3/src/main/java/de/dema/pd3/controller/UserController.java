@@ -161,8 +161,7 @@ public class UserController {
     	for (NamedIdModel model : result) {
     		json += "{\"value\": \"" + model.getName() + "\", \"data\": \"" + model.getId() + "\"},";
 		}
-    	json = json.substring(0, json.length() - 1);
-    	json += "]}";
+    	json = json.substring(0, json.length() - 1) + "]}";
     	
     	return json;
     }

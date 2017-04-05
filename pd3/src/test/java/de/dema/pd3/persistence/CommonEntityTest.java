@@ -69,24 +69,101 @@ public class CommonEntityTest extends DBTestBase {
         userRepo.delete(user.getId());
     }
 
-    private CommentVote givenUserLikedOrDislikedComment(User commenter, Comment childAA) {
-        return commentVoteRepo.save(TestUtil.createRandomCommentVote(commenter, childAA));
+    @Test
+    public void testTopicDeletionAlsoRemovesCommentsAndVotes() {
+    	User user = givenRandomUserIsRegistered();
+    	User user2 = givenRandomUserIsRegistered();
+    	Topic topic = givenUserCreatedTopic(user);
+    	Comment comment = givenUserCommentedTopic(user2, topic);
+    	givenUserVotedComment(user, comment);
+    	givenUserRepliedToComment(user, topic, comment);
+    	givenUserRepliedToComment(user2, topic, comment);
+    	comment = givenUserCommentedTopic(user, topic);
+    	givenUserCommentedTopic(user2, topic);
+    	givenUserVotedComment(user2, comment);
+    	givenUserVotedTopic(user2, topic);
+
+        assertThat(userRepo.count()).isEqualTo(2L);
+        assertThat(topicRepo.count()).isEqualTo(1L);
+        assertThat(commentRepo.count()).isEqualTo(5L);
+        assertThat(topicVoteRepo.count()).isEqualTo(1L);
+        assertThat(commentVoteRepo.count()).isEqualTo(2L);    	
+        
+        topicRepo.delete(topic.getId());
+
+        assertThat(userRepo.count()).isEqualTo(2L);
+        assertThat(topicRepo.count()).isEqualTo(0L);
+        assertThat(commentRepo.count()).isEqualTo(0L);
+        assertThat(topicVoteRepo.count()).isEqualTo(0L);
+        assertThat(commentVoteRepo.count()).isEqualTo(0L);    	
+    }
+
+    @Test
+    public void testUserDeletionAlsoRemovesChatroomUsers() {
+    	User user1 = givenRandomUserIsRegistered();
+    	User user2 = givenRandomUserIsRegistered();
+    	User user3 = givenRandomUserIsRegistered();
+    	TestUtil.createChatroom(this, user1, user2);
+    	TestUtil.createChatroom(this, user1, user3);
+    	TestUtil.createChatroom(this, user2, user3);
+    	
+        assertThat(userRepo.count()).isEqualTo(3L);
+        assertThat(chatroomUserRepo.count()).isEqualTo(6L);
+        assertThat(chatroomRepo.count()).isEqualTo(3L);
+        
+    	userRepo.delete(user1.getId());
+    	
+        assertThat(userRepo.count()).isEqualTo(2L);
+        assertThat(chatroomUserRepo.count()).isEqualTo(4L);
+        assertThat(chatroomRepo.count()).isEqualTo(3L);
+	}
+    
+    @Test
+    public void testChatroomDeletionAlsoRemovesChatroomUsers() {
+    	User user1 = givenRandomUserIsRegistered();
+    	User user2 = givenRandomUserIsRegistered();
+    	User user3 = givenRandomUserIsRegistered();
+    	Chatroom room = TestUtil.createChatroom(this, user1, user2);
+    	TestUtil.createChatroom(this, user1, user3);
+    	TestUtil.createChatroom(this, user2, user3);
+    	
+        assertThat(userRepo.count()).isEqualTo(3L);
+        assertThat(chatroomUserRepo.count()).isEqualTo(6L);
+        assertThat(chatroomRepo.count()).isEqualTo(3L);
+        
+    	chatroomRepo.delete(room.getId());
+    	
+        assertThat(userRepo.count()).isEqualTo(3L);
+        assertThat(chatroomUserRepo.count()).isEqualTo(4L);
+        assertThat(chatroomRepo.count()).isEqualTo(2L);
+	}
+    
+    private CommentVote givenUserLikedOrDislikedComment(User commenter, Comment child) {
+        return commentVoteRepo.save(TestUtil.createRandomCommentVote(commenter, child));
 	}
 
 	private User givenRandomUserIsRegistered() {
-        return userRepo.save(TestUtil.createRandomUser());
+        return TestUtil.createRandomUser(this);
     }
 
     private Topic givenUserCreatedTopic(User user) {
-        return topicRepo.save(TestUtil.createRandomTopic(user));
+        return TestUtil.createRandomTopic(this, user);
     }
 
     private Comment givenUserCommentedTopic(User user, Topic topic) {
-        return commentRepo.save(TestUtil.createRandomComment(topic, user, null));
+        return TestUtil.createRandomComment(this, topic, user, null);
     }
 
     private Comment givenUserRepliedToComment(User user, Topic topic, Comment comment) {
-        return commentRepo.save(TestUtil.createRandomComment(topic, user, comment));
+        return TestUtil.createRandomComment(this, topic, user, comment);
     }
 
+    private CommentVote givenUserVotedComment(User user, Comment comment) {
+    	return TestUtil.createRandomCommentVote(this, user, comment);
+    }
+    
+    private TopicVote givenUserVotedTopic(User user, Topic topic) {
+    	return TestUtil.createRandomTopicVote(this, user, topic);
+    }
+    
 }

@@ -1,9 +1,9 @@
 package de.dema.pd3;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -62,10 +62,9 @@ public class DBTestBase implements RepositoryProvider {
 		jdbc = new JdbcTemplate(dataSource);
 	}
 	
-	@PreDestroy
+	@Before
 	public void clearTables() {
 		chatroomRepo.deleteAll();
-		chatroomUserRepo.deleteAll();
 		topicRepo.deleteAll();
 		userRepo.deleteAll();
 	}

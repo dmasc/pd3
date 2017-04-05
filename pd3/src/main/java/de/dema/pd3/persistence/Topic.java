@@ -2,13 +2,16 @@ package de.dema.pd3.persistence;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 @Entity
 public class Topic implements Serializable {
@@ -32,6 +35,12 @@ public class Topic implements Serializable {
     private LocalDateTime creationDate;
 
     private LocalDateTime deadline;
+    
+    @OneToMany(mappedBy = "topic", cascade = CascadeType.REMOVE)
+    private Set<TopicVote> votes;
+
+    @OneToMany(mappedBy = "topic", cascade = CascadeType.REMOVE)
+    private Set<Comment> comments;
 
 	public Long getId() {
 		return id;
@@ -79,6 +88,22 @@ public class Topic implements Serializable {
 
 	public void setDeadline(LocalDateTime deadline) {
 		this.deadline = deadline;
+	}
+
+	public Set<Comment> getComments() {
+		return comments;
+	}
+
+	public void setComments(Set<Comment> comments) {
+		this.comments = comments;
+	}
+
+	public Set<TopicVote> getVotes() {
+		return votes;
+	}
+
+	public void setVotes(Set<TopicVote> votes) {
+		this.votes = votes;
 	}	
 
 }

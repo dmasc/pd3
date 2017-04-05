@@ -4,9 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,9 +16,9 @@ public class TopicRepositoryTest extends DBTestBase {
 
 	private User user;
 	
-	@PostConstruct
+	@Before
 	public void setup() {
-		user = userRepo.save(TestUtil.createRandomUser());
+		user = TestUtil.createRandomUser(this);
 		for (int i = 0; i < 12; i++) {
 			Topic topic = TestUtil.createRandomTopic(user);
 			topic.setDeadline(LocalDateTime.now().plusWeeks(i - 5).plusMinutes(10));
@@ -30,7 +28,7 @@ public class TopicRepositoryTest extends DBTestBase {
 				createAndStoreTopicVote(i, topic);
 			}
 		}
-		User anotherUser = userRepo.save(TestUtil.createRandomUser());
+		User anotherUser = TestUtil.createRandomUser(this);
 		for (int i = 0; i < 6; i++) {
 			Topic topic = TestUtil.createRandomTopic(anotherUser);
 			topic.setDeadline(LocalDateTime.now().plusWeeks(i - 2).plusMinutes(10));
@@ -50,12 +48,6 @@ public class TopicRepositoryTest extends DBTestBase {
 		voteRepo.save(vote);
 	}
 
-	@PreDestroy
-	public void shutdown() {
-		topicRepo.delete(topicRepo.findByAuthor(user, null));
-		userRepo.delete(user);
-	}
-	
 	@Test
 	public void testFindAllWhereDeadlineGreaterNowAndUserHasntVotedYet() {
 		Page<Topic> page = topicRepo.findAllWhereDeadlineGreaterNowAndUserHasntVotedYet(user, new PageRequest(0, 2));

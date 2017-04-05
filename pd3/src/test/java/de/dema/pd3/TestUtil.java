@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.data.repository.CrudRepository;
 
 import de.dema.pd3.persistence.Chatroom;
 import de.dema.pd3.persistence.ChatroomUser;
@@ -18,7 +19,9 @@ import de.dema.pd3.persistence.CommentRepository;
 import de.dema.pd3.persistence.CommentVote;
 import de.dema.pd3.persistence.Message;
 import de.dema.pd3.persistence.Topic;
+import de.dema.pd3.persistence.TopicVote;
 import de.dema.pd3.persistence.User;
+import de.dema.pd3.persistence.VoteBase;
 
 public class TestUtil {
 
@@ -45,13 +48,17 @@ public class TestUtil {
 	}
 	
 	public static Topic createRandomTopic(User author) {
+		return createRandomTopic(null, author);
+	}
+	
+	public static Topic createRandomTopic(RepositoryProvider repoProvider, User author) {
 		Topic topic = new Topic();
 		topic.setAuthor(author);
 		topic.setCreationDate(LocalDateTime.now().minusDays(r.nextInt(365)).minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
 		topic.setDeadline(LocalDateTime.now().plusDays(r.nextInt(182)).plusHours(r.nextInt(24)).plusMinutes(r.nextInt(60)));
 		topic.setDescription(createRandomText(r.nextInt(5000) + 100));
 		topic.setTitle(createRandomText(r.nextInt(140) + 20));
-		return topic;
+		return repoProvider != null ? repoProvider.getTopicRepository().save(topic) : topic;
 	}
 
 	public static String createRandomText(int length) {
@@ -82,25 +89,43 @@ public class TestUtil {
 	}
 
 	public static Comment createRandomComment(Topic topic, User author, Comment parent) {
+		return createRandomComment(null, topic, author, parent);
+	}
+
+	public static Comment createRandomComment(RepositoryProvider repoProvider, Topic topic, User author, Comment parent) {
 		Comment comment = new Comment();
 		comment.setCreationDate(LocalDateTime.now().minusDays(r.nextInt(120)).plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
 		comment.setText(createRandomText(r.nextInt(290) + 10));
 		comment.setTopic(topic);
 		comment.setAuthor(author);
 		comment.setParent(parent);
-		return comment;
+		return repoProvider != null ? repoProvider.getCommentRepository().save(comment) : comment;
 	}
 
 	public static CommentVote createRandomCommentVote(User user, Comment comment) {
+		return createRandomCommentVote(null, user, comment);
+	}
+
+	public static CommentVote createRandomCommentVote(RepositoryProvider repoProvider, User user, Comment comment) {
 		CommentVote vote = new CommentVote();
 		vote.setComment(comment);
+		return createRandomTopicVote(repoProvider != null ? repoProvider.getCommentVoteRepository() : null, vote, user);
+	}
+	
+	public static TopicVote createRandomTopicVote(RepositoryProvider repoProvider, User user, Topic topic) {
+		TopicVote vote = new TopicVote();
+		vote.setTopic(topic);
+		return createRandomTopicVote(repoProvider != null ? repoProvider.getTopicVoteRepository() : null, vote, user);
+	}
+	
+	private static <T extends VoteBase> T createRandomTopicVote(CrudRepository<T, Long> repo, T vote, User user) {
 		vote.setUser(user);
 		vote.setVoteTimestamp(LocalDateTime.now().minusDays(r.nextInt(90)).plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
 		vote.setSelectedOption(r.nextBoolean() ? VoteOption.ACCEPTED : VoteOption.REJECTED);
 
-		return vote;
+		return repo != null ? repo.save(vote) : vote;
 	}
-
+	
 	public static ChatroomUser createChatroomUser(Chatroom room, User user, boolean notificationsActive) {
 		ChatroomUser chatroomUser = new ChatroomUser();
 		chatroomUser.setId(room, user);
