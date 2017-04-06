@@ -9,6 +9,7 @@
 <body>
 
 	<div layout:fragment="content" class="content">
+        <h1>Registrierungsformular</h1>
 
 		<form action="#" th:action="@{/public/register}" th:object="${registerUserModel}" method="post" class="default">
 			<label>E-Mail-Adresse:</label><input type="text" th:field="*{email}" /> <label th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></label><br/>
@@ -17,7 +18,8 @@
 			<label>Vorname:</label><input type="text" th:field="*{forename}" /> <label th:if="${#fields.hasErrors('forename')}" th:errors="*{forename}"></label><br/>
 			<label>Nachname:</label><input type="text" th:field="*{surname}" /> <label th:if="${#fields.hasErrors('surname')}" th:errors="*{surname}"></label><br/>
 			<label>Straße und Hausnummer:</label><input type="text" th:field="*{street}" /> <label th:if="${#fields.hasErrors('street')}" th:errors="*{street}"></label><br/>
-			<label>PLZ/Ort:</label><input type="text" th:field="*{zip}" /> <input type="text" th:field="*{district}" /> <label th:if="${#fields.hasErrors('zip')}" th:errors="*{zip}"></label> <label th:if="${#fields.hasErrors('district')}" th:errors="*{district}"></label><br/>
+			<label>PLZ:</label><input type="text" th:field="*{zip}" /> <label th:if="${#fields.hasErrors('zip')}" th:errors="*{zip}"></label><br/>
+			<label>Ort:</label><input type="text" th:field="*{district}" /> <label th:if="${#fields.hasErrors('district')}" th:errors="*{district}"></label><br/>
 			<label>Telefon:</label><input type="text" th:field="*{phone}" /> <label th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></label><br/>
 			<label>Geburtsdatum (TT.MM.JJJJ):</label><input type="text" th:field="*{birthday}" /> <label th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}"></label><br/>
 			<label>Personalausweisnummer:</label><input type="text" th:field="*{idCardNumber}" /> <label th:if="${#fields.hasErrors('idCardNumber')}" th:errors="*{idCardNumber}"></label><br/>

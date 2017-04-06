@@ -243,21 +243,22 @@ public class UserService {
 		return false;
 	}
 
-	public void sendPasswordResetEmail(String email) {
+	public void sendPasswordResetEmail(String baseUrl, String email) {
+		log.debug("sending password reset token via email [baseUrl:{}] [recipient:{}]", baseUrl, email);
 		User user = userRepo.findByEmail(email);
 		if (user == null) {
 			throw new UsernameNotFoundException("No user found with email '" + email + "'");
 		}
 		String token = UUID.randomUUID().toString();
 		passwordTokenRepo.save(new PasswordResetToken(token, user));
-		SimpleMailMessage mail = constructResetTokenEmail("https://localhost:8443", token, user);
+		SimpleMailMessage mail = constructResetTokenEmail(baseUrl, token, user);
 		mailSender.send(mail);
 		log.info("password reset token sent via email [recipient:{}]", email);
 	}
 
 	private SimpleMailMessage constructResetTokenEmail(String contextPath, String token, User user) {
 		String url = contextPath + "/public/change-password?id=" + user.getId() + "&token=" + token;
-		String message = "Klicken Sie auf den unten stehenden Link, um Ihr Passwort zurückzusetzen.\r\n" + url;
+		String message = "Klicken Sie auf den nachfolgenden Link, um Ihr Passwort zurückzusetzen:\r\n" + url;
 		SimpleMailMessage email = new SimpleMailMessage();
 		email.setSubject("Reset Password");
 		email.setText(message);

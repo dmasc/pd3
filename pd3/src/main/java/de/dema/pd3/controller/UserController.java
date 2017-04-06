@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import javax.validation.Valid;
 
+import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -200,14 +201,17 @@ public class UserController {
     }
     
     @PostMapping("/public/forgot-password")
-    public String forgotPassword(Model model, @RequestParam("email") String email) {
+    public String forgotPassword(Model model, @RequestParam("email") String email, HttpServletRequest request) {
     	email = email.trim();
     	if (EMAIL_PATTERN.matcher(email).matches()) {
-    		userService.sendPasswordResetEmail(email);
-    		return "redirect:/";
+    		String requestUrl = request.getRequestURL().toString();
+    		requestUrl = requestUrl.substring(0, requestUrl.indexOf("/public/"));
+			userService.sendPasswordResetEmail(requestUrl, email);
+			model.addAttribute("success", true);
+    	} else {
+    		model.addAttribute("invalid", true);
     	}
     	model.addAttribute("email", email);
-    	model.addAttribute("invalid", true);
     	return "public/forgot-password";
     }
     
