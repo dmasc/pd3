@@ -2,6 +2,7 @@ package de.dema.pd3.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import javax.validation.Valid;
 
@@ -37,6 +38,8 @@ import de.dema.pd3.services.VoteService;
 public class UserController {
 
 	private static final Logger log = LoggerFactory.getLogger(UserController.class);
+	
+	private static final Pattern EMAIL_PATTERN = Pattern.compile("^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$");
 
 	@Autowired
 	private UserService userService;
@@ -189,6 +192,44 @@ public class UserController {
     	log.debug("renaming chatroom [userId:{}] [name:{}]", id, name);
     	
     	return userService.renameChatroom(id, roomId, name);
+    }
+
+    @GetMapping("/public/forgot-password")
+    public String forgotPassword() {
+    	return "public/forgot-password";
+    }
+    
+    @PostMapping("/public/forgot-password")
+    public String forgotPassword(Model model, @RequestParam("email") String email) {
+    	email = email.trim();
+    	if (EMAIL_PATTERN.matcher(email).matches()) {
+    		userService.sendPasswordResetEmail(email);
+    		return "redirect:/";
+    	}
+    	model.addAttribute("email", email);
+    	model.addAttribute("invalid", true);
+    	return "public/forgot-password";
+    }
+    
+    @GetMapping("/public/change-password")
+    public String changePassword(@RequestParam("id") Long id, @RequestParam("token") String token, RedirectAttributes attr) {
+        boolean result = userService.validatePasswordResetToken(id, token);
+        if (!result) {
+        	attr.addAttribute("error", true);
+            return "redirect:/public/forgot-password";
+        }
+        return "public/change-password";
+    }
+
+    @PostMapping("/public/change-password")
+    public String updatePassword(Model model, @RequestParam("id") Long userId, @RequestParam("password") String password, 
+    		@RequestParam("passwordRepeat") String passwordRepeat, Authentication auth) {
+    	if (password.equals(passwordRepeat)) {
+	    	userService.changePassword(userId, password);
+	    	return "redirect:/user/profile";
+    	}
+    	model.addAttribute("unequal", true);
+    	return "public/change-password";
     }
     
 }
