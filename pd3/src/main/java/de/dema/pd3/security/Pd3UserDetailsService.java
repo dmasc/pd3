@@ -31,7 +31,7 @@ public class Pd3UserDetailsService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		User dbuser = userRepo.findByEmail(username);
 		if (dbuser != null) {
-			log.debug("attemted user login [id:{}]", dbuser.getId());
+			log.debug("attemted user login [userId:{}]", dbuser.getId());
 			return CurrentUser.map(dbuser, "USER");
 		}
 		throw new UsernameNotFoundException("unable to find user with email " + username);

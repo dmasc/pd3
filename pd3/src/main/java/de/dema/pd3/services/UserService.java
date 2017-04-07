@@ -90,7 +90,7 @@ public class UserService {
 		user.setZip(userModel.getZip());
 
 		user = userRepo.save(user);
-		log.info("user registered [id:{}]", user.getId());
+		log.info("user registered [userId:{}]", user.getId());
 		return user;
 	}
 
@@ -253,7 +253,7 @@ public class UserService {
 		passwordTokenRepo.save(new PasswordResetToken(token, user));
 		SimpleMailMessage mail = constructResetTokenEmail(baseUrl, token, user);
 		mailSender.send(mail);
-		log.info("password reset token sent via email [recipient:{}]", email);
+		log.info("password reset token sent via email [userId:{}]", user.getId());
 	}
 
 	private SimpleMailMessage constructResetTokenEmail(String contextPath, String token, User user) {
@@ -290,7 +290,7 @@ public class UserService {
 		UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
 	    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
 	    SecurityContextHolder.getContext().setAuthentication(authentication);
-	    log.info("programmatically logged in user [id:{}]", userId);
+	    log.info("programmatically logged in user [userId:{}]", userId);
 	}
 
 	public void deletePasswordResetToken(Long userId) {
