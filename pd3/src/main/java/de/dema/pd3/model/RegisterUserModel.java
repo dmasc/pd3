@@ -6,7 +6,7 @@ import java.util.Locale;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.validation.Age;
@@ -20,25 +20,25 @@ public class RegisterUserModel {
 
 	private Long id;
 	
-	@NotEmpty(message = "{register_user_model.forename.null}")
+	@NotBlank(message = "{register_user_model.forename.null}")
 	private String forename;
 
-	@NotEmpty(message = "{register_user_model.surname.null}")
+	@NotBlank(message = "{register_user_model.surname.null}")
 	private String surname;
 
 	@Email(message = "{register_user_model.email.format}")
-	@NotEmpty(message = "{register_user_model.email.null}")
+	@NotBlank(message = "{register_user_model.email.null}")
 	private String email;
 
-	@NotEmpty(message = "{register_user_model.password.null}")
+	@NotBlank(message = "{register_user_model.password.null}")
 	private String password;
 
     private String passwordRepeat;
 
-	@NotEmpty(message = "{register_user_model.street.null}")
+	@NotBlank(message = "{register_user_model.street.null}")
 	private String street;
 
-	@NotEmpty(message = "{register_user_model.district.null}")
+	@NotBlank(message = "{register_user_model.district.null}")
 	private String district;
 
 	@Pattern(regexp = "\\d{5}", message = "{register_user_model.zip.format}")

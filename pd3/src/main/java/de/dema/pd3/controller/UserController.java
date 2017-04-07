@@ -8,7 +8,7 @@ import javax.validation.constraints.Size;
 
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -241,7 +241,7 @@ public class UserController {
     public static class EmailModel {
     	
     	@Email
-    	@NotEmpty(message = "{register_user_model.email.null}")
+    	@NotBlank(message = "{register_user_model.email.null}")
     	private String email;
 
 		public String getEmail() {
