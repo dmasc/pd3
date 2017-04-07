@@ -13,8 +13,7 @@ import de.dema.pd3.validation.Age;
 import de.dema.pd3.validation.MatchingFields;
 import de.dema.pd3.validation.PersoId;
 
-@MatchingFields(message = "{register_user_model.passwordRepeat.notequal}", first = "password",
-		second = "passwordRepeat")
+@MatchingFields(message = "{register_user_model.passwordRepeat.notequal}", first = "password", second = "passwordRepeat")
 public class RegisterUserModel {
 
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy", new Locale("de"));

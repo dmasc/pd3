@@ -2,11 +2,13 @@ package de.dema.pd3.controller;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Size;
 
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,14 +36,13 @@ import de.dema.pd3.model.RegisterUserModel;
 import de.dema.pd3.model.TopicVoteModel;
 import de.dema.pd3.services.UserService;
 import de.dema.pd3.services.VoteService;
+import de.dema.pd3.validation.MatchingFields;
 
 @Controller
 public class UserController {
 
 	private static final Logger log = LoggerFactory.getLogger(UserController.class);
 	
-	private static final Pattern EMAIL_PATTERN = Pattern.compile("^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$");
-
 	@Autowired
 	private UserService userService;
 	
@@ -196,44 +197,108 @@ public class UserController {
     }
 
     @GetMapping("/public/forgot-password")
-    public String forgotPassword() {
+    public String forgotPassword(EmailModel email) {
     	return "public/forgot-password";
     }
     
     @PostMapping("/public/forgot-password")
-    public String forgotPassword(Model model, @RequestParam("email") String email, HttpServletRequest request) {
-    	email = email.trim();
-    	if (EMAIL_PATTERN.matcher(email).matches()) {
-    		String requestUrl = request.getRequestURL().toString();
-    		requestUrl = requestUrl.substring(0, requestUrl.indexOf("/public/"));
-			userService.sendPasswordResetEmail(requestUrl, email);
+    public String forgotPasswordSubmit(Model model, @Valid @ModelAttribute EmailModel email, BindingResult bindingResult, HttpServletRequest request) {
+    	if (!bindingResult.hasErrors()) {
+			String requestUrl = request.getRequestURL().toString();
+			requestUrl = requestUrl.substring(0, requestUrl.indexOf("/public/"));
+			userService.sendPasswordResetEmail(requestUrl, email.email);
 			model.addAttribute("success", true);
-    	} else {
-    		model.addAttribute("invalid", true);
     	}
-    	model.addAttribute("email", email);
     	return "public/forgot-password";
     }
     
     @GetMapping("/public/change-password")
-    public String changePassword(@RequestParam("id") Long id, @RequestParam("token") String token, RedirectAttributes attr) {
+    public String changePassword(PasswordChangeModel model, @RequestParam("id") Long id, @RequestParam("token") String token, RedirectAttributes attr) {
         boolean result = userService.validatePasswordResetToken(id, token);
         if (!result) {
         	attr.addAttribute("error", true);
             return "redirect:/public/forgot-password";
         }
+        model.setUserId(id);
+        model.setToken(token);
         return "public/change-password";
     }
 
     @PostMapping("/public/change-password")
-    public String updatePassword(Model model, @RequestParam("id") Long userId, @RequestParam("password") String password, 
-    		@RequestParam("passwordRepeat") String passwordRepeat, Authentication auth) {
-    	if (password.equals(passwordRepeat)) {
-	    	userService.changePassword(userId, password);
-	    	return "redirect:/user/profile";
+    public String updatePassword(Model model, @Valid @ModelAttribute PasswordChangeModel pwChangemodel, BindingResult bindingResult, RedirectAttributes attr) {
+    	if (!bindingResult.hasErrors()) {
+            boolean result = userService.validatePasswordResetToken(pwChangemodel.getUserId(), pwChangemodel.getToken());
+            if (!result) {
+            	attr.addAttribute("error", true);
+                return "redirect:/public/forgot-password";
+            }
+	    	userService.changePassword(pwChangemodel.getUserId(), pwChangemodel.getPassword());
+	    	model.addAttribute("success", true);
     	}
-    	model.addAttribute("unequal", true);
     	return "public/change-password";
+    }
+    
+    public static class EmailModel {
+    	
+    	@Email
+    	@NotEmpty
+    	private String email;
+
+		public String getEmail() {
+			return email;
+		}
+
+		public void setEmail(String email) {
+			this.email = email;
+		}
+    	
+    }
+
+    @MatchingFields(message = "{register_user_model.passwordRepeat.notequal}", first = "password", second = "passwordRepeat")
+    public static class PasswordChangeModel {
+    	
+    	@Size(min = 6, max = 30, message = "{register_user_model.password.length}")
+    	@NotEmpty
+    	private String password;
+    	
+    	private String passwordRepeat;
+    	
+    	private String token;
+    	
+    	private Long userId;
+
+		public String getPassword() {
+			return password;
+		}
+
+		public void setPassword(String password) {
+			this.password = password;
+		}
+
+		public String getPasswordRepeat() {
+			return passwordRepeat;
+		}
+
+		public void setPasswordRepeat(String passwordRepeat) {
+			this.passwordRepeat = passwordRepeat;
+		}
+
+		public String getToken() {
+			return token;
+		}
+
+		public void setToken(String token) {
+			this.token = token;
+		}
+
+		public Long getUserId() {
+			return userId;
+		}
+
+		public void setUserId(Long userId) {
+			this.userId = userId;
+		}
+    	
     }
     
 }
