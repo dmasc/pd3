@@ -46,6 +46,7 @@ div.header div.headercontent div.headline {
 div.menu {
 	padding-left: 15px;
 	padding-right: 15px;
+	margin-bottom: 30px;
 }
 
 div.menu > a,
