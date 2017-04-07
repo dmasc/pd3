@@ -33,7 +33,6 @@ public class RegisterUserModel {
 	@NotEmpty(message = "{register_user_model.password.null}")
 	private String password;
 
-	@NotEmpty(message = "{register_user_model.passwordRepeat.null}")
     private String passwordRepeat;
 
 	@NotEmpty(message = "{register_user_model.street.null}")

@@ -241,7 +241,7 @@ public class UserController {
     public static class EmailModel {
     	
     	@Email
-    	@NotEmpty
+    	@NotEmpty(message = "{register_user_model.email.null}")
     	private String email;
 
 		public String getEmail() {
@@ -258,7 +258,6 @@ public class UserController {
     public static class PasswordChangeModel {
     	
     	@Size(min = 6, max = 30, message = "{register_user_model.password.length}")
-    	@NotEmpty
     	private String password;
     	
     	private String passwordRepeat;
