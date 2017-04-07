@@ -243,14 +243,14 @@ public class UserService {
 		return false;
 	}
 
-	public void sendPasswordResetEmail(String baseUrl, String email) {
+	public void createAndSendPasswordResetToken(String baseUrl, String email) {
 		log.debug("sending password reset token via email [baseUrl:{}] [recipient:{}]", baseUrl, email);
 		User user = userRepo.findByEmail(email);
 		if (user == null) {
 			throw new UsernameNotFoundException("No user found with email '" + email + "'");
 		}
 		String token = UUID.randomUUID().toString();
-		passwordTokenRepo.save(new PasswordResetToken(token, user));
+		passwordTokenRepo.save(new PasswordResetToken(passwordEncoder.encode(token), user));
 		SimpleMailMessage mail = constructResetTokenEmail(baseUrl, token, user);
 		mailSender.send(mail);
 		log.info("password reset token sent via email [userId:{}]", user.getId());
@@ -267,11 +267,11 @@ public class UserService {
 		return email;
 	}
 
-	public boolean validatePasswordResetToken(Long id, String token) {
-		PasswordResetToken passToken = passwordTokenRepo.findByToken(token);
-		if (passToken != null && passToken.getUser().getId().equals(id)) {
+	public boolean validatePasswordResetToken(Long userId, String token) {
+		PasswordResetToken passToken = passwordTokenRepo.findByUserId(userId);
+		if (passToken != null) {
 			if (LocalDateTime.now().isBefore(passToken.getExpiryDate())) {
-				return true;
+				return passwordEncoder.matches(token, passToken.getToken());
 			} else {
 				passwordTokenRepo.delete(passToken);
 			}

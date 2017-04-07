@@ -206,7 +206,7 @@ public class UserController {
     	if (!bindingResult.hasErrors()) {
 			String requestUrl = request.getRequestURL().toString();
 			requestUrl = requestUrl.substring(0, requestUrl.indexOf("/public/"));
-			userService.sendPasswordResetEmail(requestUrl, email.email);
+			userService.createAndSendPasswordResetToken(requestUrl, email.email);
 			model.addAttribute("success", true);
     	}
     	return "public/forgot-password";
