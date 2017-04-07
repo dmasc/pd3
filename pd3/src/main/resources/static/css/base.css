@@ -41,8 +41,6 @@ div.header div.headercontent div.headline {
 	text-shadow: -1px 0 #D7CAAC, 0 1px #D7CAAC, 1px 0 #D7CAAC, 0 -1px #D7CAAC;
 	color: #E3D6B8; 
 	white-space: nowrap;
-/* 	#E3D6B8; */
-/* 	lightslategray; */
 }
 
 div.menu {
@@ -50,6 +48,23 @@ div.menu {
 	padding-right: 15px;
 }
 
+div.menu > a,
+div.menu form a {
+	color: #fff;
+	background-color: #B6A786;
+	text-decoration: none;
+	padding: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
+	font-size: 1.1em;
+    border-radius: 5px;
+}
+
+div.menu > a:hover,
+div.menu form a:hover {
+    background-color: #89713C;
+}
+	
 div.menu div.menu-right {
 	float: right;
 }

@@ -7,6 +7,7 @@
 <body>
 
 	<div layout:fragment="content" class="content">
+        <h1>Auflistung aller laufenden Abstimmungen</h1>
 		<div th:replace="components/commonComponents :: paging (url='/topic/overview', page=${page})"></div>
         <a th:href="@{/topic/details(id=${topic.id})}" th:each="topic : ${page.content}" class="undecorated">
             <div class="box">
