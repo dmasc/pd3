@@ -2,6 +2,7 @@ package de.dema.pd3.services;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -106,11 +108,17 @@ public class UserService {
 		}
 		
 		Page<Message> findResult;
+		PageRequest pageable = new PageRequest(0, 20);
 		if (lastMsgId == null) {
-			findResult = messageRepo.findByRoomIdOrderBySendTimestampDesc(chatroomId, new PageRequest(0, 20));
+			findResult = messageRepo.findByRoomIdOrderBySendTimestampDesc(chatroomId, pageable);
 		} else {
 			Message referenceMessage = messageRepo.findOne(lastMsgId);
-			findResult = messageRepo.findByRoomIdAndOlderThanParticularMessage(chatroomId, referenceMessage.getSendTimestamp(), new PageRequest(0, 20));
+			if (referenceMessage != null) {
+				findResult = messageRepo.findByRoomIdAndOlderThanParticularMessage(chatroomId, referenceMessage.getSendTimestamp(), pageable);
+			} else {
+				log.warn("unable to find message while loading more messages for chatroom [userId:{}] [chatroomId:{}] [lastMsgId:{}]", userId, chatroomId, lastMsgId);
+				findResult = new PageImpl<>(Collections.emptyList());
+			}
 		}
 		return findResult.map(ChatroomMessageModel::map);
 	}
