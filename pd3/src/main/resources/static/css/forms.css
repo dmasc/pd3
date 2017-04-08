@@ -6,12 +6,24 @@ form.default {
 
 form.default label {
 	display: inline-block;
-	width: 300px;
+	width: 250px;
 	margin-bottom: 5px;
 }
 
+form.default input[type='text'],
+form.default input[type='password'] {
+    width: 300px;
+}
+
 form div.feedback-container {
-	background: #F3D0D0;
 	padding: 4px;
 	margin-bottom: 10px;
+}
+
+form div.feedback-container.error {
+    background: #FF9797;
+}
+
+form div.feedback-container.success {
+    background: #BAE9BF;
 }

@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 
 /**
@@ -60,5 +61,10 @@ public class CurrentUser extends User {
 	public void setMale(boolean male) {
 		this.male = male;
 	}
-	
+
+	public static CurrentUser map(de.dema.pd3.persistence.User user, String... roles) {
+		return new CurrentUser(user.getId(), user.getForename() + " " + user.getSurname(), user.getEmail(), 
+				user.getPassword(), user.isMale(), true, !user.getLocked(), AuthorityUtils.createAuthorityList(roles));
+	}
+
 }

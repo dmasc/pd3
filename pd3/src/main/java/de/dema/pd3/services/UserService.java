@@ -5,15 +5,25 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +39,8 @@ import de.dema.pd3.persistence.ChatroomUserId;
 import de.dema.pd3.persistence.ChatroomUserRepository;
 import de.dema.pd3.persistence.Message;
 import de.dema.pd3.persistence.MessageRepository;
+import de.dema.pd3.persistence.PasswordResetToken;
+import de.dema.pd3.persistence.PasswordResetTokenRepository;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
 
@@ -39,22 +51,34 @@ public class UserService {
 
 	@Autowired
 	private UserRepository userRepo;
-	
+
+	@Autowired
+	private UserDetailsService userDetailsService;
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
 	private ChatroomRepository chatroomRepo;
-	
+
 	@Autowired
 	private ChatroomUserRepository chatroomUserRepo;
-	
+
 	@Autowired
 	private MessageRepository messageRepo;
-	
+
+	@Autowired
+	private PasswordResetTokenRepository passwordTokenRepo;
+
+	@Autowired
+	private MailSender mailSender;
+
+	@Value("${spring.mail.username}")
+	private String pd3MailSenderAddress;
+
 	public User registerUser(RegisterUserModel userModel) {
 		log.debug("registering user [model:{}]", userModel);
-		
+
 		User user = new User();
 		user.setBirthday(userModel.getBirthday() != null ? LocalDate.parse(userModel.getBirthday()) : null);
 		user.setDistrict(userModel.getDistrict());
@@ -66,16 +90,16 @@ public class UserService {
 		user.setStreet(userModel.getStreet());
 		user.setSurname(userModel.getSurname());
 		user.setZip(userModel.getZip());
-		
+
 		user = userRepo.save(user);
-		log.info("user registered [id:{}]", user.getId());
+		log.info("user registered [userId:{}]", user.getId());
 		return user;
 	}
-	
+
 	public RegisterUserModel findRegisterUserById(Long id) {
 		return RegisterUserModel.map(userRepo.findOne(id));
 	}
-	
+
 	public void sendMessage(String text, Long senderId, Long recipientId) {
 		log.debug("sending message to user [senderId:{}] [recipientId:{}] [text:{}]", senderId, recipientId, text);
 		Chatroom room = chatroomRepo.findBilateralRoom(senderId, recipientId);
@@ -88,25 +112,25 @@ public class UserService {
 		}
 		sendMessageToChatroom(text, senderId, room.getId());
 	}
-	
+
 	public List<ChatroomModel> loadAllChatroomsOrderedByTimestampOfLastMessageDesc(Long userId) {
 		log.debug("loading all chatrooms [userId:{}]", userId);
 		return userRepo.findOne(userId).getChatroomUsers().stream()
-			.map(chatroomUser -> ChatroomModel.map(chatroomUser, c -> {
-				return chatroomRepo.countNewMessages(chatroomUser.getChatroom().getId(), userId);
+				.map(chatroomUser -> ChatroomModel.map(chatroomUser, c -> {
+					return chatroomRepo.countNewMessages(chatroomUser.getChatroom().getId(), userId);
 			}))
 			.sorted().collect(Collectors.toList());
 	}
-	
+
 	public Page<ChatroomMessageModel> loadMessagesForChatroom(Long userId, Long chatroomId, Long lastMsgId) {
 		log.debug("loading messages for chatroom [userId:{}] [chatroomId:{}] [lastMsgId:{}]", userId, chatroomId, lastMsgId);
-		
+
 		// verify that the chatroom exists and user is allowed to see its messages
 		Chatroom room = chatroomRepo.findOne(chatroomId);
 		if (room == null || chatroomUserRepo.findOne(new ChatroomUserId(room, userRepo.findOne(userId))) == null) {
 			return null;
 		}
-		
+
 		Page<Message> findResult;
 		PageRequest pageable = new PageRequest(0, 20);
 		if (lastMsgId == null) {
@@ -134,7 +158,7 @@ public class UserService {
 		}
 		return false;
 	}
-	
+
 	public void sendMessageToChatroom(String text, Long senderId, Long chatroomId) {
 		log.debug("sending message to chatroom [senderId:{}] [chatroomId:{}] [text:{}]", senderId, chatroomId, text);
 		LocalDateTime now = LocalDateTime.now();
@@ -151,9 +175,9 @@ public class UserService {
 		msg.setSendTimestamp(now);
 		msg.setText(text);
 		msg = messageRepo.save(msg);
-		
+
 		ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(chatroomRepo.findOne(chatroomId), sender));
-		if (chatroomUser.getLastMessageRead() != null && !chatroomUser.getLastMessageRead().isBefore(previousMsgSent)) {
+		if (previousMsgSent == null || chatroomUser.getLastMessageRead() != null && !chatroomUser.getLastMessageRead().isBefore(previousMsgSent)) {
 			chatroomUser.setLastMessageRead(now);
 			chatroomUser = chatroomUserRepo.save(chatroomUser);
 		}
@@ -170,7 +194,7 @@ public class UserService {
 		log.debug("updating notification activation status for chatroom [userId:{}] [roomId:{}] [notificationsActive:{}]", userId, roomId, notificationsActive);
 		ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(chatroomRepo.findOne(roomId), userRepo.findOne(userId)));
 		chatroomUser.setNotificationsActive(notificationsActive);
-		chatroomUser = chatroomUserRepo.save(chatroomUser);		
+		chatroomUser = chatroomUserRepo.save(chatroomUser);
 	}
 
 	public void deleteChatroom(Long userId, Long roomId) {
@@ -225,6 +249,64 @@ public class UserService {
 			log.warn("cannot find chatroom [roomId:{}]", roomId);
 		}
 		return false;
+	}
+
+	public void createAndSendPasswordResetToken(String baseUrl, String email) {
+		log.debug("sending password reset token via email [baseUrl:{}] [recipient:{}]", baseUrl, email);
+		User user = userRepo.findByEmail(email);
+		if (user == null) {
+			throw new UsernameNotFoundException("No user found with email '" + email + "'");
+		}
+		String token = UUID.randomUUID().toString();
+		passwordTokenRepo.save(new PasswordResetToken(passwordEncoder.encode(token), user));
+		SimpleMailMessage mail = constructResetTokenEmail(baseUrl, token, user);
+		mailSender.send(mail);
+		log.info("password reset token sent via email [userId:{}]", user.getId());
+	}
+
+	private SimpleMailMessage constructResetTokenEmail(String contextPath, String token, User user) {
+		String url = contextPath + "/public/change-password?id=" + user.getId() + "&token=" + token;
+		String message = "Klicken Sie auf den nachfolgenden Link, um Ihr Passwort zurückzusetzen:\r\n" + url;
+		SimpleMailMessage email = new SimpleMailMessage();
+		email.setSubject("Reset Password");
+		email.setText(message);
+		email.setTo(user.getEmail());
+		email.setFrom(pd3MailSenderAddress);
+		return email;
+	}
+
+	public boolean validatePasswordResetToken(Long userId, String token) {
+		PasswordResetToken passToken = passwordTokenRepo.findByUserId(userId);
+		if (passToken != null) {
+			if (LocalDateTime.now().isBefore(passToken.getExpiryDate())) {
+				return passwordEncoder.matches(token, passToken.getToken());
+			} else {
+				passwordTokenRepo.delete(passToken);
+			}
+		}
+		return false;
+	}
+
+	public void changePassword(Long userId, String password) {
+		User user = userRepo.findOne(userId);
+		user.setPassword(passwordEncoder.encode(password));
+		user = userRepo.save(user);
+		log.info("password reset by user [userId:{}]", userId);
+
+		deletePasswordResetToken(userId);
+	    
+		UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+	    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+	    SecurityContextHolder.getContext().setAuthentication(authentication);
+	    log.info("programmatically logged in user [userId:{}]", userId);
+	}
+
+	public void deletePasswordResetToken(Long userId) {
+		PasswordResetToken passToken = passwordTokenRepo.findByUserId(userId);
+		if (passToken != null) {
+			passwordTokenRepo.delete(passToken);
+			log.info("user password token deleted [userId:{}]", userId);
+		}
 	}
 	
 }

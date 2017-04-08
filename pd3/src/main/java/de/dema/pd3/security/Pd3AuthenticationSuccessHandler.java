@@ -35,6 +35,8 @@ public class Pd3AuthenticationSuccessHandler extends SavedRequestAwareAuthentica
 		userService.updateLastLoginDate(userId);
 		log.debug("last login timestamp saved [userId:{}]", userId);
 		
+		userService.deletePasswordResetToken(userId);
+		
 		super.onAuthenticationSuccess(request, response, authentication);
 	}
 

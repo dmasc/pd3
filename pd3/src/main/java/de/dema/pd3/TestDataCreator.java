@@ -66,33 +66,9 @@ public class TestDataCreator {
 	public void createTestData() {
 		if (shouldCreateTestData) {
 			log.info("creating test data...");
-			User author = new User();
-			author.setBirthday(LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12)));
-			author.setDistrict("Hamburg");
-			author.setEmail("a");
-			author.setForename("Franz");
-			author.setIdCardNumber("T220001293");
-			author.setPassword(passwordEncoder.encode(""));
-			author.setPhone("0171-1234567");
-			author.setStreet("Herbert-Weichmann-Straße 117");
-			author.setSurname("Remmenscheid");
-			author.setZip("21709");
-			author.setMale(true);
-			userRepo.save(author);
-
-			User authorFemale = new User();
-			authorFemale.setBirthday(LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12)));
-			authorFemale.setDistrict("Hamburg");
-			authorFemale.setEmail("jutta");
-			authorFemale.setForename("Jutta");
-			authorFemale.setIdCardNumber("T210001741");
-			authorFemale.setPassword(passwordEncoder.encode("test"));
-			authorFemale.setPhone("040-2225256");
-			authorFemale.setStreet("Otto-von-Bismark-Allee 32");
-			authorFemale.setSurname("Sorin-Gießmann");
-			authorFemale.setZip("22177");
-			authorFemale.setMale(false);
-			userRepo.save(authorFemale);
+			User author = createDefaultTestUser();
+			User authorFemale = createFemaleUser();
+			createValidEmailUser();
 
 			for (int i = 0; i < 25; i++) {
 				Topic topic = createTopic(author, authorFemale);
@@ -112,6 +88,54 @@ public class TestDataCreator {
 			
 			log.info("creating test data finished");
 		}
+	}
+
+	private User createFemaleUser() {
+		User authorFemale = new User();
+		authorFemale.setBirthday(LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12)));
+		authorFemale.setDistrict("Hamburg");
+		authorFemale.setEmail("jutta");
+		authorFemale.setForename("Jutta");
+		authorFemale.setIdCardNumber("T210001741");
+		authorFemale.setPassword(passwordEncoder.encode("test"));
+		authorFemale.setPhone("040-2225256");
+		authorFemale.setStreet("Otto-von-Bismark-Allee 32");
+		authorFemale.setSurname("Sorin-Gießmann");
+		authorFemale.setZip("22177");
+		authorFemale.setMale(false);
+		return userRepo.save(authorFemale);
+	}
+
+	private User createDefaultTestUser() {
+		User author = new User();
+		author.setBirthday(LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12)));
+		author.setDistrict("Hamburg");
+		author.setEmail("a");
+		author.setForename("Franz");
+		author.setIdCardNumber("T220001293");
+		author.setPassword(passwordEncoder.encode(""));
+		author.setPhone("0171-1234567");
+		author.setStreet("Herbert-Weichmann-Straße 117");
+		author.setSurname("Remmenscheid");
+		author.setZip("21709");
+		author.setMale(true);
+		return userRepo.save(author);
+	}
+
+	private User createValidEmailUser() {
+		User author = new User();
+		author.setBirthday(LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12)));
+		author.setDistrict("Hamburg");
+		author.setEmail("d_masche@hotmail.com");
+		author.setForename("Philip");
+		author.setIdCardNumber("T223857534");
+		author.setPassword(passwordEncoder.encode("test"));
+		author.setPhone("0152-87421454");
+		author.setStreet("Hamburger Straße 37");
+		author.setSurname("Engeljäger");
+		author.setZip("21239");
+		author.setMale(true);
+		return userRepo.save(author);
 	}
 
 	private void createMessages(User u1, User u2) {

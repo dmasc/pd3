@@ -7,6 +7,7 @@
 <body>
 
 	<div layout:fragment="content" class="content">
+        <h1>Loggen Sie sich ein</h1>
 		<form action="#" th:action="@{/login}" method="post" class="default">
             
 			<div class="feedback-container" th:if="${param.error}">Die Anmeldedaten sind ungültig</div>
@@ -16,7 +17,7 @@
 			<label>Passwort:</label><input type="password" name="password" /><br/>
 			<label for="remember-me">Angemeldet bleiben:</label><input type="checkbox" name="remember-me" id="remember-me" /><br/>
 			
-			<input type="submit" value="Einloggen" />
+			<input type="submit" value="Einloggen" /> <input type="button" value="Registrieren" onclick="window.location.href='/public/register'" /> <a th:href="@{/public/forgot-password}" style="float: right;">Passwort vergessen?</a>
 		</form>
 	</div>
 
