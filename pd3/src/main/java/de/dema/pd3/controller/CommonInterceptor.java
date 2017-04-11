@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import de.dema.pd3.Clock;
 import de.dema.pd3.security.CurrentUser;
 import de.dema.pd3.services.UserService;
 
@@ -30,6 +31,7 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
 		if (modelAndView != null) {
+			modelAndView.addObject("clock", Clock.class);
 			modelAndView.addObject("showDebugPanel", debug);
 	
 			if (auth != null && auth.getPrincipal() instanceof CurrentUser) {

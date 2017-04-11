@@ -56,6 +56,13 @@
                 <span sec:authorize="isAuthenticated()" th:text="${#authentication.principal.name} + ' (ID:' + ${#authentication.principal.id} + ')'"></span>
                 <span sec:authorize="not isAuthenticated()">nicht angemeldet</span>
             </div>
+	        <div class="column">
+                <label>Uhrzeit: </label><span th:text="${{clock.now()}}" id="debug-panel-current-time"></span><br/>
+                <form th:action="@{/test/leap-in-time}" method="post" id="debug-panel-leap-in-time-form">
+	                <label>Zeitsprung:</label>
+	                <input type="text" name="targetDate" th:value="${{clock.now()}}" /><button type="submit" th:alt-title="@{Zeitsprung ausführen}"><img th:src="@{/img/leap-in-time.svg}" height="16" width="16" /></button>
+                </form>
+            </div>
         </div>
 	</div>
 	

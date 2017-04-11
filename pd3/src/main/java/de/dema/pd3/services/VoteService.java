@@ -1,7 +1,5 @@
 package de.dema.pd3.services;
 
-import java.time.LocalDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import de.dema.pd3.Clock;
 import de.dema.pd3.VoteOption;
 import de.dema.pd3.model.CommentVoteModel;
 import de.dema.pd3.model.TopicVoteModel;
@@ -55,7 +54,7 @@ public class VoteService {
             vote.setTopic(topic);
         }
         vote.setSelectedOption(selectedOption);
-        vote.setVoteTimestamp(LocalDateTime.now());
+        vote.setVoteTimestamp(Clock.now());
         vote = topicVoteRepo.save(vote);
         log.info("topic vote stored [vote:{}]", vote);
     }
@@ -78,7 +77,7 @@ public class VoteService {
 	        }
         
         	vote.setSelectedOption(selectedOption);
-        	vote.setVoteTimestamp(LocalDateTime.now());
+        	vote.setVoteTimestamp(Clock.now());
         	vote = commentVoteRepo.save(vote);
         	log.info("comment vote stored [vote:{}]", vote);
         	return vote.getId();

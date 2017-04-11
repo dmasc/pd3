@@ -1,7 +1,5 @@
 package de.dema.pd3.services;
 
-import java.time.LocalDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import de.dema.pd3.Clock;
 import de.dema.pd3.model.CommentModel;
 import de.dema.pd3.persistence.Comment;
 import de.dema.pd3.persistence.CommentRepository;
@@ -47,7 +46,7 @@ public class CommentService {
 
 	public Long save(Long userId, Long topicId, String text) {
 		log.info("saving comment [userId:{}] [topicId:{}] [text:{}]", userId, topicId, text);
-		Comment.Builder comment = new Comment.Builder().author(userRepo.findOne(userId)).creationDate(LocalDateTime.now())
+		Comment.Builder comment = new Comment.Builder().author(userRepo.findOne(userId)).creationDate(Clock.now())
 				.topic(topicRepo.findOne(topicId)).text(text);
 		return commentRepo.save(comment.build()).getId();
 	}
@@ -56,7 +55,7 @@ public class CommentService {
 		log.info("saving reply to comment [userId:{}] [commentId:{}] [text:{}]", userId, commentId, text);
 		Comment parent = commentRepo.findOne(commentId);
 		if (parent != null) {
-			Comment.Builder comment = new Comment.Builder().author(userRepo.findOne(userId)).creationDate(LocalDateTime.now())
+			Comment.Builder comment = new Comment.Builder().author(userRepo.findOne(userId)).creationDate(Clock.now())
 					.parent(parent).topic(parent.getTopic()).text(text);
 			return commentRepo.save(comment.build()).getId();
 		}

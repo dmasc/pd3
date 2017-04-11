@@ -27,6 +27,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import de.dema.pd3.Clock;
 import de.dema.pd3.Pd3Util;
 import de.dema.pd3.model.ChatroomMessageModel;
 import de.dema.pd3.model.ChatroomModel;
@@ -143,7 +144,7 @@ public class UserService {
 	public boolean storeLastMessageRead(Long userId, Long chatroomId) {
 		ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(chatroomRepo.findOne(chatroomId), userRepo.findOne(userId)));
 		if (chatroomUser != null) {
-			chatroomUser.setLastMessageRead(LocalDateTime.now());
+			chatroomUser.setLastMessageRead(Clock.now());
 			chatroomUserRepo.save(chatroomUser);
 			return true;
 		} else {
@@ -154,7 +155,7 @@ public class UserService {
 
 	public void sendMessageToChatroom(String text, Long senderId, Long chatroomId) {
 		log.debug("sending message to chatroom [senderId:{}] [chatroomId:{}] [text:{}]", senderId, chatroomId, text);
-		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime now = Clock.now();
 
 		Chatroom chatroom = chatroomRepo.findOne(chatroomId);
 		LocalDateTime previousMsgSent = chatroom.getLastMessageSent();
@@ -174,7 +175,7 @@ public class UserService {
 	public void updateLastLoginDate(Long userId) {
 		log.debug("updating last login date [userId:{}]", userId);
 		User user = userRepo.findOne(userId);
-		user.setLastLogin(LocalDateTime.now());
+		user.setLastLogin(Clock.now());
 		userRepo.save(user);
 	}
 
@@ -266,7 +267,7 @@ public class UserService {
 	public boolean validatePasswordResetToken(Long userId, String token) {
 		PasswordResetToken passToken = passwordTokenRepo.findByUserId(userId);
 		if (passToken != null) {
-			if (LocalDateTime.now().isBefore(passToken.getExpiryDate())) {
+			if (Clock.now().isBefore(passToken.getExpiryDate())) {
 				return passwordEncoder.matches(token, passToken.getToken());
 			} else {
 				passwordTokenRepo.delete(passToken);

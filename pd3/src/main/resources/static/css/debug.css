@@ -38,6 +38,10 @@ div.debug div.column {
 	margin-right: 50px;
 }
 
+div.debug div.column form {
+	display: inline-block;
+}
+
 div.debug a {
 	color: #296ABD;
 	text-decoration: none;
@@ -50,4 +54,16 @@ div.debug a:hover {
 div.debug a.disabled {
 	color: grey;
 	font-style: italic;
+}
+
+#debug-panel-leap-in-time-form input[type='text'] {
+	width: 100px;
+}
+
+#debug-panel-leap-in-time-form button {
+	padding: 0;
+}
+
+#debug-panel-leap-in-time-form button img {
+	vertical-align: top;
 }

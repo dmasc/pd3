@@ -1,5 +1,6 @@
 package de.dema.pd3;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,11 +16,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import de.dema.pd3.persistence.Chatroom;
@@ -70,6 +73,9 @@ public class TestDataController {
 	@Autowired
 	private UserService userService;
 	
+	@Autowired
+	private ConversionService conversionService;
+
 	// Der Wert kann in der Run Config als VM-Parameter gesetzt werden: -Dtestdata=true
 	@Value("${testdata:false}")
 	private boolean shouldCreateTestData;
@@ -91,7 +97,7 @@ public class TestDataController {
 				TopicVote vote = new TopicVote();
 				vote.setUser(r.nextBoolean() ? author : authorFemale);
 				vote.setTopic(topic);
-				vote.setVoteTimestamp(LocalDateTime.now().minusDays(r.nextInt(7)).minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
+				vote.setVoteTimestamp(Clock.now().minusDays(r.nextInt(7)).minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
 				vote.setSelectedOption(VoteOption.values()[r.nextInt(VoteOption.values().length)]);
 				topicVoteRepo.save(vote);
 			}
@@ -120,9 +126,17 @@ public class TestDataController {
 		return true;
 	}
 
+	@PostMapping("/leap-in-time")
+	@ResponseBody
+	public String leapInTime(@RequestParam("targetDate") LocalDateTime targetTime) {
+		log.debug("leaping in time [targetTime:{}]", targetTime);
+		Clock.leapToTime(Duration.between(LocalDateTime.now(), targetTime));
+		return conversionService.convert(Clock.now(), String.class);
+	}
+	
 	private User createFemaleUser() {
 		User.Builder userBuilder = new User.Builder();
-		LocalDate birthday = LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12));
+		LocalDate birthday = Clock.today().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12));
 		userBuilder.birthday(birthday).district("Hamburg").email("jutta").forename("Jutta").idCardNumber("T210001741").female()
 				.password(passwordEncoder.encode("test")).phone("040-2225256").street("Otto-von-Bismark-Allee 32").surname("Sorin-Gießmann").zip("22177");
 		return userRepo.save(userBuilder.build());
@@ -130,7 +144,7 @@ public class TestDataController {
 
 	private User createDefaultTestUser() {
 		User.Builder userBuilder = new User.Builder();
-		LocalDate birthday = LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12));
+		LocalDate birthday = Clock.today().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12));
 		userBuilder.birthday(birthday).district("Hamburg").email("a").forename("Franz").idCardNumber("T220001293").male()
 				.password(passwordEncoder.encode("")).phone("0171-1234567").street("Herbert-Weichmann-Straße 117").surname("Remmenscheid").zip("21709");
 		return userRepo.save(userBuilder.build());
@@ -138,7 +152,7 @@ public class TestDataController {
 
 	private User createValidEmailUser() {
 		User.Builder userBuilder = new User.Builder();
-		LocalDate birthday = LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12));
+		LocalDate birthday = Clock.today().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12));
 		userBuilder.birthday(birthday).district("Hamburg").email("d_masche@hotmail.com").forename("Philip").idCardNumber("T223857534").male()
 				.password(passwordEncoder.encode("test")).phone("0152-87421454").street("Hamburger Straße 37").surname("Engeljäger").zip("21239");
 		return userRepo.save(userBuilder.build());
@@ -169,8 +183,8 @@ public class TestDataController {
 	private Topic createTopic(User... author) {
 		Topic topic = new Topic();
 		topic.setAuthor(author[r.nextInt(author.length)]);
-		topic.setCreationDate(LocalDateTime.now().minusDays(r.nextInt(365)).minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
-		topic.setDeadline(LocalDateTime.now().plusDays(r.nextInt(182)).plusHours(r.nextInt(24)).plusMinutes(r.nextInt(60)));
+		topic.setCreationDate(Clock.now().minusDays(r.nextInt(365)).minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
+		topic.setDeadline(Clock.now().plusDays(r.nextInt(182)).plusHours(r.nextInt(24)).plusMinutes(r.nextInt(60)));
 		topic.setDescription(createRandomText(r.nextInt(1000) + 500));
 		topic.setTitle(createRandomText(r.nextInt(140) + 20));
 		return topic;
@@ -195,7 +209,7 @@ public class TestDataController {
 		int commentsCount = r.nextInt(counter - 1) + 1;
 		for (int i = 0; i < commentsCount; i++) {
 			Comment comment = new Comment();
-			comment.setCreationDate(LocalDateTime.now().minusDays(r.nextInt(120)).plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
+			comment.setCreationDate(Clock.now().minusDays(r.nextInt(120)).plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
 			comment.setText(createRandomText(r.nextInt(490) + 10));
 			comment.setTopic(topic);
 			comment.setAuthor(author[r.nextInt(author.length)]);
@@ -211,7 +225,7 @@ public class TestDataController {
 				vote.setComment(comment);
 				vote.setUser(user);
 				vote.setSelectedOption(r.nextBoolean() ? VoteOption.ACCEPTED : VoteOption.REJECTED);
-				vote.setVoteTimestamp(LocalDateTime.now());
+				vote.setVoteTimestamp(Clock.now());
 				commentVoteRepo.save(vote);
 			}
 			if (level > 0) {
@@ -220,8 +234,8 @@ public class TestDataController {
 		}
 	}
 
-	public static LocalDateTime createRandomDateTime(int minOffsetDays, int maxOffsetDays) {
-		LocalDateTime dateTime = LocalDateTime.now();
+	public LocalDateTime createRandomDateTime(int minOffsetDays, int maxOffsetDays) {
+		LocalDateTime dateTime = Clock.now();
 		if (minOffsetDays < 0 || maxOffsetDays < 0) {
 			dateTime = dateTime.minusDays(r.nextInt(Math.abs(maxOffsetDays - minOffsetDays)) - minOffsetDays)
 					.minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60));

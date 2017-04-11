@@ -8,6 +8,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
+import de.dema.pd3.Clock;
+
+/**
+ * Wenn ein Benutzer sein Passwort vergessen hat und den Password-vergessen-Prozess startet, wird eine Instanz 
+ * dieser Entität erzeugt und in der DB für den Benutzer gespeichert.
+ */
 @Entity
 public class PasswordResetToken implements Serializable {
 
@@ -32,7 +38,7 @@ public class PasswordResetToken implements Serializable {
 	public PasswordResetToken(String token, User user) {
 		this.token = token;
 		this.user = user;
-		expiryDate = LocalDateTime.now().plusMinutes(EXPIRATION_MINUTES);
+		expiryDate = Clock.now().plusMinutes(EXPIRATION_MINUTES);
 	}
 
 	public Long getId() {

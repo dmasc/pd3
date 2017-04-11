@@ -6,6 +6,8 @@ import java.time.Period;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import de.dema.pd3.Clock;
+
 /**
  * Validates birthday
  * Created by Ronny on 22.03.2017.
@@ -25,7 +27,7 @@ public class AgeValidator implements ConstraintValidator<Age, String> {
     public boolean isValid(String date, ConstraintValidatorContext constraintValidatorContext) {
         try {
             LocalDate localDate = LocalDate.parse(date);
-            int age = Period.between(localDate, LocalDate.now()).getYears();
+            int age = Period.between(localDate, Clock.today()).getYears();
             return age >= minAge && age <= maxAge;
         } catch (Exception e) {
             // ignore, format check via pattern...

@@ -2,6 +2,7 @@ package de.dema.pd3.model;
 
 import java.time.LocalDateTime;
 
+import de.dema.pd3.Clock;
 import de.dema.pd3.VoteOption;
 import de.dema.pd3.persistence.Topic;
 
@@ -88,7 +89,7 @@ public class TopicModel {
 	}
 
 	public boolean isRunning() {
-		return LocalDateTime.now().isBefore(this.deadline);
+		return Clock.now().isBefore(this.deadline);
 	}
 
 	public static TopicModel map(Topic topic) {

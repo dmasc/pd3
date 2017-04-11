@@ -1,6 +1,5 @@
 package de.dema.pd3;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +32,7 @@ public class TestUtil {
 	
 	public static User createRandomUser(RepositoryProvider repoProvider) {
 		User user = new User();
-		user.setBirthday(LocalDate.now().minusYears(r.nextInt(80) + 18).minusMonths(r.nextInt(12)).minusDays(r.nextInt(28)));
+		user.setBirthday(Clock.today().minusYears(r.nextInt(80) + 18).minusMonths(r.nextInt(12)).minusDays(r.nextInt(28)));
 		user.setDistrict(RandomStringUtils.randomAlphabetic(r.nextInt(20) + 3));
 		user.setEmail(RandomStringUtils.randomAlphabetic(r.nextInt(15) + 3) + "@mail.de");
 		user.setForename(RandomStringUtils.randomAlphabetic(r.nextInt(10) + 3));
@@ -55,8 +54,8 @@ public class TestUtil {
 	public static Topic createRandomTopic(RepositoryProvider repoProvider, User author) {
 		Topic topic = new Topic();
 		topic.setAuthor(author);
-		topic.setCreationDate(LocalDateTime.now().minusDays(r.nextInt(365)).minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
-		topic.setDeadline(LocalDateTime.now().plusDays(r.nextInt(182)).plusHours(r.nextInt(24)).plusMinutes(r.nextInt(60)));
+		topic.setCreationDate(Clock.now().minusDays(r.nextInt(365)).minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
+		topic.setDeadline(Clock.now().plusDays(r.nextInt(182)).plusHours(r.nextInt(24)).plusMinutes(r.nextInt(60)));
 		topic.setDescription(createRandomText(r.nextInt(5000) + 100));
 		topic.setTitle(createRandomText(r.nextInt(140) + 20));
 		return repoProvider != null ? repoProvider.getTopicRepository().save(topic) : topic;
@@ -95,7 +94,7 @@ public class TestUtil {
 
 	public static Comment createRandomComment(RepositoryProvider repoProvider, Topic topic, User author, Comment parent) {
 		Comment comment = new Comment();
-		comment.setCreationDate(LocalDateTime.now().minusDays(r.nextInt(120)).plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
+		comment.setCreationDate(Clock.now().minusDays(r.nextInt(120)).plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
 		comment.setText(createRandomText(r.nextInt(290) + 10));
 		comment.setTopic(topic);
 		comment.setAuthor(author);
@@ -121,7 +120,7 @@ public class TestUtil {
 	
 	private static <T extends VoteBase> T createRandomTopicVote(CrudRepository<T, Long> repo, T vote, User user) {
 		vote.setUser(user);
-		vote.setVoteTimestamp(LocalDateTime.now().minusDays(r.nextInt(90)).plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
+		vote.setVoteTimestamp(Clock.now().minusDays(r.nextInt(90)).plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60)));
 		vote.setSelectedOption(r.nextBoolean() ? VoteOption.ACCEPTED : VoteOption.REJECTED);
 
 		return repo != null ? repo.save(vote) : vote;
@@ -166,7 +165,7 @@ public class TestUtil {
 	}
 	
 	public static LocalDateTime createRandomDateTime(int minOffsetDays, int maxOffsetDays) {
-		LocalDateTime dateTime = LocalDateTime.now().plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60));
+		LocalDateTime dateTime = Clock.now().plusHours(r.nextInt(24)).minusMinutes(r.nextInt(60));
 		if (minOffsetDays < 0 || maxOffsetDays < 0) {
 			dateTime = dateTime.minusDays(r.nextInt(Math.abs(maxOffsetDays - minOffsetDays)) - minOffsetDays)
 					.minusHours(r.nextInt(24)).minusMinutes(r.nextInt(60));

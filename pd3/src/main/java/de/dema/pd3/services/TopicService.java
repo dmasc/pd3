@@ -1,7 +1,5 @@
 package de.dema.pd3.services;
 
-import java.time.LocalDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import de.dema.pd3.Clock;
 import de.dema.pd3.model.TopicModel;
 import de.dema.pd3.persistence.Topic;
 import de.dema.pd3.persistence.TopicRepository;
@@ -50,7 +49,7 @@ public class TopicService {
         } else {
             topic = new Topic();
             topic.setAuthor(userRepo.findOne(userId));
-            topic.setCreationDate(LocalDateTime.now());
+            topic.setCreationDate(Clock.now());
         }
 
         topic.setDeadline(topicModel.getDeadline());

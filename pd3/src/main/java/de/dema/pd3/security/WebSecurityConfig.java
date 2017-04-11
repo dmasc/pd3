@@ -38,7 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .authorizeRequests()
                 .antMatchers("/", "/public/**", "/css/**", "/js/**", "/img/**", "/db/**", "/webjars/**").permitAll()
-                .antMatchers("/debug/**").access(debug ? "permitAll" : "denyAll")
+                .antMatchers("/test/**").access(debug ? "permitAll" : "denyAll")
                 .anyRequest().authenticated()
                 .and()
             .requiresChannel().anyRequest().requiresSecure()
