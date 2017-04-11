@@ -1,5 +1,6 @@
 <!DOCTYPE HTML>
-<html layout:decorator="layout/default" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:spring="http://www.springframework.org/tags">
+<html layout:decorator="layout/default" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:spring="http://www.springframework.org/tags" 
+        xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 
 <body>
 
@@ -40,6 +41,22 @@
 	    		<div th:replace="components/commonComponents :: comment (model=${reply}, topicId=${topicId}, pageIndex=${pageIndex})"></div>
 	    	</div>
    		</div>
+	</div>
+	
+	<div th:fragment="debug-panel" class="debug hidden" th:if="${showDebugPanel}">
+        <div class="debug-container">
+	        <div class="headline">Test- und Debug-Panel</div>
+	        <div class="column">
+		        <a href="javascript: debug_register()" id="debug-panel-fillout-register-form" title="Füllt das Formular mit definierten Werten aus">Registrierungsformular ausfüllen</a><br/>
+		        <a href="javascript: debug_receiveMessage();" th:class="${#authorization.expression('hasRole(''ROLE_ANONYMOUS'')')}?disabled" id="debug-panel-receive-message" 
+		                title="Sendet eine zufällige Nachricht von einem zufälligen Benutzer an den gerade angemeldeten Benutzer">Nachricht empfangen</a><br/>
+            </div>
+	        <div class="column">
+                <label>Benutzer: </label>
+                <span sec:authorize="isAuthenticated()" th:text="${#authentication.principal.name} + ' (ID:' + ${#authentication.principal.id} + ')'"></span>
+                <span sec:authorize="not isAuthenticated()">nicht angemeldet</span>
+            </div>
+        </div>
 	</div>
 	
 </body>

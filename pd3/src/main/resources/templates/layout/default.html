@@ -5,9 +5,13 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
 	<script th:src="@{/js/ext/jquery.autocomplete.js}"></script>
+	<script th:src="@{/js/ext/jquery.animate-colors.js}"></script>
 	<script th:src="@{/js/base.js}"></script>
+	<script th:src="@{/js/debug.js}" th:if="${showDebugPanel}"></script>
     <link rel="stylesheet" type="text/css" href="/css/base.css" th:href="@{/css/base.css}" />
-	<link rel="shortcut icon" type="image/x-icon" th:href="@{/img/favicon.png}" />
+    <link rel="stylesheet" type="text/css" href="/css/debug.css" th:href="@{/css/debug.css}" th:if="${showDebugPanel}" />
+    <link rel="shortcut icon" type="image/x-icon" th:href="@{/img/favicon.ico}" />
+	<link rel="icon" type="image/x-icon" th:href="@{/img/favicon-32.png}" sizes="32x32"/>
 </head>
 
 <body>
@@ -28,6 +32,8 @@
 	</div>
 
 	<div layout:fragment="content" class="content"></div>
+
+    <div th:replace="components/commonComponents :: debug-panel">Debug Panel</div>
 
 </body>
 </html>

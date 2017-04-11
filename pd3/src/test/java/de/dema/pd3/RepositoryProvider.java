@@ -5,6 +5,7 @@ import de.dema.pd3.persistence.ChatroomUserRepository;
 import de.dema.pd3.persistence.CommentRepository;
 import de.dema.pd3.persistence.CommentVoteRepository;
 import de.dema.pd3.persistence.MessageRepository;
+import de.dema.pd3.persistence.PasswordResetTokenRepository;
 import de.dema.pd3.persistence.TopicRepository;
 import de.dema.pd3.persistence.TopicVoteRepository;
 import de.dema.pd3.persistence.UserRepository;
@@ -26,5 +27,7 @@ public interface RepositoryProvider {
 	TopicVoteRepository getTopicVoteRepository();
 	
 	UserRepository getUserRepository();
+
+	PasswordResetTokenRepository getPasswordResetTokenRepository();
 		
 }

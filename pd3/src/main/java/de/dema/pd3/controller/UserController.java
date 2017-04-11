@@ -49,7 +49,7 @@ public class UserController {
 	@Autowired
 	private VoteService voteService;
 	
-    @GetMapping("/public/register")
+	@GetMapping("/public/register")
     public String registerForm(RegisterUserModel user) {
         return "public/register";
     }

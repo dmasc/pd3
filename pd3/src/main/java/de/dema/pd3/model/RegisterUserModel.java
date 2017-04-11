@@ -52,6 +52,8 @@ public class RegisterUserModel {
 
 	@PersoId(message = "{register_user_model.idCardNumber.format}")
 	private String idCardNumber;
+	
+	private boolean male;
 
 	public Long getId() {
 		return id;
@@ -149,18 +151,27 @@ public class RegisterUserModel {
 		this.idCardNumber = idCardNumber;
 	}
 	
+	public boolean isMale() {
+		return male;
+	}
+
+	public void setMale(boolean male) {
+		this.male = male;
+	}
+
 	public static RegisterUserModel map(User user) {
 		if (user == null) {
 			return null;
 		}
 		
 		RegisterUserModel model = new RegisterUserModel();
-		model.setId(user.getId());
 		model.setBirthday(user.getBirthday().format(DATE_FORMATTER));
 		model.setDistrict(user.getDistrict());
 		model.setEmail(user.getEmail());
 		model.setForename(user.getForename());
+		model.setId(user.getId());
 		model.setIdCardNumber(user.getIdCardNumber());
+		model.setMale(user.isMale());
 		model.setPhone(user.getPhone());
 		model.setStreet(user.getStreet());
 		model.setSurname(user.getSurname());
@@ -168,7 +179,5 @@ public class RegisterUserModel {
 		
 		return model;
 	}
-
-	public interface RegisterUserValidation {}
 
 }

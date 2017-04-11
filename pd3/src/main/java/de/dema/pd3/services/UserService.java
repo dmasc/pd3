@@ -35,7 +35,7 @@ import de.dema.pd3.model.RegisterUserModel;
 import de.dema.pd3.persistence.Chatroom;
 import de.dema.pd3.persistence.ChatroomRepository;
 import de.dema.pd3.persistence.ChatroomUser;
-import de.dema.pd3.persistence.ChatroomUserId;
+import de.dema.pd3.persistence.ChatroomUser.ChatroomUserId;
 import de.dema.pd3.persistence.ChatroomUserRepository;
 import de.dema.pd3.persistence.Message;
 import de.dema.pd3.persistence.MessageRepository;
@@ -79,19 +79,13 @@ public class UserService {
 	public User registerUser(RegisterUserModel userModel) {
 		log.debug("registering user [model:{}]", userModel);
 
-		User user = new User();
-		user.setBirthday(userModel.getBirthday() != null ? LocalDate.parse(userModel.getBirthday()) : null);
-		user.setDistrict(userModel.getDistrict());
-		user.setEmail(userModel.getEmail());
-		user.setForename(userModel.getForename());
-		user.setIdCardNumber(userModel.getIdCardNumber());
-		user.setPassword(passwordEncoder.encode(userModel.getPassword()));
-		user.setPhone(userModel.getPhone());
-		user.setStreet(userModel.getStreet());
-		user.setSurname(userModel.getSurname());
-		user.setZip(userModel.getZip());
+		User.Builder userBuilder = new User.Builder();
+		userBuilder.birthday(userModel.getBirthday() != null ? LocalDate.parse(userModel.getBirthday()) : null)
+				.district(userModel.getDistrict()).email(userModel.getEmail()).forename(userModel.getForename())
+				.idCardNumber(userModel.getIdCardNumber()).male(userModel.isMale()).password(passwordEncoder.encode(userModel.getPassword()))
+				.phone(userModel.getPhone()).street(userModel.getStreet()).surname(userModel.getSurname()).zip(userModel.getZip());
 
-		user = userRepo.save(user);
+		User user = userRepo.save(userBuilder.build());
 		log.info("user registered [userId:{}]", user.getId());
 		return user;
 	}
@@ -118,8 +112,7 @@ public class UserService {
 		return userRepo.findOne(userId).getChatroomUsers().stream()
 				.map(chatroomUser -> ChatroomModel.map(chatroomUser, c -> {
 					return chatroomRepo.countNewMessages(chatroomUser.getChatroom().getId(), userId);
-			}))
-			.sorted().collect(Collectors.toList());
+				})).sorted().collect(Collectors.toList());
 	}
 
 	public Page<ChatroomMessageModel> loadMessagesForChatroom(Long userId, Long chatroomId, Long lastMsgId) {
@@ -169,12 +162,7 @@ public class UserService {
 		chatroom = chatroomRepo.save(chatroom);
 
 		User sender = userRepo.findOne(senderId);
-		Message msg = new Message();
-		msg.setRoom(chatroom);
-		msg.setSender(sender);
-		msg.setSendTimestamp(now);
-		msg.setText(text);
-		msg = messageRepo.save(msg);
+		messageRepo.save(new Message.Builder().room(chatroom).sender(sender).sendTimestamp(now).text(text).build());
 
 		ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(chatroomRepo.findOne(chatroomId), sender));
 		if (previousMsgSent == null || chatroomUser.getLastMessageRead() != null && !chatroomUser.getLastMessageRead().isBefore(previousMsgSent)) {

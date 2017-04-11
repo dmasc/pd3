@@ -2,7 +2,10 @@ package de.dema.pd3;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 
 import javax.annotation.PostConstruct;
@@ -12,8 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import de.dema.pd3.persistence.Chatroom;
 import de.dema.pd3.persistence.ChatroomRepository;
@@ -29,11 +36,13 @@ import de.dema.pd3.persistence.TopicVote;
 import de.dema.pd3.persistence.TopicVoteRepository;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
+import de.dema.pd3.services.UserService;
 
-@Component
-public class TestDataCreator {
+@Controller
+@RequestMapping("/test")
+public class TestDataController {
 
-	private static final Logger log = LoggerFactory.getLogger(TestDataCreator.class);
+	private static final Logger log = LoggerFactory.getLogger(TestDataController.class);
 
 	private static Random r = new Random();	
 
@@ -57,6 +66,9 @@ public class TestDataCreator {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private UserService userService;
 	
 	// Der Wert kann in der Run Config als VM-Parameter gesetzt werden: -Dtestdata=true
 	@Value("${testdata:false}")
@@ -90,73 +102,60 @@ public class TestDataCreator {
 		}
 	}
 
+	@PostMapping("/receive-message")
+	@ResponseBody
+	public boolean receiveMessage(Authentication auth) {
+		log.debug("receiving random message triggered");
+		Long currentUserId = Pd3Util.currentUserId(auth);
+		
+		List<User> list = new ArrayList<>();
+		userRepo.findAll().forEach(user -> {
+			if (!user.getId().equals(currentUserId)) {
+				list.add(user);
+			}
+		});
+		Collections.shuffle(list);
+		User sender = list.remove(0);
+		userService.sendMessage(createRandomText(r.nextInt(1000) + 2), sender.getId(), currentUserId);
+		return true;
+	}
+
 	private User createFemaleUser() {
-		User authorFemale = new User();
-		authorFemale.setBirthday(LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12)));
-		authorFemale.setDistrict("Hamburg");
-		authorFemale.setEmail("jutta");
-		authorFemale.setForename("Jutta");
-		authorFemale.setIdCardNumber("T210001741");
-		authorFemale.setPassword(passwordEncoder.encode("test"));
-		authorFemale.setPhone("040-2225256");
-		authorFemale.setStreet("Otto-von-Bismark-Allee 32");
-		authorFemale.setSurname("Sorin-Gießmann");
-		authorFemale.setZip("22177");
-		authorFemale.setMale(false);
-		return userRepo.save(authorFemale);
+		User.Builder userBuilder = new User.Builder();
+		LocalDate birthday = LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12));
+		userBuilder.birthday(birthday).district("Hamburg").email("jutta").forename("Jutta").idCardNumber("T210001741").female()
+				.password(passwordEncoder.encode("test")).phone("040-2225256").street("Otto-von-Bismark-Allee 32").surname("Sorin-Gießmann").zip("22177");
+		return userRepo.save(userBuilder.build());
 	}
 
 	private User createDefaultTestUser() {
-		User author = new User();
-		author.setBirthday(LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12)));
-		author.setDistrict("Hamburg");
-		author.setEmail("a");
-		author.setForename("Franz");
-		author.setIdCardNumber("T220001293");
-		author.setPassword(passwordEncoder.encode(""));
-		author.setPhone("0171-1234567");
-		author.setStreet("Herbert-Weichmann-Straße 117");
-		author.setSurname("Remmenscheid");
-		author.setZip("21709");
-		author.setMale(true);
-		return userRepo.save(author);
+		User.Builder userBuilder = new User.Builder();
+		LocalDate birthday = LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12));
+		userBuilder.birthday(birthday).district("Hamburg").email("a").forename("Franz").idCardNumber("T220001293").male()
+				.password(passwordEncoder.encode("")).phone("0171-1234567").street("Herbert-Weichmann-Straße 117").surname("Remmenscheid").zip("21709");
+		return userRepo.save(userBuilder.build());
 	}
 
 	private User createValidEmailUser() {
-		User author = new User();
-		author.setBirthday(LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12)));
-		author.setDistrict("Hamburg");
-		author.setEmail("d_masche@hotmail.com");
-		author.setForename("Philip");
-		author.setIdCardNumber("T223857534");
-		author.setPassword(passwordEncoder.encode("test"));
-		author.setPhone("0152-87421454");
-		author.setStreet("Hamburger Straße 37");
-		author.setSurname("Engeljäger");
-		author.setZip("21239");
-		author.setMale(true);
-		return userRepo.save(author);
+		User.Builder userBuilder = new User.Builder();
+		LocalDate birthday = LocalDate.now().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12));
+		userBuilder.birthday(birthday).district("Hamburg").email("d_masche@hotmail.com").forename("Philip").idCardNumber("T223857534").male()
+				.password(passwordEncoder.encode("test")).phone("0152-87421454").street("Hamburger Straße 37").surname("Engeljäger").zip("21239");
+		return userRepo.save(userBuilder.build());
 	}
 
 	private void createMessages(User u1, User u2) {
 		Chatroom room = new Chatroom();
 		room.setUsers(new HashSet<>(2));
-		ChatroomUser chatroomUser = new ChatroomUser();
-		chatroomUser.setId(room, u1);
-		room.getUsers().add(chatroomUser);
-		chatroomUser = new ChatroomUser();
-		chatroomUser.setId(room, u2);
-		room.getUsers().add(chatroomUser);
+		room.getUsers().add(new ChatroomUser(u1, room));
+		room.getUsers().add(new ChatroomUser(u2, room));
 		
 		room.setMessages(new HashSet<>());
 		int msgCount = r.nextInt(10) + 41;
 		LocalDateTime lastMsgSent = null; 
 		for (int i = 0; i < msgCount; i++) {
-			Message msg = new Message();
-			msg.setRoom(room);
-			msg.setSender(r.nextBoolean() ? u1 : u2);
-			msg.setSendTimestamp(createRandomDateTime(-1, -50));
-			msg.setText(createRandomText(r.nextInt(1000) + 2));
+			Message msg = new Message.Builder().room(room).sender(r.nextBoolean() ? u1 : u2).sendTimestamp(createRandomDateTime(-1, -50))
+					.text(createRandomText(r.nextInt(1000) + 2)).build();
 			if (lastMsgSent == null || lastMsgSent.isBefore(msg.getSendTimestamp())) {
 				lastMsgSent = msg.getSendTimestamp();
 			}

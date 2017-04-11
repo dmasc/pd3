@@ -119,6 +119,20 @@ public class CommonEntityTest extends DBTestBase {
 	}
     
     @Test
+    public void testUserDeletionAlsoRemovesPasswordResetToken() {
+    	User user = givenRandomUserIsRegistered();
+    	passwordResetTokenRepo.save(new PasswordResetToken("test", user));
+
+        assertThat(userRepo.count()).isEqualTo(1);
+        assertThat(passwordResetTokenRepo.count()).isEqualTo(1);
+
+    	userRepo.delete(user.getId());
+
+        assertThat(userRepo.count()).isEqualTo(0);
+        assertThat(passwordResetTokenRepo.count()).isEqualTo(0);
+    }
+    
+    @Test
     public void testChatroomDeletionAlsoRemovesChatroomUsers() {
     	User user1 = givenRandomUserIsRegistered();
     	User user2 = givenRandomUserIsRegistered();

@@ -47,24 +47,21 @@ public class CommentService {
 
 	public Long save(Long userId, Long topicId, String text) {
 		log.info("saving comment [userId:{}] [topicId:{}] [text:{}]", userId, topicId, text);
-		Comment comment = new Comment();
-		comment.setAuthor(userRepo.findOne(userId));
-		comment.setTopic(topicRepo.findOne(topicId));
-		comment.setText(text);
-		comment.setCreationDate(LocalDateTime.now());
-		return commentRepo.save(comment).getId();
+		Comment.Builder comment = new Comment.Builder().author(userRepo.findOne(userId)).creationDate(LocalDateTime.now())
+				.topic(topicRepo.findOne(topicId)).text(text);
+		return commentRepo.save(comment.build()).getId();
 	}
 
 	public Long saveReply(Long userId, Long commentId, String text) {
 		log.info("saving reply to comment [userId:{}] [commentId:{}] [text:{}]", userId, commentId, text);
 		Comment parent = commentRepo.findOne(commentId);
-		Comment comment = new Comment();
-		comment.setParent(parent);
-		comment.setAuthor(userRepo.findOne(userId));
-		comment.setTopic(parent.getTopic());
-		comment.setText(text);
-		comment.setCreationDate(LocalDateTime.now());
-		return commentRepo.save(comment).getId();
+		if (parent != null) {
+			Comment.Builder comment = new Comment.Builder().author(userRepo.findOne(userId)).creationDate(LocalDateTime.now())
+					.parent(parent).topic(parent.getTopic()).text(text);
+			return commentRepo.save(comment.build()).getId();
+		}
+		log.warn("unable to find parent comment [userId:{}] [commentId:{}]", userId, commentId);
+		return -1L;
 	}
 
 	public void deleteComment(Long commentId) {

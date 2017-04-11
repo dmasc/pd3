@@ -19,4 +19,16 @@ public class TopicVote extends VoteBase {
 		this.topic = topic;
 	}
 	
+	public static class Builder extends VoteBase.Builder<TopicVote> {
+
+		public Builder() {
+			super(new TopicVote());
+		}
+		
+		public void topic(Topic topic) {
+			build().topic = topic;
+		}
+		
+	}
+	
 }

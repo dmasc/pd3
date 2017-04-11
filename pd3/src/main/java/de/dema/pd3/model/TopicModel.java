@@ -3,6 +3,7 @@ package de.dema.pd3.model;
 import java.time.LocalDateTime;
 
 import de.dema.pd3.VoteOption;
+import de.dema.pd3.persistence.Topic;
 
 public class TopicModel {
 
@@ -19,6 +20,8 @@ public class TopicModel {
 	private int participants;
 	
 	private VoteOption userVoteSelection;
+	
+	private LocalDateTime creationDate;
 
 	public Long getId() {
 		return id;
@@ -76,8 +79,32 @@ public class TopicModel {
 		this.userVoteSelection = userVoteSelection;
 	}
 	
+	public LocalDateTime getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(LocalDateTime creationDate) {
+		this.creationDate = creationDate;
+	}
+
 	public boolean isRunning() {
 		return LocalDateTime.now().isBefore(this.deadline);
+	}
+
+	public static TopicModel map(Topic topic) {
+		if (topic == null) {
+			return null;
+		}
+		
+        TopicModel model = new TopicModel();
+        model.setAuthor(topic.getAuthor().getForename() + " " + topic.getAuthor().getSurname());
+        model.setCreationDate(topic.getCreationDate());
+        model.setDeadline(topic.getDeadline());
+        model.setDescription(topic.getDescription());
+        model.setId(topic.getId());
+        model.setTitle(topic.getTitle());
+
+        return model;
 	}
 
 }

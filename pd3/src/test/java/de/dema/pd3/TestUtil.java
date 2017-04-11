@@ -38,6 +38,7 @@ public class TestUtil {
 		user.setEmail(RandomStringUtils.randomAlphabetic(r.nextInt(15) + 3) + "@mail.de");
 		user.setForename(RandomStringUtils.randomAlphabetic(r.nextInt(10) + 3));
 		user.setIdCardNumber("T" + (r.nextInt(900000000) + 100000000));
+		user.setMale(r.nextBoolean());
 		user.setPassword("");
 		user.setPhone("0" + (r.nextInt(900) + 100)  + "-" + (r.nextInt(9000000) + 1000000));
 		user.setStreet(createRandomText(r.nextInt(20) + 6) + " " + (r.nextInt(200) + 1));

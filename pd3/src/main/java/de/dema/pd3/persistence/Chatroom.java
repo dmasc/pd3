@@ -19,10 +19,10 @@ public class Chatroom implements Serializable {
 	@GeneratedValue
 	private Long id;
 	
-	@OneToMany(mappedBy = "id.chatroom", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "id.chatroom", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	private Set<ChatroomUser> users;
 	
-	@OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "room", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	private Set<Message> messages;
 	
 	private LocalDateTime lastMessageSent;

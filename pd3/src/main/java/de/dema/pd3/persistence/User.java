@@ -3,6 +3,7 @@ package de.dema.pd3.persistence;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -13,6 +14,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 @Entity
 @Cacheable
@@ -60,6 +62,9 @@ public class User implements Serializable {
     
     @OneToMany(mappedBy = "id.user", cascade = CascadeType.REMOVE)
     private Set<ChatroomUser> chatroomUsers;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private PasswordResetToken passwordResetToken;
 	
 	public User() {
 	}
@@ -190,6 +195,115 @@ public class User implements Serializable {
 
 	public void setChatroomUsers(Set<ChatroomUser> chatroomUsers) {
 		this.chatroomUsers = chatroomUsers;
+	}
+
+	public PasswordResetToken getPasswordResetToken() {
+		return passwordResetToken;
+	}
+
+	public void setPasswordResetToken(PasswordResetToken passwordResetToken) {
+		this.passwordResetToken = passwordResetToken;
+	}
+
+	public static class Builder {
+
+		private User user = new User();
+		
+		public Builder lastLogin(LocalDateTime lastLogin) {
+			user.lastLogin = lastLogin;
+			return this;
+		}
+
+		public Builder email(String email) {
+			user.email = email;
+			return this;
+		}
+
+		public Builder password(String password) {
+			user.password = password;
+			return this;
+		}
+
+		public Builder locked() {
+			user.locked = true;
+			return this;
+		}
+
+		public Builder idCardNumber(String idCardNumber) {
+			user.idCardNumber = idCardNumber;
+			return this;
+		}
+
+		public Builder forename(String forename) {
+			user.forename = forename;
+			return this;
+		}
+
+		public Builder surname(String surname) {
+			user.surname = surname;
+			return this;
+		}
+
+		public Builder street(String street) {
+			user.street = street;
+			return this;
+		}
+
+		public Builder zip(String zip) {
+			user.zip = zip;
+			return this;
+		}
+
+		public Builder district(String district) {
+			user.district = district;
+			return this;
+		}
+
+		public Builder countryCode(String countryCode) {
+			user.countryCode = countryCode;
+			return this;
+		}
+
+		public Builder phone(String phone) {
+			user.phone = phone;
+			return this;
+		}
+
+		public Builder birthday(LocalDate birthday) {
+			user.birthday = birthday;
+			return this;
+		}
+
+		public Builder male(boolean male) {
+			user.male = male;
+			return this;
+		}
+
+		public Builder male() {
+			return male(true);
+		}
+		
+		public Builder female() {
+			return male(false);
+		}
+		
+		public Builder chatroomUsers(Set<ChatroomUser> chatroomUsers) {
+			user.chatroomUsers = chatroomUsers;
+			return this;
+		}
+
+		public Builder addChatroomUser(ChatroomUser chatroomUser) {
+			if (user.chatroomUsers == null) {
+				user.chatroomUsers = new HashSet<>();
+			}
+			user.chatroomUsers.add(chatroomUser);
+			return this;
+		}
+		
+		public User build() {
+			return user;
+		}
+		
 	}
 	
 }

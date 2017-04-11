@@ -1,6 +1,7 @@
 package de.dema.pd3.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -28,11 +29,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private Pd3AuthenticationSuccessHandler successHandler;
 	
+	// Der Wert kann in der Run Config als VM-Parameter gesetzt werden: -Ddebugpanel=true
+	@Value("${debugpanel:false}")
+	private boolean debug;
+	
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
                 .antMatchers("/", "/public/**", "/css/**", "/js/**", "/img/**", "/db/**", "/webjars/**").permitAll()
+                .antMatchers("/debug/**").access(debug ? "permitAll" : "denyAll")
                 .anyRequest().authenticated()
                 .and()
             .requiresChannel().anyRequest().requiresSecure()
@@ -50,7 +56,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         		.userDetailsService(userDetailsService)
         		.tokenValiditySeconds(THREE_MONTH_IN_SECONDS);
 //        		.authenticationSuccessHandler(successHandler); -- geht nicht, wenn SESSIONID gelöscht und Seite refresht wird - es erfolgt immer ein Redirect zu Home
-        
+
         // Bei aktiviertem CSRF geht die H2 Console nicht und es wird daher deaktiviert
         http.csrf().disable();
         http.headers().frameOptions().disable();

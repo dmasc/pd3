@@ -25,4 +25,16 @@ public class CommentVote extends VoteBase {
 				+ ", getSelectedOption()=" + getSelectedOption() + ", getVoteTimestamp()=" + getVoteTimestamp() + "]";
 	}
 
+	public static class Builder extends VoteBase.Builder<CommentVote> {
+
+		public Builder() {
+			super(new CommentVote());
+		}
+		
+		public void comment(Comment comment) {
+			build().comment = comment;
+		}
+		
+	}
+	
 }

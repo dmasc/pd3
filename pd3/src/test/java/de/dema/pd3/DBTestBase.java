@@ -18,6 +18,7 @@ import de.dema.pd3.persistence.ChatroomUserRepository;
 import de.dema.pd3.persistence.CommentRepository;
 import de.dema.pd3.persistence.CommentVoteRepository;
 import de.dema.pd3.persistence.MessageRepository;
+import de.dema.pd3.persistence.PasswordResetTokenRepository;
 import de.dema.pd3.persistence.TopicRepository;
 import de.dema.pd3.persistence.TopicVoteRepository;
 import de.dema.pd3.persistence.UserRepository;
@@ -55,6 +56,9 @@ public class DBTestBase implements RepositoryProvider {
     
     @Autowired
     protected MessageRepository messageRepo;
+    
+    @Autowired
+	protected PasswordResetTokenRepository passwordResetTokenRepo;
     
     @Autowired
     protected DataSource dataSource;
@@ -111,6 +115,11 @@ public class DBTestBase implements RepositoryProvider {
 	@Override
 	public UserRepository getUserRepository() {
 		return userRepo;
+	}
+
+	@Override
+	public PasswordResetTokenRepository getPasswordResetTokenRepository() {
+		return passwordResetTokenRepo;
 	}
 
 }

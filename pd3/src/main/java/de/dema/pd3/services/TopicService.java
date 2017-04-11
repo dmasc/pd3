@@ -64,14 +64,8 @@ public class TopicService {
     }
 
     private TopicModel mapTopic(Topic topic) {
-        TopicModel model = new TopicModel();
-        model.setAuthor(topic.getAuthor().getForename() + " " + topic.getAuthor().getSurname());
-        model.setDeadline(topic.getDeadline());
-        model.setDescription(topic.getDescription());
-        model.setId(topic.getId());
+        TopicModel model = TopicModel.map(topic);
         model.setParticipants(voteRepo.countByTopic(topic));
-        model.setTitle(topic.getTitle());
-
         return model;
     }
 

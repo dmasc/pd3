@@ -105,5 +105,50 @@ public class Comment implements Serializable {
 	public void setVotes(Set<CommentVote> votes) {
 		this.votes = votes;
 	}
+
+	public static class Builder {
+		
+		private Comment comment = new Comment();
+		
+		public Builder creationDate(LocalDateTime creationDate) {
+			comment.creationDate = creationDate;
+			return this;
+		}
+
+		public Builder text(String text) {
+			comment.text = text;
+			return this;
+		}
+
+		public Builder replies(Set<Comment> replies) {
+			comment.replies = replies;
+			return this;
+		}
+
+		public Builder parent(Comment parent) {
+			comment.parent = parent;
+			return this;
+		}
+
+		public Builder topic(Topic topic) {
+			comment.topic = topic;
+			return this;
+		}
+
+		public Builder author(User author) {
+			comment.author = author;
+			return this;
+		}
+
+		public Builder votes(Set<CommentVote> votes) {
+			comment.votes = votes;
+			return this;
+		}
+
+		public Comment build() {
+			return comment;
+		}
+
+	}
 	
 }

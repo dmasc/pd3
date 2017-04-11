@@ -68,5 +68,35 @@ public class Message implements Serializable {
 	public void setRoom(Chatroom room) {
 		this.room = room;
 	}
+
+	public static class Builder {
+		
+		private Message msg = new Message();
+		
+		public Builder sender(User sender) {
+			msg.sender = sender;
+			return this;
+		}
+
+		public Builder sendTimestamp(LocalDateTime sendTimestamp) {
+			msg.sendTimestamp = sendTimestamp;
+			return this;
+		}
+
+		public Builder text(String text) {
+			msg.text = text;
+			return this;
+		}
+
+		public Builder room(Chatroom room) {
+			msg.room = room;
+			return this;
+		}
+		
+		public Message build() {
+			return msg;
+		}
+		
+	}
 	
 }

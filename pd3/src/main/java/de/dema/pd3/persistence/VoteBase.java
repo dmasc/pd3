@@ -68,4 +68,33 @@ public class VoteBase {
 		this.voteTimestamp = voteTimestamp;
 	}
 
+	protected static class Builder<T extends VoteBase> {
+
+		private T vote;
+
+		public Builder(T vote) {
+			this.vote = vote;
+		}
+		
+		public Builder<T> user(User user) {
+			vote.setUser(user);
+			return this;
+		}
+
+		public Builder<T> selectedOption(VoteOption selectedOption) {
+			vote.setSelectedOption(selectedOption);
+			return this;
+		}
+
+		public Builder<T> voteTimestamp(LocalDateTime voteTimestamp) {
+			vote.setVoteTimestamp(voteTimestamp);
+			return this;
+		}
+		
+		public T build() {
+			return vote;
+		}
+		
+	}
+	
 }
