@@ -1,3 +1,5 @@
+11.04.2017: WICHTIG: Um die Systemzeit zu ermitteln, bitte immer nur noch die PD3-Klasse Clock verwenden!
+
 11.04.2017: Wenn beim Start folgendes angegeben wird, dann zeigt sich ein "Test- und Debug-Panel", wenn man mit der Maus am oberen Rand der Seite ist:
 
 -Ddebugpanel=true
