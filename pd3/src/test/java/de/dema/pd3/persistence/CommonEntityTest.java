@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-import de.dema.pd3.DBTestBase;
+import de.dema.pd3.FullContextTestBase;
 import de.dema.pd3.TestUtil;
 
-public class CommonEntityTest extends DBTestBase {
+public class CommonEntityTest extends FullContextTestBase {
 
     @Test
     public void testCommentDeletionAlsoRemovesChildCommentsAndLikes() {

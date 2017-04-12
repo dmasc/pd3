@@ -10,8 +10,7 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 /**
- * Validate Postleitzahl
- * Created by Ronny on 22.03.2017.
+ * Annotation für {@linkplain PersoIdValidator}.
  */
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)

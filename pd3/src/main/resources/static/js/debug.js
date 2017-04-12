@@ -85,7 +85,7 @@ function debug_register() {
 		$("input[name='district']").val("Hamburg");
 		$("input[name='phone']").val("0172-1234567");
 		$("input[name='birthday']").val("13.09.1955");
-		$("input[name='idCardNumber']").val("T227468995");
+		$("input[name='idCardNumber']").val("1220000016D");
 		indicateSuccess($("#debug-panel-fillout-register-form"), true);
 	} else {
 		indicateSuccess($("#debug-panel-fillout-register-form"), false);

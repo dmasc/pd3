@@ -96,7 +96,7 @@ div.room-info div.actions form label {
 
 div.room-content {
 	overflow: auto;
-	font-size: 0.9em;
+	font-size: 0.87em;
 	padding: 8px;
 	height: 100%;
 	background-color: #FFFDFA;
@@ -113,14 +113,10 @@ div.room-content div.message-text {
 div.room-content span.timestamp {
 	color: grey;
 	margin-right: 10px;
+	font-size: 0.95em;
 }
 
-div.room div.members a,
-div.room-content a.user {
-	color: #b19448;
-}
-
-div.room div.members a {
+div.room div.members a.user {
 	margin-right: 10px;
 	font-size: 0.8em;
 	color: #496ea7;

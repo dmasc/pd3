@@ -16,8 +16,6 @@ import de.dema.pd3.services.UserService;
 
 /**
  * Handler für die Nachverarbeitung eines erfolgreichen Logins.
- *  
- * @author dmasc
  */
 public class Pd3AuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
@@ -37,7 +35,9 @@ public class Pd3AuthenticationSuccessHandler extends SavedRequestAwareAuthentica
 		
 		userService.deletePasswordResetToken(userId);
 		
-		super.onAuthenticationSuccess(request, response, authentication);
+		if (request != null) {
+			super.onAuthenticationSuccess(request, response, authentication);
+		}
 	}
 
 }

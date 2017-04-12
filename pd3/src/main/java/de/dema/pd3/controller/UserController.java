@@ -55,13 +55,15 @@ public class UserController {
     }
 
     @PostMapping("/public/register")
-    public String registerSubmit(@Valid @ModelAttribute RegisterUserModel user, BindingResult bindingResult) {
+    public String registerSubmit(@Valid @ModelAttribute RegisterUserModel user, BindingResult bindingResult, RedirectAttributes attr) {
     	log.debug("register form submitted [data:{}]", user);
         if (bindingResult.hasErrors()) {
             log.debug("register form invalid [data:{}]", user);
             return "/public/register";
         }
-        return "public/home";
+        Long userId = userService.registerUser(user);
+        attr.addAttribute("id", userId);
+        return "redirect:/user/profile";
     }
 	
     @GetMapping("/user/profile")
@@ -87,7 +89,7 @@ public class UserController {
     }
     
     @GetMapping("/user/inbox")
-    public String userInbox(Model model, @RequestParam(value = "selRoom", required = false) Long roomId, Authentication auth) {
+    public String userInbox(Model model, @RequestParam(value = "room", required = false) Long roomId, Authentication auth) {
 		Long userId = Pd3Util.currentUserId(auth);
     	
     	boolean userRoomAssociationExists = false;
@@ -138,7 +140,7 @@ public class UserController {
         	redirect = "/user/profile";
     	} else if ("room".equals(target)) {
     		userService.sendMessageToChatroom(text, userId, targetId);
-        	attr.addAttribute("selRoom", targetId);
+        	attr.addAttribute("room", targetId);
         	redirect = "/user/inbox";
     	}
     	

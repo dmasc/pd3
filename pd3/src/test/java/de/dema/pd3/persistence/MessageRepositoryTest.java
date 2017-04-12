@@ -10,10 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import de.dema.pd3.Clock;
-import de.dema.pd3.DBTestBase;
+import de.dema.pd3.FullContextTestBase;
 import de.dema.pd3.TestUtil;
 
-public class MessageRepositoryTest extends DBTestBase {
+public class MessageRepositoryTest extends FullContextTestBase {
 
 	@Test
 	public void testLoadMoreMessagesLoadsCorrectMessages() {

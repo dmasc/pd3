@@ -1,14 +1,14 @@
 package de.dema.pd3.validation;
 
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
 /**
- * Validate Personalausweisnummer
- * Created by Ronny on 22.03.2017.
+ * Validator für Personalausweisnummern.
  */
 public class PersoIdValidator implements ConstraintValidator<PersoId, String> {
 

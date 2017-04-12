@@ -10,7 +10,6 @@ import de.dema.pd3.Clock;
 
 /**
  * Validates birthday
- * Created by Ronny on 22.03.2017.
  */
 public class AgeValidator implements ConstraintValidator<Age, String> {
 

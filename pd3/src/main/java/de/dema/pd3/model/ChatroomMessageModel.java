@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import de.dema.pd3.Pd3Util;
 import de.dema.pd3.persistence.Message;
 
+/**
+ * Model für eine einzelne Nachricht in einem Chatraum.
+ */
 public class ChatroomMessageModel {
 
 	private Long id;

@@ -1,5 +1,6 @@
 package de.dema.pd3.services;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -8,11 +9,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.servlet.ServletException;
+import javax.transaction.Transactional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -21,8 +26,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -44,6 +47,9 @@ import de.dema.pd3.persistence.PasswordResetToken;
 import de.dema.pd3.persistence.PasswordResetTokenRepository;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
+import de.dema.pd3.security.CurrentUser;
+import de.dema.pd3.security.Pd3AuthenticationSuccessHandler;
+import de.dema.pd3.security.Pd3UserDetailsService;
 
 @Service
 public class UserService {
@@ -54,7 +60,7 @@ public class UserService {
 	private UserRepository userRepo;
 
 	@Autowired
-	private UserDetailsService userDetailsService;
+	private Pd3UserDetailsService userDetailsService;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -74,21 +80,30 @@ public class UserService {
 	@Autowired
 	private MailSender mailSender;
 
+	@Autowired
+	private ConversionService conversionService;
+
+	@Autowired
+	private Pd3AuthenticationSuccessHandler authSuccessHandler;
+	
 	@Value("${spring.mail.username}")
 	private String pd3MailSenderAddress;
 
-	public User registerUser(RegisterUserModel userModel) {
+	public Long registerUser(RegisterUserModel userModel) {
 		log.debug("registering user [model:{}]", userModel);
 
 		User.Builder userBuilder = new User.Builder();
-		userBuilder.birthday(userModel.getBirthday() != null ? LocalDate.parse(userModel.getBirthday()) : null)
+		userBuilder.birthday(conversionService.convert(userModel.getBirthday(), LocalDate.class))
 				.district(userModel.getDistrict()).email(userModel.getEmail()).forename(userModel.getForename())
 				.idCardNumber(userModel.getIdCardNumber()).male(userModel.isMale()).password(passwordEncoder.encode(userModel.getPassword()))
 				.phone(userModel.getPhone()).street(userModel.getStreet()).surname(userModel.getSurname()).zip(userModel.getZip());
 
 		User user = userRepo.save(userBuilder.build());
 		log.info("user registered [userId:{}]", user.getId());
-		return user;
+
+		authenticateUser(user.getEmail());
+		
+		return user.getId();
 	}
 
 	public RegisterUserModel findRegisterUserById(Long id) {
@@ -209,7 +224,7 @@ public class UserService {
 	public boolean areNewMessagesAvailable(Long userId) {
 		log.debug("checking if new messages are available [userId:{}]", userId);
 		User user = userRepo.findOne(userId);
-		return user.getChatroomUsers().parallelStream()
+		return user.getChatroomUsers() != null && user.getChatroomUsers().parallelStream()
 				.filter(cu -> cu.isNotificationsActive() && (cu.getLastMessageRead() == null || cu.getLastMessageRead().isBefore(cu.getChatroom().getLastMessageSent())))
 				.findAny().isPresent();
 	}
@@ -257,7 +272,7 @@ public class UserService {
 		String url = contextPath + "/public/change-password?id=" + user.getId() + "&token=" + token;
 		String message = "Klicken Sie auf den nachfolgenden Link, um Ihr Passwort zurückzusetzen:\r\n" + url;
 		SimpleMailMessage email = new SimpleMailMessage();
-		email.setSubject("Reset Password");
+		email.setSubject("Zurücksetzen des Passworts für Ihr PD3-Benutzerkonto");
 		email.setText(message);
 		email.setTo(user.getEmail());
 		email.setFrom(pd3MailSenderAddress);
@@ -284,17 +299,26 @@ public class UserService {
 
 		deletePasswordResetToken(userId);
 	    
-		UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-	    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
-	    SecurityContextHolder.getContext().setAuthentication(authentication);
-	    log.info("programmatically logged in user [userId:{}]", userId);
+		authenticateUser(user.getEmail());
 	}
 
+	@Transactional
 	public void deletePasswordResetToken(Long userId) {
-		PasswordResetToken passToken = passwordTokenRepo.findByUserId(userId);
-		if (passToken != null) {
-			passwordTokenRepo.delete(passToken);
+		int count = passwordTokenRepo.deleteByUserId(userId);
+		if (count > 0) {
 			log.info("user password token deleted [userId:{}]", userId);
+		}
+	}
+
+	public void authenticateUser(String email) {
+		CurrentUser user = userDetailsService.loadUserByUsername(email);
+	    Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
+	    SecurityContextHolder.getContext().setAuthentication(authentication);
+	    try {
+			authSuccessHandler.onAuthenticationSuccess(null, null, authentication);
+			log.info("programmatically authenticated user [userId:{}]", user.getId());
+		} catch (IOException | ServletException e) {
+			log.error("failed to programmatically invoke authentication success handler [userId:{}]", user.getId(), e);
 		}
 	}
 	

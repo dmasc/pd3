@@ -15,7 +15,7 @@
 			<div class="room-choice-container">
 			<div style="height: 500px; overflow: auto;">
 				<div class="room-choice-item" th:each="room : ${rooms}" th:with="isSelectedRoom=${roomId != null and roomId == room.id}"
-						th:onclick="${not isSelectedRoom}?'window.location.href=\''+@{/user/inbox(selRoom=${room.id})}+'\''" 
+						th:onclick="${not isSelectedRoom}?'window.location.href=\''+@{/user/inbox(room=${room.id})}+'\''" 
 						th:classappend="${isSelectedRoom}?selected:(${room.unreadMessagesCount > 0}?new-message)">
 					<div class="room-choice-item-text"><span th:text="${room.name}"></span><span th:if="${room.unreadMessagesCount > 0}" th:text="${' ('+room.unreadMessagesCount+')'}"></span></div>
 				</div>

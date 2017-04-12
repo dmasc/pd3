@@ -26,7 +26,7 @@ import de.dema.pd3.persistence.UserRepository;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @TestPropertySource(locations="classpath:application.properties")
-public class DBTestBase implements RepositoryProvider {
+public class FullContextTestBase implements RepositoryProvider {
 	
 	protected static final Random r = new Random(); 
 

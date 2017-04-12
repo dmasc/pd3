@@ -31,12 +31,14 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
 		if (modelAndView != null) {
-			modelAndView.addObject("clock", Clock.class);
-			modelAndView.addObject("showDebugPanel", debug);
+			// modelAndView.addObject("clock", Clock.class); --> führt dazu, dass bei Redirects ein GET-Parameter namens 'clock' hinzugefügt wird.
+			// Sollte durch spring.mvc.ignore-default-model-on-redirect=true eigentlich abgeschaltet sein, ist es aber nicht.
+			request.setAttribute("clock", Clock.class);
+			request.setAttribute("showDebugPanel", debug);
 	
 			if (auth != null && auth.getPrincipal() instanceof CurrentUser) {
 				boolean newMessagesAvailable = userService.areNewMessagesAvailable(((CurrentUser) auth.getPrincipal()).getId());		
-				modelAndView.addObject("newMessagesAvailable", newMessagesAvailable);
+				request.setAttribute("newMessagesAvailable", newMessagesAvailable);
 			}
 		}
 	}

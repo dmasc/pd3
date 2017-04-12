@@ -12,17 +12,17 @@
         <h1>Registrierungsformular</h1>
 
 		<form action="#" th:action="@{/public/register}" th:object="${registerUserModel}" method="post" class="default">
-			<label>E-Mail-Adresse:</label><input type="text" th:field="*{email}" /> <label th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></label><br/>
-			<label>Passwort:</label><input type="password" th:field="*{password}" /> <label th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></label><br/>
-			<label>Passwort wiederholen:</label><input type="password" th:field="*{passwordRepeat}" /> <label th:if="${#fields.hasErrors('passwordRepeat')}" th:errors="*{passwordRepeat}"></label><label th:if="${#fields.hasErrors('global')}" th:errors="*{global}"></label><br/>
-			<label>Vorname:</label><input type="text" th:field="*{forename}" /> <label th:if="${#fields.hasErrors('forename')}" th:errors="*{forename}"></label><br/>
-			<label>Nachname:</label><input type="text" th:field="*{surname}" /> <label th:if="${#fields.hasErrors('surname')}" th:errors="*{surname}"></label><br/>
-			<label>Straße und Hausnummer:</label><input type="text" th:field="*{street}" /> <label th:if="${#fields.hasErrors('street')}" th:errors="*{street}"></label><br/>
-			<label>PLZ:</label><input type="text" th:field="*{zip}" /> <label th:if="${#fields.hasErrors('zip')}" th:errors="*{zip}"></label><br/>
-			<label>Ort:</label><input type="text" th:field="*{district}" /> <label th:if="${#fields.hasErrors('district')}" th:errors="*{district}"></label><br/>
-			<label>Telefon:</label><input type="text" th:field="*{phone}" /> <label th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></label><br/>
-			<label>Geburtsdatum (TT.MM.JJJJ):</label><input type="text" th:field="*{birthday}" /> <label th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}"></label><br/>
-			<label>Personalausweisnummer:</label><input type="text" th:field="*{idCardNumber}" /> <label th:if="${#fields.hasErrors('idCardNumber')}" th:errors="*{idCardNumber}"></label><br/>
+			<label>E-Mail-Adresse:</label><input type="text" th:field="*{email}" /> <label th:errors="*{email}" class="field-error"></label><br/>
+			<label>Passwort:</label><input type="password" th:field="*{password}" /> <label class="field-error"></label><br/>
+			<label>Passwort wiederholen:</label><input type="password" th:field="*{passwordRepeat}" /> <label th:errors="*{passwordRepeat}" class="field-error"></label><label th:errors="*{global}" class="field-error"></label><br/>
+			<label>Vorname:</label><input type="text" th:field="*{forename}" /> <label th:errors="*{forename}" class="field-error"></label><br/>
+			<label>Nachname:</label><input type="text" th:field="*{surname}" /> <label th:errors="*{surname}" class="field-error"></label><br/>
+			<label>Straße und Hausnummer:</label><input type="text" th:field="*{street}" /> <label th:errors="*{street}" class="field-error"></label><br/>
+			<label>PLZ:</label><input type="text" th:field="*{zip}" /> <label th:errors="*{zip}" class="field-error"></label><br/>
+			<label>Ort:</label><input type="text" th:field="*{district}" /> <label th:errors="*{district}" class="field-error"></label><br/>
+			<label>Telefon:</label><input type="text" th:field="*{phone}" /> <label th:errors="*{phone}" class="field-error"></label><br/>
+			<label>Geburtsdatum (TT.MM.JJJJ):</label><input type="text" th:field="*{birthday}" /> <label th:errors="*{birthday}" class="field-error"></label><br/>
+			<label>Personalausweisnummer:</label><input type="text" th:field="*{idCardNumber}" /> <label th:errors="*{idCardNumber}" class="field-error"></label><br/>
 			<input type="submit" value="Registrieren" />			
 		</form>
 		

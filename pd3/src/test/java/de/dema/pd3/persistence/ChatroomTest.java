@@ -10,10 +10,10 @@ import org.junit.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-import de.dema.pd3.DBTestBase;
+import de.dema.pd3.FullContextTestBase;
 import de.dema.pd3.TestUtil;
 
-public class ChatroomTest extends DBTestBase {
+public class ChatroomTest extends FullContextTestBase {
 
 	@After
 	public void init() {

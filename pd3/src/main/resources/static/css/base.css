@@ -251,3 +251,9 @@ a.user {
 a.user:hover {
 	text-decoration: underline;
 }
+
+form.default label.field-error {
+	color: red;
+	white-space: nowrap;
+	width: auto;
+}
