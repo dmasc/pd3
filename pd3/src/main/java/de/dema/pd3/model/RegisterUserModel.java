@@ -55,6 +55,8 @@ public class RegisterUserModel {
 	
 	private boolean male;
 
+	private String profilePictureData;
+
 	public Long getId() {
 		return id;
 	}
@@ -159,6 +161,14 @@ public class RegisterUserModel {
 		this.male = male;
 	}
 
+	public String getProfilePictureData() {
+		return profilePictureData;
+	}
+
+	public void setProfilePictureData(String profilePictureData) {
+		this.profilePictureData = profilePictureData;
+	}
+
 	public static RegisterUserModel map(User user) {
 		if (user == null) {
 			return null;
@@ -176,6 +186,7 @@ public class RegisterUserModel {
 		model.setStreet(user.getStreet());
 		model.setSurname(user.getSurname());
 		model.setZip(user.getZip());
+		model.setProfilePictureData(user.getProfilePictureData());
 		
 		return model;
 	}

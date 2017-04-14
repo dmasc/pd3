@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import de.dema.pd3.Pd3Util;
@@ -86,6 +87,18 @@ public class UserController {
     	}
 
         return "profile";
+    }
+    
+    @PostMapping("/user/upload-profile-picture")
+    public String uploadProfilePicture(@RequestParam("file") MultipartFile file, Authentication auth) {
+    	userService.storeProfilePicture(Pd3Util.currentUserId(auth), file);
+		return "redirect:/user/profile";
+    }
+    
+    @PostMapping("/user/delete-profile-picture")
+    public String deleteProfilePicture(Authentication auth) {
+    	userService.deleteProfilePicture(Pd3Util.currentUserId(auth));
+    	return "redirect:/user/profile";
     }
     
     @GetMapping("/user/inbox")
@@ -239,7 +252,7 @@ public class UserController {
     	}
     	return "public/change-password";
     }
-    
+
     public static class EmailModel {
     	
     	@Email

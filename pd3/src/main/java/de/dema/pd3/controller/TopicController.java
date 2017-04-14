@@ -1,6 +1,5 @@
 package de.dema.pd3.controller;
 
-import de.dema.pd3.Pd3Util;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import de.dema.pd3.Pd3Util;
 import de.dema.pd3.VoteOption;
 import de.dema.pd3.model.TopicModel;
 import de.dema.pd3.model.TopicVoteModel;
@@ -69,6 +69,8 @@ public class TopicController {
 		if (topicVote != null) {
 			model.addAttribute("topicVote", topicVote.getSelectedOption());
 		}
+		User user = userRepo.findOne(userId);
+		model.addAttribute("userProfilePictureData", user.getProfilePictureSmallData());
 		model.addAttribute("comments", commentService.loadByTopic(id, userId, pageable));
 		
 		return "topicdetails";

@@ -3,6 +3,7 @@ package de.dema.pd3.services;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +30,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import de.dema.pd3.Clock;
 import de.dema.pd3.Pd3Util;
@@ -41,6 +43,9 @@ import de.dema.pd3.persistence.ChatroomRepository;
 import de.dema.pd3.persistence.ChatroomUser;
 import de.dema.pd3.persistence.ChatroomUser.ChatroomUserId;
 import de.dema.pd3.persistence.ChatroomUserRepository;
+import de.dema.pd3.persistence.Image;
+import de.dema.pd3.persistence.Image.ImageType;
+import de.dema.pd3.persistence.ImageRepository;
 import de.dema.pd3.persistence.Message;
 import de.dema.pd3.persistence.MessageRepository;
 import de.dema.pd3.persistence.PasswordResetToken;
@@ -78,6 +83,9 @@ public class UserService {
 	private PasswordResetTokenRepository passwordTokenRepo;
 
 	@Autowired
+	private ImageRepository imageRepo;
+	
+	@Autowired
 	private MailSender mailSender;
 
 	@Autowired
@@ -89,6 +97,12 @@ public class UserService {
 	@Value("${spring.mail.username}")
 	private String pd3MailSenderAddress;
 
+	/**
+	 * Erzeugt einen {@linkplain User}, speichert in der DB und gibt die zugewiesene ID zurück.
+	 * 
+	 * @param userModel Das Model mit den Daten des Benutzers, der gespeichert werden soll.
+	 * @return Die ID des Benutzerdatensatzes ind er Datenbank.
+	 */
 	public Long registerUser(RegisterUserModel userModel) {
 		log.debug("registering user [model:{}]", userModel);
 
@@ -108,6 +122,61 @@ public class UserService {
 
 	public RegisterUserModel findRegisterUserById(Long id) {
 		return RegisterUserModel.map(userRepo.findOne(id));
+	}
+
+	public Long storeProfilePicture(Long userId, MultipartFile file) {
+		log.debug("storing user profile picture [userId:{}]", userId);
+
+		if (!file.isEmpty()) {
+			try {
+				User user = userRepo.findOne(userId);
+				Image image = new Image();
+				String formatName = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.') + 1).toUpperCase();
+				byte[] originalImageBytes = file.getBytes();
+				image.setData(Base64.getEncoder().encodeToString(ImageService.resize(originalImageBytes, formatName, 300, 300)));
+				image.setOwner(user);
+				image.setType(ImageType.valueOf(formatName));
+				image.setUploadTimestamp(Clock.now());
+				Image big = imageRepo.save(image);
+				
+				image = new Image();
+				image.setData(Base64.getEncoder().encodeToString(ImageService.resize(originalImageBytes, formatName, 50, 50)));
+				image.setOwner(user);
+				image.setType(ImageType.valueOf(formatName));
+				image.setUploadTimestamp(Clock.now());
+				image = imageRepo.save(image);
+
+				if (user.getProfilePicture() != null) {
+					deleteProfilePicture(userId);
+				}
+				user.setProfilePicture(big);
+				user.setProfilePictureSmall(image);
+				userRepo.save(user);
+				log.info("user profile picture stored [userId:{}]", userId);
+				return image.getId();
+			} catch (IOException e) {
+				log.error("failed to store user profile image [filename:{}]", file.getOriginalFilename(), e);
+			}
+		} else {
+			log.debug("storing user profile picture failed, uploaded file is empty [userId:{}]", userId);
+		}
+		return null;
+	}
+	
+	public void deleteProfilePicture(Long userId) {
+		log.debug("deleting user profile picture [userId:{}]", userId);
+		
+		User user = userRepo.findOne(userId);
+		if (user != null && user.getProfilePicture() != null) {
+			Image big = user.getProfilePicture();
+			Image small = user.getProfilePictureSmall();
+			user.setProfilePicture(null);
+			user.setProfilePictureSmall(null);
+			userRepo.save(user);
+			imageRepo.delete(big);
+			imageRepo.delete(small);
+			log.info("user profile picture deleted [userId:{}]", userId);
+		}
 	}
 
 	public void sendMessage(String text, Long senderId, Long recipientId) {

@@ -2,13 +2,29 @@
 <html layout:decorator="layout/default" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:spring="http://www.springframework.org/tags">
 <head>
 	<title>Benutzerprofil</title>
+    <link rel="stylesheet" type="text/css" href="/css/profile.css" th:href="@{/css/profile.css}" />
 </head>
 
 <body>
 
 	<div layout:fragment="content" class="content" th:with="isCurrentUser=${user.id eq #authentication.principal.id}">
 		
-		<h1 th:text="${user.forename}+' '+${user.surname}"></h1>
+        <div class="profile-picture">
+            <div class="img-container">
+	            <form th:action="@{/user/delete-profile-picture}" th:if="${isCurrentUser and user.profilePictureData != null}" method="post" class="profile-picture-delete-form">
+	                <button type="submit" th:alt-title="@{Profilbild löschen}"><img th:src="@{/img/delete.svg}" height="16" width="16" /></button>
+	            </form>
+	            <img th:src="@{${user.profilePictureData != null} ? 'data:image/jpeg;base64,' + ${user.profilePictureData} : '/img/user-round-' + (${not user.male} ? 'fe' : '') + 'male-1.svg'}" class="profile-picture" />
+            </div>
+            <form th:action="@{/user/upload-profile-picture}" th:if="${isCurrentUser}" method="post" enctype="multipart/form-data">
+                <label>Neues Profilbild hochladen: </label><br/><input type="file" name="file" /><button type="submit" th:alt-title="@{Ausgewählte Datei hochladen}"> 
+                    <img th:src="@{/img/upload.svg}" height="16" width="16" />
+                </button>
+            </form>
+        </div>
+        
+		<h1 th:text="${user.forename} + ' ' + ${user.surname}"></h1>
+		<div class="clear"></div>
 		<div th:if="${not isCurrentUser}">
 			<h2>Persönliche Nachricht senden</h2>
 			<form th:action="@{/user/send-message/user}" method="post">

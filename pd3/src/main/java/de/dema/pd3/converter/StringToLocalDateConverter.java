@@ -8,8 +8,8 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 /**
- * Konvertiert Datumsangaben in Form von Strings zu LocalDate-Objekte. Die Klasse wird von Spring automatisch gefunden
- * und im {@linkplain ConversionService} bei Bedarf verwendet. 
+ * Konvertiert Datumsangaben in Form von Strings zu {@linkplain LocalDate}-Objekte. Die Klasse wird von Spring 
+ * automatisch gefunden und im {@linkplain ConversionService} bei Bedarf verwendet. 
  */
 @Component
 public class StringToLocalDateConverter implements Converter<String, LocalDate> {

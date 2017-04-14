@@ -8,6 +8,12 @@ $(function() {
 			$form.find("input.like:last").attr("src", "/img/thumb-down-" + (result && !like ? "black" : "white") + ".svg");
 		});
 	});
+	
+	$("#movingcommentpanel textarea.comment").keydown(function(e) {
+		if (e.keyCode == 27) {
+			hideMovingCommentPanel();
+		}
+	});
 });
 
 function showMovingCommentPanel(parentId, topicId, page) {

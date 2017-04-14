@@ -37,8 +37,7 @@ public class TopicService {
 	}
 
 	public TopicModel loadTopic(Long id) {
-		Topic topic = topicRepo.findOne(id);
-		return topic != null ? mapTopic(topic) : null;
+		return mapTopic(topicRepo.findOne(id));
 	}
 
     public TopicModel save(TopicModel topicModel, Long userId) {
@@ -63,6 +62,10 @@ public class TopicService {
     }
 
     private TopicModel mapTopic(Topic topic) {
+    	if (topic == null) {
+    		return null;
+    	}
+    	
         TopicModel model = TopicModel.map(topic);
         model.setParticipants(voteRepo.countByTopic(topic));
         return model;

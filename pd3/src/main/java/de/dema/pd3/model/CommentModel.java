@@ -27,6 +27,8 @@ public class CommentModel {
 
 	private List<CommentModel> replies;
 	
+	private String userImageData;
+	
 	public Long getId() {
 		return id;
 	}
@@ -91,6 +93,14 @@ public class CommentModel {
 		this.userLikeSelection = userLikeSelection;
 	}
 
+	public String getUserImageData() {
+		return userImageData;
+	}
+
+	public void setUserImageData(String userImageData) {
+		this.userImageData = userImageData;
+	}
+
 	public static CommentModel map(Comment comment, Function<Comment, VoteOption> userLikeSelection) {
 		CommentModel model = new CommentModel();
 		model.setId(comment.getId());
@@ -100,6 +110,7 @@ public class CommentModel {
 		model.setText(Pd3Util.injectHtmlTags(comment.getText()));
 		model.setUserLikeSelection(userLikeSelection.apply(comment));
 		model.setAuthorGenderMale(comment.getAuthor().isMale());
+		model.setUserImageData(comment.getAuthor().getProfilePictureSmallData());
 		List<CommentModel> repliesList = comment.getReplies().stream().map(c -> CommentModel.map(c, userLikeSelection))
 				.sorted((m1, m2) -> m2.getCreationTimestamp().compareTo(m1.getCreationTimestamp()))
 				.collect(Collectors.toList());

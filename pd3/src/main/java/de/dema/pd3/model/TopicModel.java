@@ -23,6 +23,8 @@ public class TopicModel {
 	private VoteOption userVoteSelection;
 	
 	private LocalDateTime creationDate;
+	
+	private String userImageData;
 
 	public Long getId() {
 		return id;
@@ -88,6 +90,14 @@ public class TopicModel {
 		this.creationDate = creationDate;
 	}
 
+	public String getUserImageData() {
+		return userImageData;
+	}
+
+	public void setUserImageData(String userImageData) {
+		this.userImageData = userImageData;
+	}
+
 	public boolean isRunning() {
 		return Clock.now().isBefore(this.deadline);
 	}
@@ -104,6 +114,7 @@ public class TopicModel {
         model.setDescription(topic.getDescription());
         model.setId(topic.getId());
         model.setTitle(topic.getTitle());
+        model.setUserImageData(topic.getAuthor().getProfilePictureSmallData());
 
         return model;
 	}

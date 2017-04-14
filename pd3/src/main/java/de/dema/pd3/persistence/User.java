@@ -65,6 +65,15 @@ public class User implements Serializable {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
     private PasswordResetToken passwordResetToken;
+    
+    @OneToOne
+    private Image profilePicture;
+    
+    @OneToOne
+    private Image profilePictureSmall;
+    
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.REMOVE)
+    private Set<Image> images;
 	
 	public User() {
 	}
@@ -203,6 +212,30 @@ public class User implements Serializable {
 
 	public void setPasswordResetToken(PasswordResetToken passwordResetToken) {
 		this.passwordResetToken = passwordResetToken;
+	}
+
+	public Image getProfilePicture() {
+		return profilePicture;
+	}
+
+	public void setProfilePicture(Image profilePicture) {
+		this.profilePicture = profilePicture;
+	}
+
+	public String getProfilePictureData() {
+		return getProfilePicture() != null ? getProfilePicture().getData() : null;
+	}
+
+	public Image getProfilePictureSmall() {
+		return profilePictureSmall;
+	}
+
+	public void setProfilePictureSmall(Image profilePictureSmall) {
+		this.profilePictureSmall = profilePictureSmall;
+	}
+
+	public String getProfilePictureSmallData() {
+		return getProfilePictureSmall() != null ? getProfilePictureSmall().getData() : null;
 	}
 
 	public static class Builder {

@@ -1,9 +1,11 @@
 package de.dema.pd3;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -11,12 +13,14 @@ import java.util.Random;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.core.io.Resource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -32,6 +36,9 @@ import de.dema.pd3.persistence.Comment;
 import de.dema.pd3.persistence.CommentRepository;
 import de.dema.pd3.persistence.CommentVote;
 import de.dema.pd3.persistence.CommentVoteRepository;
+import de.dema.pd3.persistence.Image;
+import de.dema.pd3.persistence.Image.ImageType;
+import de.dema.pd3.persistence.ImageRepository;
 import de.dema.pd3.persistence.Message;
 import de.dema.pd3.persistence.Topic;
 import de.dema.pd3.persistence.TopicRepository;
@@ -39,6 +46,7 @@ import de.dema.pd3.persistence.TopicVote;
 import de.dema.pd3.persistence.TopicVoteRepository;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.persistence.UserRepository;
+import de.dema.pd3.services.ImageService;
 import de.dema.pd3.services.UserService;
 
 @Controller
@@ -68,6 +76,9 @@ public class TestDataController {
 	private ChatroomRepository chatroomRepo;
 	
 	@Autowired
+	private ImageRepository imageRepo;
+	
+	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
 	@Autowired
@@ -79,6 +90,12 @@ public class TestDataController {
 	// Der Wert kann in der Run Config als VM-Parameter gesetzt werden: -Dtestdata=true
 	@Value("${testdata:false}")
 	private boolean shouldCreateTestData;
+	
+	@Value(value = "classpath:static/img/fcb.svg")
+	private Resource fcbImage;
+	
+	@Value(value = "classpath:static/img/woman-face.jpg")
+	private Resource userImage;
 	
 	@PostConstruct
 	public void createTestData() {
@@ -139,7 +156,36 @@ public class TestDataController {
 		LocalDate birthday = Clock.today().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12));
 		userBuilder.birthday(birthday).district("Hamburg").email("jutta").forename("Jutta").idCardNumber("T210001741").female()
 				.password(passwordEncoder.encode("test")).phone("040-2225256").street("Otto-von-Bismark-Allee 32").surname("Sorin-Gießmann").zip("22177");
-		return userRepo.save(userBuilder.build());
+
+		User user = userRepo.save(userBuilder.build());
+		storeProfileImage(user, userImage, ImageType.JPG);
+		
+		return user;
+	}
+
+	private void storeProfileImage(User user, Resource imageResource, ImageType type) {
+		try {
+			byte[] data = IOUtils.toByteArray(imageResource.getInputStream());
+			Image image = new Image();
+			image.setData(Base64.getEncoder().encodeToString(ImageService.resize(data, type.getTypeString(), 300, 300)));
+			image.setOwner(user);
+			image.setType(type);
+			image.setUploadTimestamp(Clock.now());
+			Image big = imageRepo.save(image);
+			user.setProfilePicture(big);
+			
+			image = new Image();
+			image.setData(Base64.getEncoder().encodeToString(ImageService.resize(data, type.getTypeString(), 50, 50)));
+			image.setOwner(user);
+			image.setType(type);
+			image.setUploadTimestamp(Clock.now());
+			image = imageRepo.save(image);
+			user.setProfilePictureSmall(image);
+			
+			userRepo.save(user);
+		} catch (IOException e) {
+			log.error("failed to store user image [path:{}]", imageResource.getFilename(), e);
+		}
 	}
 
 	private User createDefaultTestUser() {
@@ -147,7 +193,11 @@ public class TestDataController {
 		LocalDate birthday = Clock.today().minusYears(r.nextInt(50) + 18).minusMonths(r.nextInt(12));
 		userBuilder.birthday(birthday).district("Hamburg").email("a").forename("Franz").idCardNumber("T220001293").male()
 				.password(passwordEncoder.encode("")).phone("0171-1234567").street("Herbert-Weichmann-Straße 117").surname("Remmenscheid").zip("21709");
-		return userRepo.save(userBuilder.build());
+
+		User user = userRepo.save(userBuilder.build());
+		storeProfileImage(user, fcbImage, ImageType.SVG);
+		
+		return user;
 	}
 
 	private User createValidEmailUser() {

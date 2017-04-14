@@ -257,3 +257,7 @@ form.default label.field-error {
 	white-space: nowrap;
 	width: auto;
 }
+
+.clear {
+	clear: both;
+}
