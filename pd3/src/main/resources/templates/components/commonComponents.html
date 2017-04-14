@@ -13,9 +13,9 @@
 
 	<div th:fragment="comment (model, topicId, pageIndex)">
 		<div class="comment" th:id="${'comment_'+model.id}">
-<!-- 			<a th:href="@{/user/profile(id=${model.authorId})}" th:alt-title="${model.authorName}"> -->
+			<a th:href="@{/user/profile(id=${model.authorId})}" th:alt-title="${model.authorName}" class="usericon">
 			    <img th:src="@{${model.userImageData != null} ? 'data:image/jpeg;base64,' + ${model.userImageData} : '/img/user-round-' + (${not model.authorGenderMale} ? 'fe' : '') + 'male-1.svg'}" class="usericon" />
-<!-- 		    </a> -->
+		    </a>
 			<div class="comment-textblock">
 		   		<a th:href="@{/user/profile(id=${model.authorId})}" th:text="${model.authorName}" class="author"></a>
 		   		<span th:text="'am ' + ${{model.creationTimestamp}}" class="date"></span><br/>

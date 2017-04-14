@@ -16,8 +16,12 @@
 	            </form>
 	            <img th:src="@{${user.profilePictureData != null} ? 'data:image/jpeg;base64,' + ${user.profilePictureData} : '/img/user-round-' + (${not user.male} ? 'fe' : '') + 'male-1.svg'}" class="profile-picture" />
             </div>
-            <form th:action="@{/user/upload-profile-picture}" th:if="${isCurrentUser}" method="post" enctype="multipart/form-data">
-                <label>Neues Profilbild hochladen: </label><br/><input type="file" name="file" /><button type="submit" th:alt-title="@{Ausgewählte Datei hochladen}"> 
+            <div th:value="${fileSizeExceededLimit}"></div>
+            <form th:action="@{/user/upload-profile-picture}" th:if="${isCurrentUser}" method="post" enctype="multipart/form-data" class="default">
+                <label>Neues Profilbild hochladen (max. 5 MB):</label><br/>
+                <label th:if="${param.fileSizeExceededLimit}" class="field-error">Die ausgewählte Datei ist zu groß<br/></label>
+                <label th:if="${param.noFileSelected}" class="field-error">Bitte wählen Sie eine Datei aus<br/></label>
+                <input type="file" name="file" accept="image/*" /><button type="submit" th:alt-title="@{Ausgewählte Datei hochladen}"> 
                     <img th:src="@{/img/upload.svg}" height="16" width="16" />
                 </button>
             </form>

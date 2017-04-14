@@ -51,12 +51,22 @@ div.comment a.reply:hover {
 	text-decoration: underline;
 }
 
+div.comment a.usericon,
+div.comment div.usericon {
+    height: 50px; 
+    width: 50px; 
+    float: left; 
+    margin: 3px;
+    margin-left: 7px;
+    display: flex;
+    position: relative;
+}
+
 div.comment img.usericon {
-	height: 50px; 
-	width: 50px; 
-	float: left; 
-	margin: 3px;
-	margin-left: 7px;
+	max-height: 50px;
+	max-width: 50px;
+	margin: auto;
+	display: block;
 }
 
 div.comment div.comment-textblock {

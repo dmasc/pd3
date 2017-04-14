@@ -90,8 +90,11 @@ public class UserController {
     }
     
     @PostMapping("/user/upload-profile-picture")
-    public String uploadProfilePicture(@RequestParam("file") MultipartFile file, Authentication auth) {
-    	userService.storeProfilePicture(Pd3Util.currentUserId(auth), file);
+    public String uploadProfilePicture(@RequestParam("file") MultipartFile file, Authentication auth, RedirectAttributes attr) {
+    	Long imageId = userService.storeProfilePicture(Pd3Util.currentUserId(auth), file);
+    	if (imageId == null) {
+    		attr.addAttribute("noFileSelected", true);
+    	}
 		return "redirect:/user/profile";
     }
     

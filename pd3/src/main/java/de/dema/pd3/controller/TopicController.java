@@ -57,7 +57,7 @@ public class TopicController {
 	@GetMapping("/topic/details")
 	public String topicDetails(Model model, @RequestParam("id") Long id, Authentication auth,
 			@PageableDefault(sort = "creationDate", size = 10, direction = Direction.DESC) Pageable pageable) {
-		log.debug("showing details [topicID:{}]", id);
+		log.debug("showing topic details [topicId:{}]", id);
 		TopicModel topicModel = topicService.loadTopic(id);
 		if (topicModel == null) {
 			log.warn("requested topic does not exist [topicId:{}]", id);

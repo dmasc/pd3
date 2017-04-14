@@ -15,9 +15,15 @@ div.profile-picture div.img-container {
     display: flex;
 }
 
+div.profile-picture input[type='file'] {
+    width: 262px;
+}
+
 img.profile-picture {
 	margin: auto;
 	display: block;
+    max-width: 300px;
+    max-height: 300px;
 }
 
 div.profile-picture form.profile-picture-delete-form {

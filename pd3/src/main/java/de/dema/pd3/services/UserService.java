@@ -130,30 +130,35 @@ public class UserService {
 		if (!file.isEmpty()) {
 			try {
 				User user = userRepo.findOne(userId);
-				Image image = new Image();
 				String formatName = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.') + 1).toUpperCase();
 				byte[] originalImageBytes = file.getBytes();
-				image.setData(Base64.getEncoder().encodeToString(ImageService.resize(originalImageBytes, formatName, 300, 300)));
-				image.setOwner(user);
-				image.setType(ImageType.valueOf(formatName));
-				image.setUploadTimestamp(Clock.now());
-				Image big = imageRepo.save(image);
-				
-				image = new Image();
-				image.setData(Base64.getEncoder().encodeToString(ImageService.resize(originalImageBytes, formatName, 50, 50)));
-				image.setOwner(user);
-				image.setType(ImageType.valueOf(formatName));
-				image.setUploadTimestamp(Clock.now());
-				image = imageRepo.save(image);
-
-				if (user.getProfilePicture() != null) {
-					deleteProfilePicture(userId);
+				byte[] resizedImage = ImageService.resize(originalImageBytes, formatName, 300, 300);
+				if (resizedImage != null) {
+					Image image = new Image();
+					image.setData(Base64.getEncoder().encodeToString(resizedImage));
+					image.setOwner(user);
+					image.setType(ImageType.valueOf(formatName));
+					image.setUploadTimestamp(Clock.now());
+					Image big = imageRepo.save(image);
+					
+					image = new Image();
+					image.setData(Base64.getEncoder().encodeToString(ImageService.resize(originalImageBytes, formatName, 50, 50)));
+					image.setOwner(user);
+					image.setType(ImageType.valueOf(formatName));
+					image.setUploadTimestamp(Clock.now());
+					image = imageRepo.save(image);
+	
+					if (user.getProfilePicture() != null) {
+						deleteProfilePicture(userId);
+					}
+					user.setProfilePicture(big);
+					user.setProfilePictureSmall(image);
+					userRepo.save(user);
+					log.info("user profile picture stored [userId:{}]", userId);
+					return image.getId();
+				} else {
+					log.warn("user profile picture could not be resized [userId:{}] [file:{}]", userId, file.getOriginalFilename());					
 				}
-				user.setProfilePicture(big);
-				user.setProfilePictureSmall(image);
-				userRepo.save(user);
-				log.info("user profile picture stored [userId:{}]", userId);
-				return image.getId();
 			} catch (IOException e) {
 				log.error("failed to store user profile image [filename:{}]", file.getOriginalFilename(), e);
 			}

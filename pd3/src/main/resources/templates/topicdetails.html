@@ -32,7 +32,9 @@
 				<input type="hidden" name="topicId" th:value="${topic.id}" />
 				<div class="comment-and-replies">
 				<div class="comment" style="padding-bottom: 0;">
-                    <img th:src="@{${userProfilePictureData != null} ? 'data:image/jpeg;base64,' + ${userProfilePictureData} : '/img/user-round-male-1.svg'}" class="usericon" />
+	                <div class="usericon">
+	                    <img th:src="@{${userProfilePictureData != null} ? 'data:image/jpeg;base64,' + ${userProfilePictureData} : '/img/user-round-male-1.svg'}" class="usericon" />
+                    </div>
 					<div class="comment-textblock">
 			    		<textarea name="text" class="comment" placeholder="Jetzt an der Diskussion teilnehmen und einen Kommentar abgeben"></textarea>
 			   		</div>
@@ -51,7 +53,9 @@
   				<input type="hidden" name="topicId" th:value="${topic.id}" />
   				<input type="hidden" name="page" th:value="${comments.number}" />
   				<input type="hidden" name="commentId" />
-                <img th:src="@{${userProfilePictureData != null} ? 'data:image/jpeg;base64,' + ${userProfilePictureData} : '/img/user-round-male-1.svg'}" class="usericon" />
+  				<div class="usericon">
+                    <img th:src="@{${userProfilePictureData != null} ? 'data:image/jpeg;base64,' + ${userProfilePictureData} : '/img/user-round-male-1.svg'}" class="usericon" />
+                </div>
 				<div class="comment-textblock">
 			   		<textarea name="text" class="comment" placeholder="Tragen Sie Ihre Antwort auf den Kommentar hier ein" autofocus="autofocus"></textarea>
 					<a href="javascript: submitReply();" class="reply">Antwort absenden</a>
