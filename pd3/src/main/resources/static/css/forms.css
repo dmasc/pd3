@@ -27,3 +27,14 @@ form div.feedback-container.error {
 form div.feedback-container.success {
     background: #BAE9BF;
 }
+
+form label.field-error {
+    color: red;
+    white-space: nowrap;
+    width: auto;
+}
+
+form textarea {
+	font-family: inherit;
+	font-size: 1em;
+}

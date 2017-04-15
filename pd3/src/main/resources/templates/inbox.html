@@ -72,7 +72,7 @@
 	<div th:fragment="messages-panel">
 		<div class="message" th:each="msg : ${messages}">
 			<span th:text="${{msg.sendTimestamp}}" class="timestamp"></span><a th:href="@{/user/profile(id=${msg.senderId})}" th:text="${msg.sender}" class="user"></a>
-			<div th:text="${msg.text}" class="message-text"></div>
+			<div th:utext="${msg.text}" class="message-text"></div>
 		</div>
 		<a th:href="${'javascript: showMoreMessages(' + roomId + ',' + lastMsgId + ');'}" th:if="${messages != null and not messages.last}" class="more-msgs">Ältere Nachrichten anzeigen</a>
 	</div>

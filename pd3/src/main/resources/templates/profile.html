@@ -2,6 +2,7 @@
 <html layout:decorator="layout/default" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:spring="http://www.springframework.org/tags">
 <head>
 	<title>Benutzerprofil</title>
+    <link rel="stylesheet" type="text/css" href="/css/forms.css" th:href="@{/css/forms.css}" />
     <link rel="stylesheet" type="text/css" href="/css/profile.css" th:href="@{/css/profile.css}" />
 </head>
 
@@ -17,7 +18,7 @@
 	            <img th:src="@{${user.profilePictureData != null} ? 'data:image/jpeg;base64,' + ${user.profilePictureData} : '/img/user-round-' + (${not user.male} ? 'fe' : '') + 'male-1.svg'}" class="profile-picture" />
             </div>
             <div th:value="${fileSizeExceededLimit}"></div>
-            <form th:action="@{/user/upload-profile-picture}" th:if="${isCurrentUser}" method="post" enctype="multipart/form-data" class="default">
+            <form th:action="@{/user/upload-profile-picture}" th:if="${isCurrentUser}" method="post" enctype="multipart/form-data">
                 <label>Neues Profilbild hochladen (max. 5 MB):</label><br/>
                 <label th:if="${param.fileSizeExceededLimit}" class="field-error">Die ausgewählte Datei ist zu groß<br/></label>
                 <label th:if="${param.noFileSelected}" class="field-error">Bitte wählen Sie eine Datei aus<br/></label>
@@ -27,24 +28,24 @@
             </form>
         </div>
         
-		<h1 th:text="${user.forename} + ' ' + ${user.surname}"></h1>
+		<h1 th:text="${user.name}"></h1>
 		<div class="clear"></div>
 		<div th:if="${not isCurrentUser}">
 			<h2>Persönliche Nachricht senden</h2>
 			<form th:action="@{/user/send-message/user}" method="post">
 				<input type="hidden" name="targetId" th:value="${user.id}" />
-				<textarea name="text" cols="50" rows="6"></textarea><br/>
+				<textarea name="text" cols="50" rows="6" th:placeholder="'Geben Sie hier Ihre Nachricht an ' + ${user.name} + ' ein'"></textarea><br/>
 				<input type="submit" value="Nachricht senden" />
 			</form>
 		</div>
 		<h2>Abgegebene Stimmen</h2>
-		<div th:if="${ownvotes.totalElements > 0}">
+		<div th:if="${ownvotes.totalElements > 0}" class="profile-ownvotes">
 			<div th:replace="components/commonComponents :: paging (url='/user/profile', page=${ownvotes})"></div>
 			<ul>
 				<li th:each="vote : ${ownvotes.content}">
+					<span th:text="${#temporals.format(vote.voteTimestamp, 'dd.MM.yy')}" class="ownvotes-timestamp"></span>
+					<img th:src="${'/img/vote-' + (vote.accepted?'accepted':(vote.rejected?'rejected':'abstention')) + '.svg'}"/>
 					<a th:href="@{/topic/details(id=${vote.topicId})}">
-						<img th:src="${'/img/vote-' + (vote.accepted?'accepted':(vote.rejected?'rejected':'abstention')) + '.svg'}" style="height: 26px;"/>
-						<span th:text="${{vote.voteTimestamp}}"></span>
 						<span th:text="${vote.topicTitle}"></span>
 					</a>
 				</li>

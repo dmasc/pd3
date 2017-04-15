@@ -8,18 +8,17 @@ import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
+import de.dema.pd3.Pd3Util;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.validation.Age;
 import de.dema.pd3.validation.MatchingFields;
 import de.dema.pd3.validation.PersoId;
 
 @MatchingFields(message = "{register_user_model.passwordRepeat.notequal}", first = "password", second = "passwordRepeat")
-public class RegisterUserModel {
+public class RegisterUserModel extends NamedIdModel {
 
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy", new Locale("de"));
 
-	private Long id;
-	
 	@NotBlank(message = "{register_user_model.forename.null}")
 	private String forename;
 
@@ -56,14 +55,6 @@ public class RegisterUserModel {
 	private boolean male;
 
 	private String profilePictureData;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
 
 	public String getForename() {
 		return forename;
@@ -187,6 +178,7 @@ public class RegisterUserModel {
 		model.setSurname(user.getSurname());
 		model.setZip(user.getZip());
 		model.setProfilePictureData(user.getProfilePictureData());
+		model.setName(Pd3Util.username(user));
 		
 		return model;
 	}

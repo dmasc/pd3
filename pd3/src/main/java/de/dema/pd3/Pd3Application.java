@@ -12,6 +12,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
 import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
@@ -52,6 +53,7 @@ public class Pd3Application {
 	    
 	    templateEngine.addDialect(new LayoutDialect());
 	    templateEngine.addDialect(new SpringSecurityDialect());
+	    templateEngine.addDialect(new Java8TimeDialect());
 	    
 	    return templateEngine;
 	}

@@ -252,7 +252,7 @@ public class UserService {
 		chatroom = chatroomRepo.save(chatroom);
 
 		User sender = userRepo.findOne(senderId);
-		messageRepo.save(new Message.Builder().room(chatroom).sender(sender).sendTimestamp(now).text(text).build());
+		messageRepo.save(new Message.Builder().room(chatroom).sender(sender).sendTimestamp(now).text(Pd3Util.injectHtmlTags(text)).build());
 
 		ChatroomUser chatroomUser = chatroomUserRepo.findOne(new ChatroomUserId(chatroomRepo.findOne(chatroomId), sender));
 		if (previousMsgSent == null || chatroomUser.getLastMessageRead() != null && !chatroomUser.getLastMessageRead().isBefore(previousMsgSent)) {
@@ -344,10 +344,9 @@ public class UserService {
 
 	private SimpleMailMessage constructResetTokenEmail(String contextPath, String token, User user) {
 		String url = contextPath + "/public/change-password?id=" + user.getId() + "&token=" + token;
-		String message = "Klicken Sie auf den nachfolgenden Link, um Ihr Passwort zurückzusetzen:\r\n" + url;
 		SimpleMailMessage email = new SimpleMailMessage();
 		email.setSubject("Zurücksetzen des Passworts für Ihr PD3-Benutzerkonto");
-		email.setText(message);
+		email.setText("Klicken Sie auf den nachfolgenden Link, um Ihr Passwort zurückzusetzen:\r\n" + url);
 		email.setTo(user.getEmail());
 		email.setFrom(pd3MailSenderAddress);
 		return email;

@@ -37,6 +37,36 @@ div.profile-picture form.profile-picture-delete-form button {
 	padding: 0;
 }
 
+div.profile-ownvotes ul {
+	padding: 0;
+}
+
+div.profile-ownvotes ul li {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	line-height: 24px;
+	display: flex;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+
+div.profile-ownvotes ul li img {
+	width: 24px;
+	height: 24px;
+    margin: auto 20px;
+}
+
+div.profile-ownvotes ul li a {
+	line-height: 1.1em;
+	margin: auto 0;
+}
+
+div.profile-ownvotes span.ownvotes-timestamp {
+	white-space: nowrap;
+	margin: auto 0;
+}
+
 h2 {
 	margin-top: 50px;
 	clear: both;

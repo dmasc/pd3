@@ -20,14 +20,17 @@ function showMovingCommentPanel(parentId, topicId, page) {
 	var panel = $("#movingcommentpanel");
 
 	$("#movingcommentpanel input[name='commentId']").val(parentId);
+	panel.hide();
 	panel.insertAfter("#comment_" + parentId);
-	panel.show();
+	panel.fadeIn(250);
 	$("#movingcommentpanel textarea").focus();
 }
 
 function hideMovingCommentPanel() {
+	var panel = $("#movingcommentpanel");
+
 	$("#movingcommentpanel textarea").text("");
-	$("#movingcommentpanel").hide();
+	panel.fadeOut(250);
 }
 
 function submitReply() {

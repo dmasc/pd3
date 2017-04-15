@@ -47,6 +47,20 @@ public class VoteService {
         User user = userRepo.findOne(userId);
         Topic topic = topicRepo.findOne(topicId);
 
+        boolean afterDeadline = topic.getDeadline().isBefore(Clock.now());
+		if (user == null || topic == null || afterDeadline) {
+        	if (user == null) {
+        		log.warn("cannot find user for topic vote [userId:{}]", userId);
+        	}
+        	if (topic == null) {
+        		log.warn("cannot find topic for topic vote [userId:{}] [topicId:{}]", userId, topicId);
+        	}
+        	if (afterDeadline) {
+        		log.warn("cannot store vote for expired topic [userId:{}] [topicId:{}] [selectedOption:{}]", userId, topicId, selectedOption);
+        	}
+        	return;
+        }
+        
         TopicVote vote = topicVoteRepo.findByUserIdAndTopicId(user.getId(), topic.getId());
         if (vote == null) {
             vote = new TopicVote();

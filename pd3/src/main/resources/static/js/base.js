@@ -19,6 +19,7 @@ function updateNewMessagesIndicator(indicator) {
 		$.post("/user/newmsgs", function(result) {
 			if (result) {
 				indicator.show();
+				$('#notification-sound')[0].play();
 			} else {
 				updateNewMessagesIndicator(indicator);
 			}
