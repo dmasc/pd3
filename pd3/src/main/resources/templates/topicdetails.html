@@ -12,7 +12,7 @@
 	    <div class="box" th:object="${topic}">
 	    	<div class="title" th:text="*{title}"></div>
 	    	<div>
-	    		<div class="details"><div th:text="'Author: '+*{author.name}"></div><div th:text="'Teilnehmer: '+*{participants}"></div>
+	    		<div class="details"><div><span>Author:</span> <a th:replace="components/commonComponents :: user-profile-link (model=*{author})"></a></div><div th:text="'Teilnehmer: '+*{participants}"></div>
 	    		<div th:text="'Deadline: '+*{{deadline}}"></div></div>
 	    		<span th:utext="*{description}"></span>
 	    	</div>

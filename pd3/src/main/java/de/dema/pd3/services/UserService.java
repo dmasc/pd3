@@ -3,7 +3,6 @@ package de.dema.pd3.services;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -133,18 +132,10 @@ public class UserService {
 				byte[] originalImageBytes = file.getBytes();
 				byte[] resizedImage = ImageService.resize(originalImageBytes, formatName, 300, 300);
 				if (resizedImage != null) {
-					Image image = new Image();
-					image.setData(Base64.getEncoder().encodeToString(resizedImage));
-					image.setOwner(user);
-					image.setType(formatName);
-					image.setUploadTimestamp(Clock.now());
+					Image image = new Image.Builder(resizedImage).owner(user).type(formatName).build();
 					Image big = imageRepo.save(image);
 					
-					image = new Image();
-					image.setData(Base64.getEncoder().encodeToString(ImageService.resize(originalImageBytes, formatName, 50, 50)));
-					image.setOwner(user);
-					image.setType(formatName);
-					image.setUploadTimestamp(Clock.now());
+					image = new Image.Builder(ImageService.resize(originalImageBytes, formatName, 50, 50)).owner(user).type(formatName).build();
 					image = imageRepo.save(image);
 	
 					if (user.getProfilePicture() != null) {

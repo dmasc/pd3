@@ -3,8 +3,6 @@ package de.dema.pd3;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,12 +10,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.RememberMeServices;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
 import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring4.SpringTemplateEngine;
@@ -30,13 +24,12 @@ import ch.qos.logback.core.OutputStreamAppender;
 import ch.qos.logback.ext.spring.ApplicationContextHolder;
 import de.dema.pd3.controller.CommonInterceptor;
 import de.dema.pd3.security.Pd3AuthenticationSuccessHandler;
-import de.dema.pd3.security.WebSecurityConfig;
 import nz.net.ultraq.thymeleaf.LayoutDialect;
 
 /**
  * Die Hauptklasse der PD3-Webanwendung mit der {@code main}-Methode zum Starten der Anwendung.
- * Zusätzlich werden hier noch alle Beans definiert, die in der Anwendung verwendet und nicht
- * bspw. durch Spring's Auto-COnfiguration automatisch erzeugt werden.
+ * Zusätzlich werden hier noch die meisten Beans definiert, die in der Anwendung verwendet und nicht
+ * bspw. durch Spring's Auto-Configuration automatisch erzeugt werden.
  */
 @SpringBootApplication
 @EnableCaching
@@ -57,32 +50,6 @@ public class Pd3Application {
 	    templateEngine.addDialect(new Java8TimeDialect());
 	    
 	    return templateEngine;
-	}
-	
-	/**
-	 * Erstellt einen Service, der von Spring verwendet wird, um Remember-Me-Tokens zu verwalten.
-	 */
-	@Bean
-	public RememberMeServices rememberMeServices(UserDetailsService userDetailsService, DataSource dataSource, JdbcTokenRepositoryImpl repo) {
-		PersistentTokenBasedRememberMeServices services = new PersistentTokenBasedRememberMeServices(
-				PersistentTokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, userDetailsService, repo);
-		services.setTokenValiditySeconds(WebSecurityConfig.THREE_MONTH_IN_SECONDS);
-		services.setUseSecureCookie(true);
-		
-		return services;		
-	}
-
-	/**
-	 * Erstellt ein Repository, dass per JDBC auf die PD3-Datenbank zugreift und Remember-Me-Tokens lädt und speichert.
-	 * Wenn das Property {@code spring.jpa.hibernate.ddl-auto} auf {@code create-drop} gesetzt ist, legt das Repository
-	 * die benötigte Tabelle beim Start der Anwendung automatisch an.
-	 */
-	@Bean
-	public JdbcTokenRepositoryImpl rememberMeTokenRepository(DataSource dataSource, @Value("${spring.jpa.hibernate.ddl-auto}") String ddlAuto) {
-		JdbcTokenRepositoryImpl repo = new JdbcTokenRepositoryImpl();
-		repo.setDataSource(dataSource);
-		repo.setCreateTableOnStartup("create-drop".equals(ddlAuto));
-		return repo;
 	}
 	
 	/**

@@ -17,7 +17,7 @@ div.room-choice-container {
 div.room-choice-item {
 	height: 40px;
 	border-bottom: 1px solid grey;
-	background-color: #cbb08e;
+	background-color: #b79a75;
 	cursor: pointer;
 	padding: 5px;
 	display: flex;
@@ -25,8 +25,9 @@ div.room-choice-item {
 	overflow: hidden;
 }
 
-div.room-choice-item:last-of-type {
-/* 	border-bottom: none; */
+div.room-choice-item:hover {
+	background-color: #806544;
+	color: white;
 }
 
 div.room-choice-item.new-message {

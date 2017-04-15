@@ -5,7 +5,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -165,19 +164,11 @@ public class TestDataController {
 	private void storeProfileImage(User user, Resource imageResource, String type) {
 		try {
 			byte[] data = IOUtils.toByteArray(imageResource.getInputStream());
-			Image image = new Image();
-			image.setData(Base64.getEncoder().encodeToString(ImageService.resize(data, type, 300, 300)));
-			image.setOwner(user);
-			image.setType(type);
-			image.setUploadTimestamp(Clock.now());
+			Image image = new Image.Builder(ImageService.resize(data, type, 300, 300)).owner(user).type(type).build();
 			Image big = imageRepo.save(image);
 			user.setProfilePicture(big);
 			
-			image = new Image();
-			image.setData(Base64.getEncoder().encodeToString(ImageService.resize(data, type, 50, 50)));
-			image.setOwner(user);
-			image.setType(type);
-			image.setUploadTimestamp(Clock.now());
+			image = new Image.Builder(ImageService.resize(data, type, 50, 50)).owner(user).type(type).build();
 			image = imageRepo.save(image);
 			user.setProfilePictureSmall(image);
 			

@@ -1,7 +1,10 @@
 package de.dema.pd3.security;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -11,7 +14,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
+
+import de.dema.pd3.Pd3Application;
 
 /**
  * Sicherheitskonfiguration für die Web-Anwendung. Durch die Annotationen erkennt Spring diese Klasse automatisch.
@@ -77,4 +83,40 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		auth.authenticationProvider(provider);
     }
     
+	/**
+	 * Erstellt einen Service, der von Spring verwendet wird, um Remember-Me-Tokens zu verwalten.<br>
+	 * <br>
+	 * Die Bean wird in dieser Klasse erzeugt und nicht in {@linkplain Pd3Application}, da sie dort in jedem Fall erzeugt werden würde,
+	 * auch wenn sie gar nicht benötigt wird - bspw. in Controller-Tests, die mit {@code @WebMvcTest} arbeiten. Beim Start solcher
+	 * Tests würde es zu einem Fehler kommen, da die abhängigen Objekte wie {@code userDetailsService} von Spring nicht angelegt
+	 * worden wären.
+	 */
+	@Bean
+	public RememberMeServices rememberMeServices(UserDetailsService userDetailsService, JdbcTokenRepositoryImpl repo) {
+		PersistentTokenBasedRememberMeServices services = new PersistentTokenBasedRememberMeServices(
+				PersistentTokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, userDetailsService, repo);
+		services.setTokenValiditySeconds(WebSecurityConfig.THREE_MONTH_IN_SECONDS);
+		services.setUseSecureCookie(true);
+		
+		return services;		
+	}
+
+	/**
+	 * Erstellt ein Repository, dass per JDBC auf die PD3-Datenbank zugreift und Remember-Me-Tokens lädt und speichert.
+	 * Wenn das Property {@code spring.jpa.hibernate.ddl-auto} auf {@code create-drop} gesetzt ist, legt das Repository
+	 * die benötigte Tabelle beim Start der Anwendung automatisch an.<br>
+	 * <br>
+	 * Die Bean wird in dieser Klasse erzeugt und nicht in {@linkplain Pd3Application}, da sie dort in jedem Fall erzeugt werden würde,
+	 * auch wenn sie gar nicht benötigt wird - bspw. in Controller-Tests, die mit {@code @WebMvcTest} arbeiten. Beim Start solcher
+	 * Tests würde es zu einem Fehler kommen, da die abhängigen Objekte wie {@code userDetailsService} von Spring nicht angelegt
+	 * worden wären.
+	 */
+	@Bean
+	public JdbcTokenRepositoryImpl rememberMeTokenRepository(DataSource dataSource, @Value("${spring.jpa.hibernate.ddl-auto}") String ddlAuto) {
+		JdbcTokenRepositoryImpl repo = new JdbcTokenRepositoryImpl();
+		repo.setDataSource(dataSource);
+		repo.setCreateTableOnStartup("create-drop".equals(ddlAuto));
+		return repo;
+	}
+
 }
