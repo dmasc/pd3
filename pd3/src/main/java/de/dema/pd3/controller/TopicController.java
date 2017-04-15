@@ -70,7 +70,9 @@ public class TopicController {
 			model.addAttribute("topicVote", topicVote.getSelectedOption());
 		}
 		User user = userRepo.findOne(userId);
-		model.addAttribute("userProfilePictureData", user.getProfilePictureSmallData());
+		if (user.getProfilePictureSmall() != null) {
+			model.addAttribute("userProfilePictureData", user.getProfilePictureSmall().getImgTagSrcAttributeValue());
+		}
 		model.addAttribute("comments", commentService.loadByTopic(id, userId, pageable));
 		
 		return "topicdetails";

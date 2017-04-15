@@ -142,7 +142,7 @@ a.disabled {
 	cursor: default;
 }
 
-a.undecorated {
+a.undecorated:hover {
 	text-decoration: none;
 }
 

@@ -7,6 +7,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 
+import de.dema.pd3.Pd3Util;
+
 /**
  * Klasse zur Speicherung von zusätzlichen benutzerbezogenen Daten. Eine Instanz dieser Klasse wird von Spring automatisch
  * über den {@link Pd3UserDetailsService} in die {@link Authentication}-Objekte der einzelnen Requests gepackt. Die Instanz
@@ -63,7 +65,7 @@ public class CurrentUser extends User {
 	}
 
 	public static CurrentUser map(de.dema.pd3.persistence.User user, String... roles) {
-		return new CurrentUser(user.getId(), user.getForename() + " " + user.getSurname(), user.getEmail(), 
+		return new CurrentUser(user.getId(), Pd3Util.username(user), user.getEmail(), 
 				user.getPassword(), user.isMale(), true, !user.getLocked(), AuthorityUtils.createAuthorityList(roles));
 	}
 

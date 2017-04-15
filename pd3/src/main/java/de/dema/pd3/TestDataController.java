@@ -37,7 +37,6 @@ import de.dema.pd3.persistence.CommentRepository;
 import de.dema.pd3.persistence.CommentVote;
 import de.dema.pd3.persistence.CommentVoteRepository;
 import de.dema.pd3.persistence.Image;
-import de.dema.pd3.persistence.Image.ImageType;
 import de.dema.pd3.persistence.ImageRepository;
 import de.dema.pd3.persistence.Message;
 import de.dema.pd3.persistence.Topic;
@@ -158,16 +157,16 @@ public class TestDataController {
 				.password(passwordEncoder.encode("test")).phone("040-2225256").street("Otto-von-Bismark-Allee 32").surname("Sorin-Gießmann").zip("22177");
 
 		User user = userRepo.save(userBuilder.build());
-		storeProfileImage(user, userImage, ImageType.JPG);
+		storeProfileImage(user, userImage, "jpg");
 		
 		return user;
 	}
 
-	private void storeProfileImage(User user, Resource imageResource, ImageType type) {
+	private void storeProfileImage(User user, Resource imageResource, String type) {
 		try {
 			byte[] data = IOUtils.toByteArray(imageResource.getInputStream());
 			Image image = new Image();
-			image.setData(Base64.getEncoder().encodeToString(ImageService.resize(data, type.getTypeString(), 300, 300)));
+			image.setData(Base64.getEncoder().encodeToString(ImageService.resize(data, type, 300, 300)));
 			image.setOwner(user);
 			image.setType(type);
 			image.setUploadTimestamp(Clock.now());
@@ -175,7 +174,7 @@ public class TestDataController {
 			user.setProfilePicture(big);
 			
 			image = new Image();
-			image.setData(Base64.getEncoder().encodeToString(ImageService.resize(data, type.getTypeString(), 50, 50)));
+			image.setData(Base64.getEncoder().encodeToString(ImageService.resize(data, type, 50, 50)));
 			image.setOwner(user);
 			image.setType(type);
 			image.setUploadTimestamp(Clock.now());
@@ -195,7 +194,7 @@ public class TestDataController {
 				.password(passwordEncoder.encode("")).phone("0171-1234567").street("Herbert-Weichmann-Straße 117").surname("Remmenscheid").zip("21709");
 
 		User user = userRepo.save(userBuilder.build());
-		storeProfileImage(user, fcbImage, ImageType.SVG);
+		storeProfileImage(user, fcbImage, "svg");
 		
 		return user;
 	}

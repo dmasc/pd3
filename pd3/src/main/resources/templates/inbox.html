@@ -45,7 +45,7 @@
 						</form>
 					</div>
 				</div>
-				<div class="members"><span th:each="member : ${selectedRoom.members}"><a th:href="@{/user/profile(id=${member.id})}" th:text="${member.name}" class="user"></a> </span></div>
+				<div class="members"><span th:each="member : ${selectedRoom.members}"><a th:replace="components/commonComponents :: user-profile-link (model=${member})"></a> </span></div>
 				<div class="room-send-panel">
 					<form th:action="@{/user/send-message/room}" method="post">
 						<input type="hidden" name="targetId" th:value="${selectedRoom.id}" />
@@ -71,7 +71,7 @@
 	
 	<div th:fragment="messages-panel">
 		<div class="message" th:each="msg : ${messages}">
-			<span th:text="${{msg.sendTimestamp}}" class="timestamp"></span><a th:href="@{/user/profile(id=${msg.senderId})}" th:text="${msg.sender}" class="user"></a>
+			<span th:text="${{msg.sendTimestamp}}" class="timestamp"></span><a th:replace="components/commonComponents :: user-profile-link (model=${msg.sender})"></a>
 			<div th:utext="${msg.text}" class="message-text"></div>
 		</div>
 		<a th:href="${'javascript: showMoreMessages(' + roomId + ',' + lastMsgId + ');'}" th:if="${messages != null and not messages.last}" class="more-msgs">Ältere Nachrichten anzeigen</a>

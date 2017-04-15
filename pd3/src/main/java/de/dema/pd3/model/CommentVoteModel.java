@@ -18,8 +18,8 @@ public class CommentVoteModel extends VoteModelBase {
 		if (vote == null) {
 			return null;
 		}
-		CommentVoteModel model = new CommentVoteModel();
-		VoteModelBase.map(vote, model);
+
+		CommentVoteModel model = VoteModelBase.map(vote, new CommentVoteModel());
 		model.setCommentId(vote.getComment().getId());		
 		
 		return model;

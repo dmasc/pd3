@@ -12,7 +12,7 @@
 	    <div class="box" th:object="${topic}">
 	    	<div class="title" th:text="*{title}"></div>
 	    	<div>
-	    		<div class="details"><div th:text="'Author: '+*{author}"></div><div th:text="'Teilnehmer: '+*{participants}"></div>
+	    		<div class="details"><div th:text="'Author: '+*{author.name}"></div><div th:text="'Teilnehmer: '+*{participants}"></div>
 	    		<div th:text="'Deadline: '+*{{deadline}}"></div></div>
 	    		<span th:utext="*{description}"></span>
 	    	</div>
@@ -33,7 +33,7 @@
 				<div class="comment-and-replies">
 				<div class="comment" style="padding-bottom: 0;">
 	                <div class="usericon">
-	                    <img th:src="@{${userProfilePictureData != null} ? 'data:image/jpeg;base64,' + ${userProfilePictureData} : '/img/user-round-male-1.svg'}" class="usericon" />
+	                    <img th:src="@{${userProfilePictureData != null} ? ${userProfilePictureData} : '/img/user-round-male-1.svg'}" class="usericon" />
                     </div>
 					<div class="comment-textblock">
 			    		<textarea name="text" class="comment" placeholder="Jetzt an der Diskussion teilnehmen und einen Kommentar abgeben"></textarea>
@@ -54,7 +54,7 @@
   				<input type="hidden" name="page" th:value="${comments.number}" />
   				<input type="hidden" name="commentId" />
   				<div class="usericon">
-                    <img th:src="@{${userProfilePictureData != null} ? 'data:image/jpeg;base64,' + ${userProfilePictureData} : '/img/user-round-male-1.svg'}" class="usericon" />
+                    <img th:src="@{${userProfilePictureData != null} ? ${userProfilePictureData} : '/img/user-round-male-1.svg'}" class="usericon" />
                 </div>
 				<div class="comment-textblock">
 			   		<textarea name="text" class="comment" placeholder="Tragen Sie Ihre Antwort auf den Kommentar hier ein" autofocus="autofocus"></textarea>

@@ -2,7 +2,6 @@ package de.dema.pd3.model;
 
 import java.time.LocalDateTime;
 
-import de.dema.pd3.Pd3Util;
 import de.dema.pd3.persistence.Message;
 
 /**
@@ -12,9 +11,7 @@ public class ChatroomMessageModel {
 
 	private Long id;
 	
-	private String sender;
-	
-	private Long senderId;
+	private NamedIdModel sender;
 	
 	private LocalDateTime sendTimestamp;
 	
@@ -28,11 +25,11 @@ public class ChatroomMessageModel {
 		this.id = id;
 	}
 
-	public String getSender() {
+	public NamedIdModel getSender() {
 		return sender;
 	}
 
-	public void setSender(String sender) {
+	public void setSender(NamedIdModel sender) {
 		this.sender = sender;
 	}
 
@@ -52,19 +49,10 @@ public class ChatroomMessageModel {
 		this.text = text;
 	}
 
-	public Long getSenderId() {
-		return senderId;
-	}
-
-	public void setSenderId(Long senderId) {
-		this.senderId = senderId;
-	}
-
 	public static ChatroomMessageModel map(Message message) {
 		ChatroomMessageModel model = new ChatroomMessageModel();
 		model.setId(message.getId());
-		model.setSender(Pd3Util.username(message.getSender()));
-		model.setSenderId(message.getSender().getId());
+		model.setSender(NamedIdModel.map(message.getSender()));
 		model.setSendTimestamp(message.getSendTimestamp());
 		model.setText(message.getText());
 		

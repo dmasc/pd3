@@ -13,11 +13,7 @@ public class CommentModel {
 
 	private Long id;
 	
-	private String authorName;
-	
-	private boolean authorGenderMale;
-	
-	private Long authorId;
+	private SimpleUserModel author;
 	
 	private LocalDateTime creationTimestamp;
 	
@@ -27,8 +23,6 @@ public class CommentModel {
 
 	private List<CommentModel> replies;
 	
-	private String userImageData;
-	
 	public Long getId() {
 		return id;
 	}
@@ -37,12 +31,12 @@ public class CommentModel {
 		this.id = id;
 	}
 
-	public String getAuthorName() {
-		return authorName;
+	public SimpleUserModel getAuthor() {
+		return author;
 	}
 
-	public void setAuthorName(String authorName) {
-		this.authorName = authorName;
+	public void setAuthor(SimpleUserModel author) {
+		this.author = author;
 	}
 
 	public LocalDateTime getCreationTimestamp() {
@@ -69,22 +63,6 @@ public class CommentModel {
 		this.replies = children;
 	}
 	
-	public Long getAuthorId() {
-		return authorId;
-	}
-
-	public void setAuthorId(Long authorId) {
-		this.authorId = authorId;
-	}
-
-	public boolean isAuthorGenderMale() {
-		return authorGenderMale;
-	}
-
-	public void setAuthorGenderMale(boolean authorGenderMale) {
-		this.authorGenderMale = authorGenderMale;
-	}
-
 	public VoteOption getUserLikeSelection() {
 		return userLikeSelection;
 	}
@@ -93,24 +71,13 @@ public class CommentModel {
 		this.userLikeSelection = userLikeSelection;
 	}
 
-	public String getUserImageData() {
-		return userImageData;
-	}
-
-	public void setUserImageData(String userImageData) {
-		this.userImageData = userImageData;
-	}
-
 	public static CommentModel map(Comment comment, Function<Comment, VoteOption> userLikeSelection) {
 		CommentModel model = new CommentModel();
 		model.setId(comment.getId());
-		model.setAuthorName(comment.getAuthor().getForename() + " " + comment.getAuthor().getSurname());
-		model.setAuthorId(comment.getAuthor().getId());
+		model.setAuthor(SimpleUserModel.map(comment.getAuthor()));
 		model.setCreationTimestamp(comment.getCreationDate());
 		model.setText(Pd3Util.injectHtmlTags(comment.getText()));
 		model.setUserLikeSelection(userLikeSelection.apply(comment));
-		model.setAuthorGenderMale(comment.getAuthor().isMale());
-		model.setUserImageData(comment.getAuthor().getProfilePictureSmallData());
 		List<CommentModel> repliesList = comment.getReplies().stream().map(c -> CommentModel.map(c, userLikeSelection))
 				.sorted((m1, m2) -> m2.getCreationTimestamp().compareTo(m1.getCreationTimestamp()))
 				.collect(Collectors.toList());

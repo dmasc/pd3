@@ -8,7 +8,6 @@ import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
-import de.dema.pd3.Pd3Util;
 import de.dema.pd3.persistence.User;
 import de.dema.pd3.validation.Age;
 import de.dema.pd3.validation.MatchingFields;
@@ -55,6 +54,8 @@ public class RegisterUserModel extends NamedIdModel {
 	private boolean male;
 
 	private String profilePictureData;
+	
+	private String profilePictureType;
 
 	public String getForename() {
 		return forename;
@@ -160,25 +161,31 @@ public class RegisterUserModel extends NamedIdModel {
 		this.profilePictureData = profilePictureData;
 	}
 
+	public String getProfilePictureType() {
+		return profilePictureType;
+	}
+
+	public void setProfilePictureType(String profilePictureType) {
+		this.profilePictureType = profilePictureType;
+	}
+
 	public static RegisterUserModel map(User user) {
 		if (user == null) {
 			return null;
 		}
 		
-		RegisterUserModel model = new RegisterUserModel();
+		RegisterUserModel model = NamedIdModel.map(user, new RegisterUserModel());
 		model.setBirthday(user.getBirthday().format(DATE_FORMATTER));
 		model.setDistrict(user.getDistrict());
 		model.setEmail(user.getEmail());
 		model.setForename(user.getForename());
-		model.setId(user.getId());
 		model.setIdCardNumber(user.getIdCardNumber());
 		model.setMale(user.isMale());
 		model.setPhone(user.getPhone());
 		model.setStreet(user.getStreet());
 		model.setSurname(user.getSurname());
 		model.setZip(user.getZip());
-		model.setProfilePictureData(user.getProfilePictureData());
-		model.setName(Pd3Util.username(user));
+		model.setProfilePictureData(user.getProfilePicture().getImgTagSrcAttributeValue());
 		
 		return model;
 	}

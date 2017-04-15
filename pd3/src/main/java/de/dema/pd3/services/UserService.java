@@ -44,7 +44,6 @@ import de.dema.pd3.persistence.ChatroomUser;
 import de.dema.pd3.persistence.ChatroomUser.ChatroomUserId;
 import de.dema.pd3.persistence.ChatroomUserRepository;
 import de.dema.pd3.persistence.Image;
-import de.dema.pd3.persistence.Image.ImageType;
 import de.dema.pd3.persistence.ImageRepository;
 import de.dema.pd3.persistence.Message;
 import de.dema.pd3.persistence.MessageRepository;
@@ -137,14 +136,14 @@ public class UserService {
 					Image image = new Image();
 					image.setData(Base64.getEncoder().encodeToString(resizedImage));
 					image.setOwner(user);
-					image.setType(ImageType.valueOf(formatName));
+					image.setType(formatName);
 					image.setUploadTimestamp(Clock.now());
 					Image big = imageRepo.save(image);
 					
 					image = new Image();
 					image.setData(Base64.getEncoder().encodeToString(ImageService.resize(originalImageBytes, formatName, 50, 50)));
 					image.setOwner(user);
-					image.setType(ImageType.valueOf(formatName));
+					image.setType(formatName);
 					image.setUploadTimestamp(Clock.now());
 					image = imageRepo.save(image);
 	

@@ -14,9 +14,9 @@
                 <div class="title" th:text="${topic.title}"></div>
                 <div>
                     <div class="details">
-                    	<div th:text="'Author: '+${topic.author}"></div>
-                    	<div th:text="'Teilnehmer: '+${topic.participants}"></div>
-                    	<div th:text="'Deadline: '+${{topic.deadline}}"></div>
+                    	<div th:text="'Author: ' + ${topic.author.name}"></div>
+                    	<div th:text="'Teilnehmer: ' + ${topic.participants}"></div>
+                    	<div th:text="'Deadline: ' + ${{topic.deadline}}"></div>
                    	</div>
                     <span th:utext="${topic.description}"></span>
                 </div>

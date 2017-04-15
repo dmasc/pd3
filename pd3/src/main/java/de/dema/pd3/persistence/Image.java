@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -28,8 +26,7 @@ public class Image implements Serializable {
 	
 	private LocalDateTime uploadTimestamp;
 	
-	@Enumerated(EnumType.STRING)
-	private ImageType type;
+	private String type;
 
 	public Long getId() {
 		return id;
@@ -63,28 +60,16 @@ public class Image implements Serializable {
 		this.uploadTimestamp = uploadTimestamp;
 	}
 
-	public ImageType getType() {
+	public String getType() {
 		return type;
 	}
 
-	public void setType(ImageType type) {
+	public void setType(String type) {
 		this.type = type;
 	}
 
-	public static enum ImageType {
-		
-		JPG("jpeg"), SVG("svg"), PNG("png"), GIF("gif");
-		
-		private String typeString;
-		
-		private ImageType(String typeString) {
-			this.typeString = typeString;
-		}
-
-		public String getTypeString() {
-			return typeString;
-		}
-
+	public String getImgTagSrcAttributeValue() {
+		return "data:image/" + getType() + ";base64," + getData();		
 	}
 	
 }

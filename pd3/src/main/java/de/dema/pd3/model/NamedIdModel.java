@@ -1,5 +1,6 @@
 package de.dema.pd3.model;
 
+import de.dema.pd3.Pd3Util;
 import de.dema.pd3.persistence.User;
 
 public class NamedIdModel {
@@ -38,9 +39,16 @@ public class NamedIdModel {
 	}
 
 	public static NamedIdModel map(User user) {
-		NamedIdModel model = new NamedIdModel();
+		return map(user, new NamedIdModel());
+	}
+
+	public static <T extends NamedIdModel> T map(User user, T model) {
+		if (user == null) {
+			return null;
+		}
+		
 		model.setId(user.getId());
-		model.setName(user.getForename() + " " + user.getSurname());
+		model.setName(Pd3Util.username(user));
 		
 		return model;
 	}

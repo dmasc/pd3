@@ -15,7 +15,7 @@
 	            <form th:action="@{/user/delete-profile-picture}" th:if="${isCurrentUser and user.profilePictureData != null}" method="post" class="profile-picture-delete-form">
 	                <button type="submit" th:alt-title="@{Profilbild löschen}"><img th:src="@{/img/delete.svg}" height="16" width="16" /></button>
 	            </form>
-	            <img th:src="@{${user.profilePictureData != null} ? 'data:image/jpeg;base64,' + ${user.profilePictureData} : '/img/user-round-' + (${not user.male} ? 'fe' : '') + 'male-1.svg'}" class="profile-picture" />
+	            <img th:src="@{${user.profilePictureData != null} ? ${user.profilePictureData} : '/img/user-round-' + (${not user.male} ? 'fe' : '') + 'male-1.svg'}" class="profile-picture" />
             </div>
             <div th:value="${fileSizeExceededLimit}"></div>
             <form th:action="@{/user/upload-profile-picture}" th:if="${isCurrentUser}" method="post" enctype="multipart/form-data">

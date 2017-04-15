@@ -222,20 +222,12 @@ public class User implements Serializable {
 		this.profilePicture = profilePicture;
 	}
 
-	public String getProfilePictureData() {
-		return getProfilePicture() != null ? getProfilePicture().getData() : null;
-	}
-
 	public Image getProfilePictureSmall() {
 		return profilePictureSmall;
 	}
 
 	public void setProfilePictureSmall(Image profilePictureSmall) {
 		this.profilePictureSmall = profilePictureSmall;
-	}
-
-	public String getProfilePictureSmallData() {
-		return getProfilePictureSmall() != null ? getProfilePictureSmall().getData() : null;
 	}
 
 	public static class Builder {

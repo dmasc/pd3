@@ -28,8 +28,8 @@ public class TopicVoteModel extends VoteModelBase {
 		if (vote == null) {
 			return null;
 		}
-		TopicVoteModel model = new TopicVoteModel();
-		VoteModelBase.map(vote, model);
+		
+		TopicVoteModel model = VoteModelBase.map(vote, new TopicVoteModel());
 		model.setTopicId(vote.getTopic().getId());
 		model.setTopicTitle(vote.getTopic().getTitle());
 		

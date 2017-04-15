@@ -9,6 +9,8 @@ import de.dema.pd3.persistence.Topic;
 public class TopicModel {
 
 	private Long id;
+	
+	private NamedIdModel author;
 
 	private String title;
 	
@@ -16,22 +18,26 @@ public class TopicModel {
 	
 	private LocalDateTime deadline;
 	
-	private String author;
-	
 	private int participants;
 	
 	private VoteOption userVoteSelection;
 	
 	private LocalDateTime creationDate;
 	
-	private String userImageData;
-
 	public Long getId() {
 		return id;
 	}
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public NamedIdModel getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(NamedIdModel author) {
+		this.author = author;
 	}
 
 	public String getTitle() {
@@ -58,14 +64,6 @@ public class TopicModel {
 		this.deadline = deadline;
 	}
 
-	public String getAuthor() {
-		return author;
-	}
-
-	public void setAuthor(String author) {
-		this.author = author;
-	}
-
 	public int getParticipants() {
 		return participants;
 	}
@@ -90,14 +88,6 @@ public class TopicModel {
 		this.creationDate = creationDate;
 	}
 
-	public String getUserImageData() {
-		return userImageData;
-	}
-
-	public void setUserImageData(String userImageData) {
-		this.userImageData = userImageData;
-	}
-
 	public boolean isExpired() {
 		return Clock.now().isAfter(this.deadline);
 	}
@@ -108,13 +98,12 @@ public class TopicModel {
 		}
 		
         TopicModel model = new TopicModel();
-        model.setAuthor(topic.getAuthor().getForename() + " " + topic.getAuthor().getSurname());
+        model.setAuthor(NamedIdModel.map(topic.getAuthor()));
         model.setCreationDate(topic.getCreationDate());
         model.setDeadline(topic.getDeadline());
         model.setDescription(topic.getDescription());
         model.setId(topic.getId());
         model.setTitle(topic.getTitle());
-        model.setUserImageData(topic.getAuthor().getProfilePictureSmallData());
 
         return model;
 	}

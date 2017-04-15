@@ -39,18 +39,6 @@ div.comment .date {
 	margin-left: 3px;
 }
 
-div.comment a.author,
-div.comment a.reply {
-	text-decoration: none;
-	color: #b19448;
-	font-weight: 700;
-}
-
-div.comment a.author:hover,
-div.comment a.reply:hover {
-	text-decoration: underline;
-}
-
 div.comment a.usericon,
 div.comment div.usericon {
     height: 50px; 
@@ -86,6 +74,7 @@ div.comment div.text {
 div.comment a.reply {
 	margin-right: 30px;
 	color: #6a97c2;
+    font-weight: 700;
 }
 
 div.comment input.like {

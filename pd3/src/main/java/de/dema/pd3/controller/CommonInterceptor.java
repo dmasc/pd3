@@ -15,7 +15,12 @@ import de.dema.pd3.security.CurrentUser;
 import de.dema.pd3.services.UserService;
 
 /**
- * Ein HandlerInterceptor, der Daten, die von vielen oder allen Seiten gebraucht werden (bspw. "Neue Nachricht verfügbar"), im Model verfügbar macht.
+ * Ein HandlerInterceptor, der Daten, die von vielen oder allen Seiten gebraucht werden (bspw. "Neue Nachricht verfügbar"),
+ * während der Verarbeitung automatisch dem Model hinzufügt, so dass sich nicht jede Controller-Methode einzeln darum 
+ * kümmern muss, die Daten immer mitzuliefern. Es ist allerdings zu beachten, dass die Methode 
+ * {@linkplain #postHandle(HttpServletRequest, HttpServletResponse, Object, ModelAndView)} bei jedem einzelnen Request
+ * aufgerufen wird. So wird die Methode auch zweimal ausgeführt, wenn ein Redirect stattfindet - einmal für den initialen
+ * Request, einmal für den Redirect-Request.
  */
 public class CommonInterceptor extends HandlerInterceptorAdapter {
 

@@ -11,23 +11,25 @@
 		<a th:href="@{${url}(page=${page.number + 1})}" th:classappend="${page.last}?disabled"><img th:src="@{/img/next.svg}" height="16" width="16" th:alt-title="Weiter" /></a>
 	</div>
 
+    <a th:fragment="user-profile-link (model)" th:href="@{/user/profile(id=${model.id})}" th:text="${model.name}" class="user"></a>
+
 	<div th:fragment="comment (model, topicId, pageIndex)">
 		<div class="comment" th:id="${'comment_'+model.id}">
-			<a th:href="@{/user/profile(id=${model.authorId})}" th:alt-title="${model.authorName}" class="usericon">
-			    <img th:src="@{${model.userImageData != null} ? 'data:image/jpeg;base64,' + ${model.userImageData} : '/img/user-round-' + (${not model.authorGenderMale} ? 'fe' : '') + 'male-1.svg'}" class="usericon" />
+			<a th:href="@{/user/profile(id=${model.author.id})}" th:alt-title="${model.author.name}" class="usericon">
+			    <img th:src="@{${model.author.imageData != null} ? ${model.author.imageData} : '/img/user-round-' + (${not model.author.male} ? 'fe' : '') + 'male-1.svg'}" class="usericon" />
 		    </a>
 			<div class="comment-textblock">
-		   		<a th:href="@{/user/profile(id=${model.authorId})}" th:text="${model.authorName}" class="author"></a>
+		   		<a th:replace="components/commonComponents :: user-profile-link (model=${model.author})"></a>
 		   		<span th:text="'am ' + ${{model.creationTimestamp}}" class="date"></span><br/>
 		   		<div th:utext="${model.text}" class="text"></div>
 		   		<a th:href="@{'javascript: showMovingCommentPanel('+${model.id}+','+${topic.id}+')'}" class="reply">Antworten</a>
-		   		<form th:action="@{/comment/delete}" th:if="${model.authorId eq #authentication.principal.id}" method="post" class="comment-delete-form">
+		   		<form th:action="@{/comment/delete}" th:if="${model.author.id eq #authentication.principal.id}" method="post" class="comment-delete-form">
 	   				<input type="hidden" name="commentId" th:value="${model.id}" />
 	   				<input type="hidden" name="page" th:value="${pageIndex}" />
 	   				<input type="hidden" name="topicId" th:value="${topic.id}" />
 			   		<a th:href="'javascript: deleteComment('+${model.id}+');'" class="reply">Löschen</a>
 		   		</form>
-	   			<form th:action="@{/comment/vote}" th:if="${not (model.authorId eq #authentication.principal.id)}" method="post" class="comment-vote">
+	   			<form th:action="@{/comment/vote}" th:if="${not (model.author.id eq #authentication.principal.id)}" method="post" class="comment-vote">
 	   				<input type="hidden" name="topicId" th:value="${topic.id}" />
 	   				<input type="hidden" name="commentId" th:value="${model.id}" />
 	   				<input type="hidden" name="page" th:value="${pageIndex}" />
@@ -54,6 +56,7 @@
                 <span sec:authorize="not isAuthenticated()">nicht angemeldet</span>
             </div>
 	        <div class="column">
+	            <a href="/db" target="pd3dbbrowser" title="Öffnet den H2 Datenbank-Browser in einem separaten Reiter">Datenbank-Browser</a><br/>
 		        <a href="javascript: debug_register()" id="debug-panel-fillout-register-form" title="Füllt das Formular mit definierten Werten aus">Registrierungsformular ausfüllen</a><br/>
 		        <a href="javascript: debug_receiveMessage();" th:class="${#authorization.expression('hasRole(''ROLE_ANONYMOUS'')')}?disabled" id="debug-panel-receive-message" 
 		                title="Sendet eine zufällige Nachricht von einem zufälligen Benutzer an den gerade angemeldeten Benutzer">Nachricht empfangen</a><br/>

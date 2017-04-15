@@ -1,9 +1,9 @@
 package de.dema.pd3.model;
 
+import java.time.LocalDateTime;
+
 import de.dema.pd3.VoteOption;
 import de.dema.pd3.persistence.VoteBase;
-
-import java.time.LocalDateTime;
 
 public class VoteModelBase {
 	
@@ -39,19 +39,19 @@ public class VoteModelBase {
 		return VoteOption.ABSTENTION.equals(this.selectedOption);
 	}
 
-	static void map(VoteBase vote, VoteModelBase target) {
-		target.setVoteTimestamp(vote.getVoteTimestamp());
-		target.setSelectedOption(vote.getSelectedOption());
+	public static VoteModelBase map(VoteBase vote) {
+		return map(vote, new VoteModelBase());
 	}
 	
-	public static VoteModelBase map(VoteBase vote) {
+	public static <T extends VoteModelBase> T map(VoteBase vote, T target) {
 		if (vote == null) {
 			return null;
 		}
-		VoteModelBase model = new VoteModelBase();
-		map(vote, model);
+
+		target.setVoteTimestamp(vote.getVoteTimestamp());
+		target.setSelectedOption(vote.getSelectedOption());
 		
-		return model;
+		return target;
 	}
 	
 }
