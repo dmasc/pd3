@@ -43,7 +43,6 @@ import de.dema.pd3.persistence.ChatroomUser;
 import de.dema.pd3.persistence.ChatroomUser.ChatroomUserId;
 import de.dema.pd3.persistence.ChatroomUserRepository;
 import de.dema.pd3.persistence.Image;
-import de.dema.pd3.persistence.ImageRepository;
 import de.dema.pd3.persistence.Message;
 import de.dema.pd3.persistence.MessageRepository;
 import de.dema.pd3.persistence.PasswordResetToken;
@@ -81,7 +80,7 @@ public class UserService {
 	private PasswordResetTokenRepository passwordTokenRepo;
 
 	@Autowired
-	private ImageRepository imageRepo;
+	private ImageService imageService;
 	
 	@Autowired
 	private MailSender mailSender;
@@ -122,30 +121,26 @@ public class UserService {
 		return RegisterUserModel.map(userRepo.findOne(id));
 	}
 
-	public Long storeProfilePicture(Long userId, MultipartFile file) {
+	public boolean storeProfilePicture(Long userId, MultipartFile file) {
 		log.debug("storing user profile picture [userId:{}]", userId);
 
 		if (!file.isEmpty()) {
 			try {
 				User user = userRepo.findOne(userId);
 				String formatName = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.') + 1).toUpperCase();
-				byte[] originalImageBytes = file.getBytes();
-				byte[] resizedImage = ImageService.resize(originalImageBytes, formatName, 300, 300);
-				if (resizedImage != null) {
-					Image image = new Image.Builder(resizedImage).owner(user).type(formatName).build();
-					Image big = imageRepo.save(image);
-					
-					image = new Image.Builder(ImageService.resize(originalImageBytes, formatName, 50, 50)).owner(user).type(formatName).build();
-					image = imageRepo.save(image);
+				byte[] originalImage = file.getBytes();
+				Image big = imageService.save(user, originalImage, formatName, 300, 300);
+				if (big != null) {
+					Image small = imageService.save(user, originalImage, formatName, 50, 50);
 	
 					if (user.getProfilePicture() != null) {
-						deleteProfilePicture(userId);
+						deleteProfilePictures(userId);
 					}
 					user.setProfilePicture(big);
-					user.setProfilePictureSmall(image);
+					user.setProfilePictureSmall(small);
 					userRepo.save(user);
 					log.info("user profile picture stored [userId:{}]", userId);
-					return image.getId();
+					return true;
 				} else {
 					log.warn("user profile picture could not be resized [userId:{}] [file:{}]", userId, file.getOriginalFilename());					
 				}
@@ -155,10 +150,10 @@ public class UserService {
 		} else {
 			log.debug("storing user profile picture failed, uploaded file is empty [userId:{}]", userId);
 		}
-		return null;
+		return false;
 	}
 	
-	public void deleteProfilePicture(Long userId) {
+	public void deleteProfilePictures(Long userId) {
 		log.debug("deleting user profile picture [userId:{}]", userId);
 		
 		User user = userRepo.findOne(userId);
@@ -168,8 +163,8 @@ public class UserService {
 			user.setProfilePicture(null);
 			user.setProfilePictureSmall(null);
 			userRepo.save(user);
-			imageRepo.delete(big);
-			imageRepo.delete(small);
+			imageService.delete(big);
+			imageService.delete(small);
 			log.info("user profile picture deleted [userId:{}]", userId);
 		}
 	}

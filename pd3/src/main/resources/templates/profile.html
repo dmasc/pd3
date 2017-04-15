@@ -22,6 +22,7 @@
                 <label>Neues Profilbild hochladen (max. 5 MB):</label><br/>
                 <label th:if="${param.fileSizeExceededLimit}" class="field-error">Die ausgewählte Datei ist zu groß<br/></label>
                 <label th:if="${param.noFileSelected}" class="field-error">Bitte wählen Sie eine Datei aus<br/></label>
+                <label th:if="${param.uploadError}" class="field-error">Es trat ein Fehler auf, bitte versuchen Sie es erneut<br/></label>
                 <input type="file" name="file" accept="image/*" /><button type="submit" th:alt-title="@{Ausgewählte Datei hochladen}"> 
                     <img th:src="@{/img/upload.svg}" height="16" width="16" />
                 </button>

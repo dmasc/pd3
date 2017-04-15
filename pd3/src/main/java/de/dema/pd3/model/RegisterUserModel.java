@@ -185,7 +185,9 @@ public class RegisterUserModel extends NamedIdModel {
 		model.setStreet(user.getStreet());
 		model.setSurname(user.getSurname());
 		model.setZip(user.getZip());
-		model.setProfilePictureData(user.getProfilePicture().getImgTagSrcAttributeValue());
+		if (user.getProfilePicture() != null) {
+			model.setProfilePictureData(user.getProfilePicture().getImgTagSrcAttributeValue());
+		}
 		
 		return model;
 	}

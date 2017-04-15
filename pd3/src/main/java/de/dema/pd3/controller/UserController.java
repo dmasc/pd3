@@ -91,16 +91,19 @@ public class UserController {
     
     @PostMapping("/user/upload-profile-picture")
     public String uploadProfilePicture(@RequestParam("file") MultipartFile file, Authentication auth, RedirectAttributes attr) {
-    	Long imageId = userService.storeProfilePicture(Pd3Util.currentUserId(auth), file);
-    	if (imageId == null) {
+    	if (file.isEmpty()) {
     		attr.addAttribute("noFileSelected", true);
+    		return "redirect:/user/profile";
+    	}
+    	if (!userService.storeProfilePicture(Pd3Util.currentUserId(auth), file)) {
+    		attr.addAttribute("uploadError", true);
     	}
 		return "redirect:/user/profile";
     }
     
     @PostMapping("/user/delete-profile-picture")
     public String deleteProfilePicture(Authentication auth) {
-    	userService.deleteProfilePicture(Pd3Util.currentUserId(auth));
+    	userService.deleteProfilePictures(Pd3Util.currentUserId(auth));
     	return "redirect:/user/profile";
     }
     

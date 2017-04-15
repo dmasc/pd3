@@ -35,8 +35,6 @@ import de.dema.pd3.persistence.Comment;
 import de.dema.pd3.persistence.CommentRepository;
 import de.dema.pd3.persistence.CommentVote;
 import de.dema.pd3.persistence.CommentVoteRepository;
-import de.dema.pd3.persistence.Image;
-import de.dema.pd3.persistence.ImageRepository;
 import de.dema.pd3.persistence.Message;
 import de.dema.pd3.persistence.Topic;
 import de.dema.pd3.persistence.TopicRepository;
@@ -74,7 +72,7 @@ public class TestDataController {
 	private ChatroomRepository chatroomRepo;
 	
 	@Autowired
-	private ImageRepository imageRepo;
+	private ImageService imageService;
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -164,13 +162,8 @@ public class TestDataController {
 	private void storeProfileImage(User user, Resource imageResource, String type) {
 		try {
 			byte[] data = IOUtils.toByteArray(imageResource.getInputStream());
-			Image image = new Image.Builder(ImageService.resize(data, type, 300, 300)).owner(user).type(type).build();
-			Image big = imageRepo.save(image);
-			user.setProfilePicture(big);
-			
-			image = new Image.Builder(ImageService.resize(data, type, 50, 50)).owner(user).type(type).build();
-			image = imageRepo.save(image);
-			user.setProfilePictureSmall(image);
+			user.setProfilePicture(imageService.save(user, data, type, 300, 300));
+			user.setProfilePictureSmall(imageService.save(user, data, type, 50, 50));
 			
 			userRepo.save(user);
 		} catch (IOException e) {
