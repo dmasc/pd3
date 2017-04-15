@@ -17,7 +17,7 @@
 	    		<span th:utext="*{description}"></span>
 	    	</div>
 			<div class="footer">
-				<form th:if="*{running}" th:action="@{/topic/vote}" method="post" style="display: inline-block;">
+				<form th:if="*{not expired}" th:action="@{/topic/vote}" method="post" style="display: inline-block;">
 					<input type="hidden" name="topicId" th:value="*{id}" />
 					<input th:disabled="${(topicVote eq T(de.dema.pd3.VoteOption).ACCEPTED?true:false)}" type="submit" name="voteYes" value="Mit Ja stimmen" />
 					<input th:disabled="${(topicVote eq T(de.dema.pd3.VoteOption).REJECTED?true:false)}" type="submit" name="voteNo" value="Mit Nein stimmen" />

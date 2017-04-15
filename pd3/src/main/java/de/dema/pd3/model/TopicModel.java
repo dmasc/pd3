@@ -98,8 +98,8 @@ public class TopicModel {
 		this.userImageData = userImageData;
 	}
 
-	public boolean isRunning() {
-		return Clock.now().isBefore(this.deadline);
+	public boolean isExpired() {
+		return Clock.now().isAfter(this.deadline);
 	}
 
 	public static TopicModel map(Topic topic) {

@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 
 /**
  * Sicherheitskonfiguration für die Web-Anwendung. Durch die Annotationen erkennt Spring diese Klasse automatisch.
@@ -18,7 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
-	private static final int THREE_MONTH_IN_SECONDS = 7776000;
+	public static final int THREE_MONTH_IN_SECONDS = 7776000;
 
 	@Autowired
 	private UserDetailsService userDetailsService;
@@ -28,6 +30,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
 	private Pd3AuthenticationSuccessHandler successHandler;
+	
+	@Autowired
+	private RememberMeServices rememberMeServices;
 	
 	// Der Wert kann in der Run Config als VM-Parameter gesetzt werden: -Ddebugpanel=true
 	@Value("${debugpanel:false}")
@@ -53,9 +58,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
         	.rememberMe()
-        		.userDetailsService(userDetailsService)
-        		.tokenValiditySeconds(THREE_MONTH_IN_SECONDS);
-//        		.authenticationSuccessHandler(successHandler); -- geht nicht, wenn SESSIONID gelöscht und Seite refresht wird - es erfolgt immer ein Redirect zu Home
+        		.key(PersistentTokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY)
+        		.rememberMeServices(rememberMeServices)
+        		.authenticationSuccessHandler(successHandler);
 
         // Bei aktiviertem CSRF geht die H2 Console nicht und es wird daher deaktiviert
         http.csrf().disable();
